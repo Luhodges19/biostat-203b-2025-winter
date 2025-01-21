@@ -74,14 +74,54 @@ ls -l ~/mimic/icu/
 
 **These data files were distrbuted as `gz` files because they are giant files and allows them to be downloaded and distributed faster and easier.**
 
-Briefly describe what Bash commands zcat, zless, zmore, and zgrep do.
+3. Briefly describe what Bash commands zcat, zless, zmore, and zgrep do.
 
-(Looping in Bash) What’s the output of the following bash script?
+**Solution** Zcat will compress from standard input or decompress to standard output.
 
+**Solution** Zmore views compressed files, but cannot navigate as easily
+
+**Solution** Zless views compressed files with easy navigation line by line
+
+**Solution** Zgrep searches compressed files for terms and returns with matching lines. 
+
+4. (Looping in Bash) What’s the output of the following bash script?
+
+
+**Solution** Here is the output
+
+```{bash}
 for datafile in ~/mimic/hosp/{a,l,pa}*.gz
 do
   ls -l $datafile
 done
+```
+
+**Solution** Here are the lines in admissions file
+
+```{bash}
+for datafile in ~/mimic/hosp/admissions.csv.gz
+do
+zcat < $datafile | wc -l
+done
+```
+
+**Solution** Here are the lines in the labevents file
+
+```{bash}
+for datafile in ~/mimic/hosp/labevents.csv.gz
+do
+zcat < $datafile | wc -l
+done
+```
+
+**Solution** Here are the lines in the patients file
+
+```{bash}
+for datafile in ~/mimic/hosp/patients.csv.gz
+do
+zcat < $datafile | wc -l
+done
+```
 
 Display the number of lines in each data file using a similar loop. (Hint: combine linux commands zcat < and wc -l.)
 
