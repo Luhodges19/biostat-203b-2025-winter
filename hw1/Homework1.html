@@ -6,7 +6,7 @@
 
 <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=yes">
 
-<meta name="author" content="and UID">
+<meta name="author" content="Luke Hodges nd UID">
 
 <title>Biostat 203B Homework 1</title>
 <style>
@@ -3107,7 +3107,7 @@ vertical-align: -.125em;
     <div>
     <div class="quarto-title-meta-heading">Author</div>
     <div class="quarto-title-meta-contents">
-             <p>and UID </p>
+             <p>Luke Hodges nd UID </p>
           </div>
   </div>
     
@@ -3252,6 +3252,7 @@ lrwxr-xr-x   1 lukehodges  staff     38 Jan 20 19:35 mimic-iv-3.1 -&gt; /Users/l
 -rw-r--r--@ 1 lukehodges  staff  2835586 Apr 12  2024 /Users/lukehodges/mimic/hosp/patients.csv.gz</code></pre>
 </div>
 </div>
+<p>Display the number of lines in each data file using a similar loop. (Hint: combine linux commands zcat &lt; and wc -l.)</p>
 <p><strong>Solution</strong> Here are the lines in admissions file</p>
 <div class="cell">
 <div class="sourceCode cell-code" id="cb11"><pre class="sourceCode bash code-with-copy"><code class="sourceCode bash"><span id="cb11-1"><a href="#cb11-1" aria-hidden="true" tabindex="-1"></a><span class="cf">for</span> datafile <span class="kw">in</span> ~/mimic/hosp/admissions.csv.gz</span>
@@ -3282,11 +3283,108 @@ lrwxr-xr-x   1 lukehodges  staff     38 Jan 20 19:35 mimic-iv-3.1 -&gt; /Users/l
 <pre><code>  364628</code></pre>
 </div>
 </div>
-<p>Display the number of lines in each data file using a similar loop. (Hint: combine linux commands zcat &lt; and wc -l.)</p>
-<p>Display the first few lines of admissions.csv.gz. How many rows are in this data file, excluding the header line? Each hadm_id identifies a hospitalization. How many hospitalizations are in this data file? How many unique patients (identified by subject_id) are in this data file? Do they match the number of patients listed in the patients.csv.gz file? (Hint: combine Linux commands zcat &lt;, head/tail, awk, sort, uniq, wc, and so on.)</p>
-<p>What are the possible values taken by each of the variable admission_type, admission_location, insurance, and ethnicity? Also report the count for each unique value of these variables in decreasing order. (Hint: combine Linux commands zcat, head/tail, awk, uniq -c, wc, sort, and so on; skip the header line.)</p>
-<p>The icusays.csv.gz file contains all the ICU stays during the study period. How many ICU stays, identified by stay_id, are in this data file? How many unique patients, identified by subject_id, are in this data file?</p>
-<p>To compress, or not to compress. That’s the question. Let’s focus on the big data file labevents.csv.gz. Compare compressed gz file size to the uncompressed file size. Compare the run times of zcat &lt; ~/mimic/labevents.csv.gz | wc -l versus wc -l labevents.csv. Discuss the trade off between storage and speed for big data files. (Hint: gzip -dk &lt; FILENAME.gz &gt; ./FILENAME. Remember to delete the large labevents.csv file after the exercise.)</p>
+<ol start="5" type="1">
+<li>Display the first few lines of admissions.csv.gz. How many rows are in this data file, excluding the header line? Each hadm_id identifies a hospitalization. How many hospitalizations are in this data file? How many unique patients (identified by subject_id) are in this data file? Do they match the number of patients listed in the patients.csv.gz file? (Hint: combine Linux commands zcat &lt;, head/tail, awk, sort, uniq, wc, and so on.)</li>
+</ol>
+<p><strong>Solution</strong> Here are the first few lines of admissions.csv.gz</p>
+<div class="cell">
+<div class="sourceCode cell-code" id="cb17"><pre class="sourceCode bash code-with-copy"><code class="sourceCode bash"><span id="cb17-1"><a href="#cb17-1" aria-hidden="true" tabindex="-1"></a><span class="cf">for</span> datafile <span class="kw">in</span> ~/mimic/hosp/admissions.csv.gz</span>
+<span id="cb17-2"><a href="#cb17-2" aria-hidden="true" tabindex="-1"></a><span class="cf">do</span></span>
+<span id="cb17-3"><a href="#cb17-3" aria-hidden="true" tabindex="-1"></a><span class="fu">zcat</span> <span class="op">&lt;</span> <span class="va">$datafile</span> <span class="kw">|</span> <span class="fu">head</span></span>
+<span id="cb17-4"><a href="#cb17-4" aria-hidden="true" tabindex="-1"></a><span class="cf">done</span></span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="cell-output cell-output-stdout">
+<pre><code>subject_id,hadm_id,admittime,dischtime,deathtime,admission_type,admit_provider_id,admission_location,discharge_location,insurance,language,marital_status,race,edregtime,edouttime,hospital_expire_flag
+10000032,22595853,2180-05-06 22:23:00,2180-05-07 17:15:00,,URGENT,P49AFC,TRANSFER FROM HOSPITAL,HOME,Medicaid,English,WIDOWED,WHITE,2180-05-06 19:17:00,2180-05-06 23:30:00,0
+10000032,22841357,2180-06-26 18:27:00,2180-06-27 18:49:00,,EW EMER.,P784FA,EMERGENCY ROOM,HOME,Medicaid,English,WIDOWED,WHITE,2180-06-26 15:54:00,2180-06-26 21:31:00,0
+10000032,25742920,2180-08-05 23:44:00,2180-08-07 17:50:00,,EW EMER.,P19UTS,EMERGENCY ROOM,HOSPICE,Medicaid,English,WIDOWED,WHITE,2180-08-05 20:58:00,2180-08-06 01:44:00,0
+10000032,29079034,2180-07-23 12:35:00,2180-07-25 17:55:00,,EW EMER.,P06OTX,EMERGENCY ROOM,HOME,Medicaid,English,WIDOWED,WHITE,2180-07-23 05:54:00,2180-07-23 14:00:00,0
+10000068,25022803,2160-03-03 23:16:00,2160-03-04 06:26:00,,EU OBSERVATION,P39NWO,EMERGENCY ROOM,,,English,SINGLE,WHITE,2160-03-03 21:55:00,2160-03-04 06:26:00,0
+10000084,23052089,2160-11-21 01:56:00,2160-11-25 14:52:00,,EW EMER.,P42H7G,WALK-IN/SELF REFERRAL,HOME HEALTH CARE,Medicare,English,MARRIED,WHITE,2160-11-20 20:36:00,2160-11-21 03:20:00,0
+10000084,29888819,2160-12-28 05:11:00,2160-12-28 16:07:00,,EU OBSERVATION,P35NE4,PHYSICIAN REFERRAL,,Medicare,English,MARRIED,WHITE,2160-12-27 18:32:00,2160-12-28 16:07:00,0
+10000108,27250926,2163-09-27 23:17:00,2163-09-28 09:04:00,,EU OBSERVATION,P40JML,EMERGENCY ROOM,,,English,SINGLE,WHITE,2163-09-27 16:18:00,2163-09-28 09:04:00,0
+10000117,22927623,2181-11-15 02:05:00,2181-11-15 14:52:00,,EU OBSERVATION,P47EY8,EMERGENCY ROOM,,Medicaid,English,DIVORCED,WHITE,2181-11-14 21:51:00,2181-11-15 09:57:00,0</code></pre>
+</div>
+</div>
+<p><strong>Solution</strong> Counting the total number of rows excluding the header</p>
+<div class="cell">
+<div class="sourceCode cell-code" id="cb19"><pre class="sourceCode bash code-with-copy"><code class="sourceCode bash"><span id="cb19-1"><a href="#cb19-1" aria-hidden="true" tabindex="-1"></a><span class="fu">zcat</span> <span class="op">&lt;</span> ~/mimic/hosp/admissions.csv.gz <span class="kw">|</span> <span class="fu">tail</span> <span class="at">-n</span> +2 <span class="kw">|</span> <span class="fu">wc</span> <span class="at">-l</span></span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="cell-output cell-output-stdout">
+<pre><code>  546028</code></pre>
+</div>
+</div>
+<p><strong>Solution</strong> Number of unique hospitalizations</p>
+<div class="cell">
+<div class="sourceCode cell-code" id="cb21"><pre class="sourceCode bash code-with-copy"><code class="sourceCode bash"><span id="cb21-1"><a href="#cb21-1" aria-hidden="true" tabindex="-1"></a><span class="fu">zcat</span> <span class="op">&lt;</span> ~/mimic/hosp/admissions.csv.gz <span class="kw">|</span> </span>
+<span id="cb21-2"><a href="#cb21-2" aria-hidden="true" tabindex="-1"></a><span class="fu">tail</span> <span class="at">-n</span> +2 <span class="kw">|</span></span>
+<span id="cb21-3"><a href="#cb21-3" aria-hidden="true" tabindex="-1"></a><span class="fu">awk</span> <span class="at">-F,</span> <span class="st">&#39;{print $2}&#39;</span> <span class="kw">|</span></span>
+<span id="cb21-4"><a href="#cb21-4" aria-hidden="true" tabindex="-1"></a><span class="fu">sort</span> <span class="kw">|</span></span>
+<span id="cb21-5"><a href="#cb21-5" aria-hidden="true" tabindex="-1"></a><span class="fu">uniq</span> <span class="kw">|</span></span>
+<span id="cb21-6"><a href="#cb21-6" aria-hidden="true" tabindex="-1"></a><span class="fu">wc</span> <span class="at">-l</span></span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="cell-output cell-output-stdout">
+<pre><code>  546028</code></pre>
+</div>
+</div>
+<p>The number of rows is the number of unique hospitalizations.</p>
+<p>Peek the first few lines of ‘patients.csv.gz’</p>
+<div class="cell">
+<div class="sourceCode cell-code" id="cb23"><pre class="sourceCode bash code-with-copy"><code class="sourceCode bash"><span id="cb23-1"><a href="#cb23-1" aria-hidden="true" tabindex="-1"></a><span class="fu">zcat</span> <span class="op">&lt;</span> ~/mimic/hosp/patients.csv.gz <span class="kw">|</span> <span class="fu">head</span></span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="cell-output cell-output-stdout">
+<pre><code>subject_id,gender,anchor_age,anchor_year,anchor_year_group,dod
+10000032,F,52,2180,2014 - 2016,2180-09-09
+10000048,F,23,2126,2008 - 2010,
+10000058,F,33,2168,2020 - 2022,
+10000068,F,19,2160,2008 - 2010,
+10000084,M,72,2160,2017 - 2019,2161-02-13
+10000102,F,27,2136,2008 - 2010,
+10000108,M,25,2163,2014 - 2016,
+10000115,M,24,2154,2017 - 2019,
+10000117,F,48,2174,2008 - 2010,</code></pre>
+</div>
+</div>
+<p>The number of unique patients in this file is:</p>
+<div class="cell">
+<div class="sourceCode cell-code" id="cb25"><pre class="sourceCode bash code-with-copy"><code class="sourceCode bash"><span id="cb25-1"><a href="#cb25-1" aria-hidden="true" tabindex="-1"></a><span class="fu">zcat</span> <span class="op">&lt;</span> ~/mimic/hosp/admissions.csv.gz <span class="kw">|</span> </span>
+<span id="cb25-2"><a href="#cb25-2" aria-hidden="true" tabindex="-1"></a><span class="fu">tail</span> <span class="at">-n</span> +2 <span class="kw">|</span></span>
+<span id="cb25-3"><a href="#cb25-3" aria-hidden="true" tabindex="-1"></a><span class="fu">awk</span> <span class="at">-F,</span> <span class="st">&#39;{print $1}&#39;</span> <span class="kw">|</span></span>
+<span id="cb25-4"><a href="#cb25-4" aria-hidden="true" tabindex="-1"></a><span class="fu">sort</span> <span class="kw">|</span></span>
+<span id="cb25-5"><a href="#cb25-5" aria-hidden="true" tabindex="-1"></a><span class="fu">uniq</span> <span class="kw">|</span></span>
+<span id="cb25-6"><a href="#cb25-6" aria-hidden="true" tabindex="-1"></a><span class="fu">wc</span> <span class="at">-l</span></span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="cell-output cell-output-stdout">
+<pre><code>  223452</code></pre>
+</div>
+</div>
+<p>This should match the number in the patients file</p>
+<div class="cell">
+<div class="sourceCode cell-code" id="cb27"><pre class="sourceCode bash code-with-copy"><code class="sourceCode bash"><span id="cb27-1"><a href="#cb27-1" aria-hidden="true" tabindex="-1"></a><span class="fu">zcat</span> <span class="op">&lt;</span> ~/mimic/hosp/patients.csv.gz <span class="kw">|</span> </span>
+<span id="cb27-2"><a href="#cb27-2" aria-hidden="true" tabindex="-1"></a><span class="fu">tail</span> <span class="at">-n</span> +2 <span class="kw">|</span></span>
+<span id="cb27-3"><a href="#cb27-3" aria-hidden="true" tabindex="-1"></a><span class="fu">awk</span> <span class="at">-F,</span> <span class="st">&#39;{print $1}&#39;</span> <span class="kw">|</span></span>
+<span id="cb27-4"><a href="#cb27-4" aria-hidden="true" tabindex="-1"></a><span class="fu">sort</span> <span class="kw">|</span></span>
+<span id="cb27-5"><a href="#cb27-5" aria-hidden="true" tabindex="-1"></a><span class="fu">uniq</span> <span class="kw">|</span></span>
+<span id="cb27-6"><a href="#cb27-6" aria-hidden="true" tabindex="-1"></a><span class="fu">wc</span> <span class="at">-l</span></span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="cell-output cell-output-stdout">
+<pre><code>  364627</code></pre>
+</div>
+</div>
+<p>The total number of unique patients in the admissions file is less.</p>
+<ol start="6" type="1">
+<li>What are the possible values taken by each of the variable admission_type, admission_location, insurance, and ethnicity? Also report the count for each unique value of these variables in decreasing order. (Hint: combine Linux commands zcat, head/tail, awk, uniq -c, wc, sort, and so on; skip the header line.)</li>
+</ol>
+<div class="cell">
+<div class="sourceCode cell-code" id="cb29"><pre class="sourceCode bash code-with-copy"><code class="sourceCode bash"><span id="cb29-1"><a href="#cb29-1" aria-hidden="true" tabindex="-1"></a><span class="fu">zcat</span> <span class="op">&lt;</span>- ~/mimic/hosp/admissions.csv.gz <span class="kw">|</span> </span>
+<span id="cb29-2"><a href="#cb29-2" aria-hidden="true" tabindex="-1"></a><span class="fu">tail</span> <span class="at">-n</span> +2 <span class="kw">|</span></span>
+<span id="cb29-3"><a href="#cb29-3" aria-hidden="true" tabindex="-1"></a><span class="fu">cut</span> <span class="at">-d,</span> <span class="at">-f2</span> <span class="kw">|</span></span>
+<span id="cb29-4"><a href="#cb29-4" aria-hidden="true" tabindex="-1"></a><span class="fu">sort</span> <span class="kw">|</span></span>
+<span id="cb29-5"><a href="#cb29-5" aria-hidden="true" tabindex="-1"></a><span class="fu">uniq</span> <span class="kw">|</span></span>
+<span id="cb29-6"><a href="#cb29-6" aria-hidden="true" tabindex="-1"></a><span class="fu">wc</span> <span class="at">-l</span></span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="cell-output cell-output-stdout">
+<pre><code>bash: -: No such file or directory
+       0</code></pre>
+</div>
+</div>
+<ol start="7" type="1">
+<li><p>The icusays.csv.gz file contains all the ICU stays during the study period. How many ICU stays, identified by stay_id, are in this data file? How many unique patients, identified by subject_id, are in this data file?</p></li>
+<li><p>To compress, or not to compress. That’s the question. Let’s focus on the big data file labevents.csv.gz. Compare compressed gz file size to the uncompressed file size. Compare the run times of zcat &lt; ~/mimic/labevents.csv.gz | wc -l versus wc -l labevents.csv. Discuss the trade off between storage and speed for big data files. (Hint: gzip -dk &lt; FILENAME.gz &gt; ./FILENAME. Remember to delete the large labevents.csv file after the exercise.)</p></li>
+</ol>
 </section>
 
 </main>

@@ -1,7 +1,7 @@
 ---
 title: "Biostat 203B Homework 1"
 subtitle: Due Jan 24, 2025 @ 11:59PM
-author: and UID
+author: Luke Hodges nd UID
 format:
   html:
     theme: cosmo
@@ -96,6 +96,8 @@ do
 done
 ```
 
+Display the number of lines in each data file using a similar loop. (Hint: combine linux commands zcat < and wc -l.)
+
 **Solution** Here are the lines in admissions file
 
 ```{bash}
@@ -123,12 +125,180 @@ zcat < $datafile | wc -l
 done
 ```
 
-Display the number of lines in each data file using a similar loop. (Hint: combine linux commands zcat < and wc -l.)
+5. Display the first few lines of admissions.csv.gz. How many rows are in this data file, excluding the header line? Each hadm_id identifies a hospitalization. How many hospitalizations are in this data file? How many unique patients (identified by subject_id) are in this data file? Do they match the number of patients listed in the patients.csv.gz file? (Hint: combine Linux commands zcat <, head/tail, awk, sort, uniq, wc, and so on.)
 
-Display the first few lines of admissions.csv.gz. How many rows are in this data file, excluding the header line? Each hadm_id identifies a hospitalization. How many hospitalizations are in this data file? How many unique patients (identified by subject_id) are in this data file? Do they match the number of patients listed in the patients.csv.gz file? (Hint: combine Linux commands zcat <, head/tail, awk, sort, uniq, wc, and so on.)
+**Solution** Here are the first few lines of admissions.csv.gz
 
-What are the possible values taken by each of the variable admission_type, admission_location, insurance, and ethnicity? Also report the count for each unique value of these variables in decreasing order. (Hint: combine Linux commands zcat, head/tail, awk, uniq -c, wc, sort, and so on; skip the header line.)
+```{bash}
+for datafile in ~/mimic/hosp/admissions.csv.gz
+do
+zcat < $datafile | head
+done
+```
 
-The icusays.csv.gz file contains all the ICU stays during the study period. How many ICU stays, identified by stay_id, are in this data file? How many unique patients, identified by subject_id, are in this data file?
+**Solution** Counting the total number of rows excluding the header
 
-To compress, or not to compress. That’s the question. Let’s focus on the big data file labevents.csv.gz. Compare compressed gz file size to the uncompressed file size. Compare the run times of zcat < ~/mimic/labevents.csv.gz | wc -l versus wc -l labevents.csv. Discuss the trade off between storage and speed for big data files. (Hint: gzip -dk < FILENAME.gz > ./FILENAME. Remember to delete the large labevents.csv file after the exercise.)
+```{bash}
+zcat < ~/mimic/hosp/admissions.csv.gz | tail -n +2 | wc -l
+```
+
+**Solution** Number of unique hospitalizations
+```{bash}
+zcat < ~/mimic/hosp/admissions.csv.gz | 
+tail -n +2 |
+awk -F, '{print $2}' |
+sort |
+uniq |
+wc -l
+```
+The number of rows is the number of unique hospitalizations. 
+
+Peek the first few lines of 'patients.csv.gz'
+```{bash}
+zcat < ~/mimic/hosp/patients.csv.gz | head
+```
+
+The number of unique patients in this file is: 
+
+```{bash}
+zcat < ~/mimic/hosp/admissions.csv.gz | 
+tail -n +2 |
+awk -F, '{print $1}' |
+sort |
+uniq |
+wc -l
+```
+
+This should match the number in the patients file 
+
+```{bash}
+zcat < ~/mimic/hosp/patients.csv.gz | 
+tail -n +2 |
+awk -F, '{print $1}' |
+sort |
+uniq |
+wc -l
+```
+The total number of unique patients in the admissions file is less. 
+
+6. What are the possible values taken by each of the variable admission_type, admission_location, insurance, and ethnicity? Also report the count for each unique value of these variables in decreasing order. (Hint: combine Linux commands zcat, head/tail, awk, uniq -c, wc, sort, and so on; skip the header line.)
+
+**Solution** You need to first examine the admissions file. 
+
+```{bash}
+zcat < ~/mimic/hosp/admissions.csv.gz | head
+```
+Admission type is the sixth column so the possible values include: 
+
+```{bash}
+zcat < ~/mimic/hosp/admissions.csv.gz | 
+tail -n +2 |
+awk -F, '{print $6}' |
+sort |
+uniq |
+wc -l
+```
+So there are nine different admission types. 
+
+For Admissions location, 
+
+```{bash}
+zcat < ~/mimic/hosp/admissions.csv.gz | 
+tail -n +2 |
+awk -F, '{print $8}' |
+sort |
+uniq |
+wc -l
+```
+There are twelve different admission types. 
+
+For insurance, 
+
+```{bash}
+zcat < ~/mimic/hosp/admissions.csv.gz | 
+tail -n +2 |
+awk -F, '{print $10}' |
+sort |
+uniq |
+wc -l
+```
+There are six insurance
+
+For ethnicity
+```{bash}
+zcat < ~/mimic/hosp/admissions.csv.gz | 
+tail -n +2 |
+awk -F, '{print $13}' |
+sort |
+uniq |
+wc -l
+```
+There are 33 ethnicities.
+
+7. The icusays.csv.gz file contains all the ICU stays during the study period. How many ICU stays, identified by stay_id, are in this data file? How many unique patients, identified by subject_id, are in this data file?
+
+**Solution**
+
+To start, we must peek into the icusays.csv.gz file 
+
+```{bash}
+zcat < ~/mimic/icu/icustays.csv.gz | head
+```
+
+The number of ICU stays identified by stay_id
+
+```{bash}
+zcat < ~/mimic/icu/icustays.csv.gz | 
+tail -n +2 |
+awk -F, '{print $3}' |
+sort |
+uniq |
+wc -l
+```
+There are 94458 ICU stays identified by the stay_id
+
+The number of patients identified by subject_id
+
+```{bash}
+zcat < ~/mimic/hosp/admissions.csv.gz | 
+tail -n +2 |
+awk -F, '{print $1}' |
+sort |
+uniq |
+wc -l
+```
+There are 223452 patients identified by subject_id
+
+8. To compress, or not to compress. That’s the question. Let’s focus on the big data file labevents.csv.gz. Compare compressed gz file size to the uncompressed file size. Compare the run times of zcat < ~/mimic/labevents.csv.gz | wc -l versus wc -l labevents.csv. Discuss the trade off between storage and speed for big data files. (Hint: gzip -dk < FILENAME.gz > ./FILENAME. Remember to delete the large labevents.csv file after the exercise.)
+
+Checking file size for the compressed version
+```{bash}
+ls -lh ~/mimic/hosp/labevents.csv.gz
+```
+This file is 2.4G 
+Checking file size for the uncompressed version
+```{bash}
+ls -lh ~/mimic/hosp/labevents.csv
+```
+This file is 17G
+
+Comparing the run times of the compressed and uncompressed 
+
+For Compressed
+
+```{bash}
+time zcat < ~/mimic/hosp/labevents.csv.gz | wc -l
+```
+For Uncompressed 
+
+```{bash}
+time wc -l ~/mimic/hosp/labevents.csv
+```
+
+This shows that compressed is slower than uncompressed. 
+
+This is because compressed has to go through the decompressing of the file 
+
+In other words, compressed saves storage, but slows time
+
+Uncompressed takes up storage, but is faster. 
