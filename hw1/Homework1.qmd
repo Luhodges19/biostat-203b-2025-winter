@@ -304,32 +304,36 @@ In other words, compressed saves storage, but slows time
 Uncompressed takes up storage, but is faster. 
 
 Q4. Who’s popular in Price and Prejudice
+
 1. You and your friend just have finished reading Pride and Prejudice by Jane Austen. Among the four main characters in the book, Elizabeth, Jane, Lydia, and Darcy, your friend thinks that Darcy was the most mentioned. You, however, are certain it was Elizabeth. Obtain the full text of the novel from http://www.gutenberg.org/cache/epub/42671/pg42671.txt and save to your local folder.
 
 ```{bash}
-wget -nc /User/lukehodges/Downloads/pg42671.txt
+wget -nc http://www.gutenberg.org/cache/epub/42671/pg42671.txt
 for char in Elizabeth Jane Lydia Darcy
 do
   echo $char:
-  # some bash commands here
+  grep -n "$char" pg42671.txt | wc -l
 done
 ```
 
 Explain what wget -nc does. Do not put this text file pg42671.txt in Git. Complete the following loop to tabulate the number of times each of the four characters is mentioned using Linux commands.
 
-wget -nc http://www.gutenberg.org/cache/epub/42671/pg42671.txt
-for char in Elizabeth Jane Lydia Darcy
-do
-  echo $char:
-  # some bash commands here
-done
+Wget -nc downloads the file, but not replicated if it already is downloaded. 
 
-What’s the difference between the following two commands?
+2. What’s the difference between the following two commands?
+
+```{bash}
 echo 'hello, world' > test1.txt
-
+```
 and
 
+```{bash}
 echo 'hello, world' >> test2.txt
+```
+
+The first command directs the output to the test1.txt, saying 'hello, world'. 
+
+The second command appends (adds it) to a file named test2. txt. 
 
 Using your favorite text editor (e.g., vi), type the following and save the file as middle.sh:
 #!/bin/sh
@@ -339,9 +343,16 @@ head -n "$2" "$1" | tail -n "$3"
 
 Using chmod to make the file executable by the owner, and run
 
-./middle.sh pg42671.txt 20 5
+```{bash}
+chmod 751 /Users/lukehodges/desktop/middle.sh
+```
 
+```{bash}
+/Users/lukehodges/desktop/middle.sh pg42671.txt 20 5
+```
 Explain the output. Explain the meaning of "$1", "$2", and "$3" in this shell script. Why do we need the first line of the shell script?
+
+**Fill Out What They Mean**
 
 #Q5. More fun with Linux
 Try following commands in Bash and interpret the results: cal, cal 2025, cal 9 1752 (anything unusual?), date, hostname, arch, uname -a, uptime, who am i, who, w, id, last | head, echo {con,pre}{sent,fer}{s,ed}, time sleep 5, history | tail.
@@ -425,3 +436,4 @@ time sleep 5
 history | tail
 ```
 **Displays the last several commands executed**
+
