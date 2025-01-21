@@ -302,3 +302,126 @@ This is because compressed has to go through the decompressing of the file
 In other words, compressed saves storage, but slows time
 
 Uncompressed takes up storage, but is faster. 
+
+Q4. Who’s popular in Price and Prejudice
+1. You and your friend just have finished reading Pride and Prejudice by Jane Austen. Among the four main characters in the book, Elizabeth, Jane, Lydia, and Darcy, your friend thinks that Darcy was the most mentioned. You, however, are certain it was Elizabeth. Obtain the full text of the novel from http://www.gutenberg.org/cache/epub/42671/pg42671.txt and save to your local folder.
+
+```{bash}
+wget -nc /User/lukehodges/Downloads/pg42671.txt
+for char in Elizabeth Jane Lydia Darcy
+do
+  echo $char:
+  # some bash commands here
+done
+```
+
+Explain what wget -nc does. Do not put this text file pg42671.txt in Git. Complete the following loop to tabulate the number of times each of the four characters is mentioned using Linux commands.
+
+wget -nc http://www.gutenberg.org/cache/epub/42671/pg42671.txt
+for char in Elizabeth Jane Lydia Darcy
+do
+  echo $char:
+  # some bash commands here
+done
+
+What’s the difference between the following two commands?
+echo 'hello, world' > test1.txt
+
+and
+
+echo 'hello, world' >> test2.txt
+
+Using your favorite text editor (e.g., vi), type the following and save the file as middle.sh:
+#!/bin/sh
+# Select lines from the middle of a file.
+# Usage: bash middle.sh filename end_line num_lines
+head -n "$2" "$1" | tail -n "$3"
+
+Using chmod to make the file executable by the owner, and run
+
+./middle.sh pg42671.txt 20 5
+
+Explain the output. Explain the meaning of "$1", "$2", and "$3" in this shell script. Why do we need the first line of the shell script?
+
+#Q5. More fun with Linux
+Try following commands in Bash and interpret the results: cal, cal 2025, cal 9 1752 (anything unusual?), date, hostname, arch, uname -a, uptime, who am i, who, w, id, last | head, echo {con,pre}{sent,fer}{s,ed}, time sleep 5, history | tail.
+
+```{bash}
+cal
+```
+**This makes a calendar of the current month of the current year**
+
+```{bash}
+cal 2025
+```
+**This makes an annual calendar**
+
+```{bash}
+cal 9 1752
+```
+**This makes a calendar for September, 1752. It skips 3-13. 
+
+```{bash}
+date
+```
+**Gives you current date and time**
+
+```{bash}
+hostname
+```
+**Gives name of local computer**
+
+```{bash}
+arch
+```
+**Indicates the arch of the computer (32-bit system)**
+
+```{bash}
+uname -a
+```
+**Gives you more details of the local computer system**
+
+```{bash}
+uptime
+```
+**Shows you how long the computer has been running**
+
+```{bash}
+who am i
+```
+**Gives you name of the user with date and time**
+
+```{bash}
+who
+```
+**Gives you who is currently using the local computer**
+
+```{bash}
+w
+```
+**Seems to give you more information on the users and what they're doing**
+
+```{bash}
+id
+```
+**Displays individual and group IDs**
+
+```{bash}
+last | head
+```
+**Displays the first few lines of people who have logged in and when**
+
+```{bash}
+echo {con,pre}{sent,fer}{s,ed}
+```
+**Matches every possible combination in the set in order**
+
+```{bash}
+time sleep 5
+```
+**Shows how long the sleep command takes to run**
+
+```{bash}
+history | tail
+```
+**Displays the last several commands executed**
