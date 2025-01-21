@@ -3086,6 +3086,7 @@ vertical-align: -.125em;
    
   <ul>
   <li><a href="#q1.-gitgithub" id="toc-q1.-gitgithub" class="nav-link active" data-scroll-target="#q1.-gitgithub">Q1. Git/GitHub</a></li>
+  <li><a href="#content-of-mimic-folder" id="toc-content-of-mimic-folder" class="nav-link" data-scroll-target="#content-of-mimic-folder">content of mimic folder</a></li>
   </ul>
 </nav>
 </div>
@@ -3159,7 +3160,84 @@ loaded via a namespace (and not attached):
 </ol>
 <p><strong>Solution</strong> Done.</p>
 <p>Q2. Data ethics training This exercise (and later in this course) uses the MIMIC-IV data v3.1, a freely accessible critical care database developed by the MIT Lab for Computational Physiology. Follow the instructions at https://mimic.mit.edu/docs/gettingstarted/ to (1) complete the CITI Data or Specimens Only Research course and (2) obtain the PhysioNet credential for using the MIMIC-IV data. Display the verification links to your completion report and completion certificate here. You must complete Q2 before working on the remaining questions. (Hint: The CITI training takes a few hours and the PhysioNet credentialing takes a couple days; do not leave it to the last minute.)</p>
-<p><strong>Solution</strong>Here is the <a href="https://www.citiprogram.org/verify/?ke969a4f4-b4ad-4066-bb3f-8febb17a314d-67306596">Completion Report</a> and my <a href="https://www.citiprogram.org/verify/?w1ebe72ea-777e-4eee-8de7-0e0dd1c611a3-67306596">Completion Certificate</a> of my CITI Training.</p>
+<p><strong>Solution</strong> Here is the <a href="https://www.citiprogram.org/verify/?ke969a4f4-b4ad-4066-bb3f-8febb17a314d-67306596">Completion Report</a> and my <a href="https://www.citiprogram.org/verify/?w1ebe72ea-777e-4eee-8de7-0e0dd1c611a3-67306596">Completion Certificate</a> of my CITI Training.</p>
+<p>Q3. Linux Shell Commands Make the MIMIC-IV v3.1 data available at location ~/mimic. The output of the ls -l ~/mimic command should be similar to the below (from my laptop).</p>
+</section>
+<section id="content-of-mimic-folder" class="level1">
+<h1>content of mimic folder</h1>
+<div class="cell">
+<div class="sourceCode cell-code" id="cb3"><pre class="sourceCode bash code-with-copy"><code class="sourceCode bash"><span id="cb3-1"><a href="#cb3-1" aria-hidden="true" tabindex="-1"></a><span class="co">#content of mimic folder</span></span>
+<span id="cb3-2"><a href="#cb3-2" aria-hidden="true" tabindex="-1"></a><span class="fu">ls</span> <span class="at">-l</span> ~/mimic/</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="cell-output cell-output-stdout">
+<pre><code>total 48
+-rw-r--r--@  1 lukehodges  staff  15199 Oct 10 16:29 CHANGELOG.txt
+-rw-r--r--@  1 lukehodges  staff   2518 Oct 10 17:30 LICENSE.txt
+-rw-r--r--@  1 lukehodges  staff   2884 Oct 11 17:55 SHA256SUMS.txt
+drwxr-xr-x@ 24 lukehodges  staff    768 Jan 20 18:41 hosp
+drwxr-xr-x@ 11 lukehodges  staff    352 Jan 20 18:41 icu
+lrwxr-xr-x   1 lukehodges  staff     38 Jan 20 19:35 mimic-iv-3.1 -&gt; /Users/lukehodges/Desktop/mimic-iv-3.1</code></pre>
+</div>
+</div>
+<p>Refer to the documentation https://physionet.org/content/mimiciv/3.1/ for details of data files. Do not put these data files into Git; they are big. Do not copy them into your directory. Do not decompress the gz data files. These create unnecessary big files and are not big-data-friendly practices. Read from the data folder ~/mimic directly in following exercises.</p>
+<p>Use Bash commands to answer following questions.</p>
+<p><strong>Solution</strong> I downloaded the Mimic_IV v3.1 data and it is available under the <code>~/mimic</code> folder as requested.</p>
+<ol start="2" type="1">
+<li>Display the contents in the folders hosp and icu using Bash command ls -l. Why are these data files distributed as .csv.gz files instead of .csv (comma separated values) files? Read the page https://mimic.mit.edu/docs/iv/ to understand what’s in each folder.</li>
+</ol>
+<p><strong>Solution</strong> Here is the content of the <code>hosp</code> folder</p>
+<div class="cell">
+<div class="sourceCode cell-code" id="cb5"><pre class="sourceCode bash code-with-copy"><code class="sourceCode bash"><span id="cb5-1"><a href="#cb5-1" aria-hidden="true" tabindex="-1"></a><span class="fu">ls</span> <span class="at">-l</span> ~/mimic/hosp/</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="cell-output cell-output-stdout">
+<pre><code>total 12380312
+-rw-r--r--@ 1 lukehodges  staff    19928140 Jun 24  2024 admissions.csv.gz
+-rw-r--r--@ 1 lukehodges  staff      427554 Apr 12  2024 d_hcpcs.csv.gz
+-rw-r--r--@ 1 lukehodges  staff      876360 Apr 12  2024 d_icd_diagnoses.csv.gz
+-rw-r--r--@ 1 lukehodges  staff      589186 Apr 12  2024 d_icd_procedures.csv.gz
+-rw-r--r--@ 1 lukehodges  staff       13169 Oct  3 09:07 d_labitems.csv.gz
+-rw-r--r--@ 1 lukehodges  staff    33564802 Oct  3 09:07 diagnoses_icd.csv.gz
+-rw-r--r--@ 1 lukehodges  staff     9743908 Oct  3 09:07 drgcodes.csv.gz
+-rw-r--r--@ 1 lukehodges  staff   811305629 Apr 12  2024 emar.csv.gz
+-rw-r--r--@ 1 lukehodges  staff   748158322 Apr 12  2024 emar_detail.csv.gz
+-rw-r--r--@ 1 lukehodges  staff     2162335 Apr 12  2024 hcpcsevents.csv.gz
+-rw-r--r--@ 1 lukehodges  staff  2592909134 Oct  3 09:08 labevents.csv.gz
+-rw-r--r--@ 1 lukehodges  staff   117644075 Oct  3 09:08 microbiologyevents.csv.gz
+-rw-r--r--@ 1 lukehodges  staff    44069351 Oct  3 09:08 omr.csv.gz
+-rw-r--r--@ 1 lukehodges  staff     2835586 Apr 12  2024 patients.csv.gz
+-rw-r--r--@ 1 lukehodges  staff   525708076 Apr 12  2024 pharmacy.csv.gz
+-rw-r--r--@ 1 lukehodges  staff   666594177 Apr 12  2024 poe.csv.gz
+-rw-r--r--@ 1 lukehodges  staff    55267894 Apr 12  2024 poe_detail.csv.gz
+-rw-r--r--@ 1 lukehodges  staff   606298611 Apr 12  2024 prescriptions.csv.gz
+-rw-r--r--@ 1 lukehodges  staff     7777324 Apr 12  2024 procedures_icd.csv.gz
+-rw-r--r--@ 1 lukehodges  staff      127330 Apr 12  2024 provider.csv.gz
+-rw-r--r--@ 1 lukehodges  staff     8569241 Apr 12  2024 services.csv.gz
+-rw-r--r--@ 1 lukehodges  staff    46185771 Oct  3 09:08 transfers.csv.gz</code></pre>
+</div>
+</div>
+<p><strong>Solution</strong> Here is the content of the <code>icu</code> folder</p>
+<div class="cell">
+<div class="sourceCode cell-code" id="cb7"><pre class="sourceCode bash code-with-copy"><code class="sourceCode bash"><span id="cb7-1"><a href="#cb7-1" aria-hidden="true" tabindex="-1"></a><span class="fu">ls</span> <span class="at">-l</span> ~/mimic/icu/</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="cell-output cell-output-stdout">
+<pre><code>total 8569408
+-rw-r--r--@ 1 lukehodges  staff       41566 Apr 12  2024 caregiver.csv.gz
+-rw-r--r--@ 1 lukehodges  staff  3502392765 Apr 12  2024 chartevents.csv.gz
+-rw-r--r--@ 1 lukehodges  staff       58741 Apr 12  2024 d_items.csv.gz
+-rw-r--r--@ 1 lukehodges  staff    63481196 Apr 12  2024 datetimeevents.csv.gz
+-rw-r--r--@ 1 lukehodges  staff     3342355 Oct  3 07:36 icustays.csv.gz
+-rw-r--r--@ 1 lukehodges  staff   311642048 Apr 12  2024 ingredientevents.csv.gz
+-rw-r--r--@ 1 lukehodges  staff   401088206 Apr 12  2024 inputevents.csv.gz
+-rw-r--r--@ 1 lukehodges  staff    49307639 Apr 12  2024 outputevents.csv.gz
+-rw-r--r--@ 1 lukehodges  staff    24096834 Apr 12  2024 procedureevents.csv.gz</code></pre>
+</div>
+</div>
+<p><strong>These data files were distrbuted as <code>gz</code> files because they are giant files and allows them to be downloaded and distributed faster and easier.</strong></p>
+<p>Briefly describe what Bash commands zcat, zless, zmore, and zgrep do.</p>
+<p>(Looping in Bash) What’s the output of the following bash script?</p>
+<p>for datafile in ~/mimic/hosp/{a,l,pa}*.gz do ls -l $datafile done</p>
+<p>Display the number of lines in each data file using a similar loop. (Hint: combine linux commands zcat &lt; and wc -l.)</p>
+<p>Display the first few lines of admissions.csv.gz. How many rows are in this data file, excluding the header line? Each hadm_id identifies a hospitalization. How many hospitalizations are in this data file? How many unique patients (identified by subject_id) are in this data file? Do they match the number of patients listed in the patients.csv.gz file? (Hint: combine Linux commands zcat &lt;, head/tail, awk, sort, uniq, wc, and so on.)</p>
+<p>What are the possible values taken by each of the variable admission_type, admission_location, insurance, and ethnicity? Also report the count for each unique value of these variables in decreasing order. (Hint: combine Linux commands zcat, head/tail, awk, uniq -c, wc, sort, and so on; skip the header line.)</p>
+<p>The icusays.csv.gz file contains all the ICU stays during the study period. How many ICU stays, identified by stay_id, are in this data file? How many unique patients, identified by subject_id, are in this data file?</p>
+<p>To compress, or not to compress. That’s the question. Let’s focus on the big data file labevents.csv.gz. Compare compressed gz file size to the uncompressed file size. Compare the run times of zcat &lt; ~/mimic/labevents.csv.gz | wc -l versus wc -l labevents.csv. Discuss the trade off between storage and speed for big data files. (Hint: gzip -dk &lt; FILENAME.gz &gt; ./FILENAME. Remember to delete the large labevents.csv file after the exercise.)</p>
 </section>
 
 </main>
