@@ -3523,9 +3523,9 @@ lrwxr-xr-x   1 lukehodges  staff     38 Jan 20 19:35 mimic-iv-3.1 -&gt; /Users/l
 <div class="cell-output cell-output-stdout">
 <pre><code> 158374765
 
-real    0m51.552s
-user    1m14.924s
-sys 0m4.920s</code></pre>
+real    0m52.713s
+user    1m15.806s
+sys 0m5.180s</code></pre>
 </div>
 </div>
 <p>For Uncompressed</p>
@@ -3534,9 +3534,9 @@ sys 0m4.920s</code></pre>
 <div class="cell-output cell-output-stdout">
 <pre><code> 158374765 /Users/lukehodges/mimic/hosp/labevents.csv
 
-real    0m53.225s
-user    0m50.623s
-sys 0m2.493s</code></pre>
+real    0m58.406s
+user    0m51.144s
+sys 0m4.973s</code></pre>
 </div>
 </div>
 <p>This shows that compressed is slower than uncompressed.</p>
@@ -3587,10 +3587,10 @@ Darcy:
 <p>Using chmod to make the file executable by the owner, and run</p>
 <p>The middle.sh is set to my desktop. The command chmod 751 gives executive function and access to the user.</p>
 <div class="cell">
-<div class="sourceCode cell-code" id="cb57"><pre class="sourceCode bash code-with-copy"><code class="sourceCode bash"><span id="cb57-1"><a href="#cb57-1" aria-hidden="true" tabindex="-1"></a><span class="fu">chmod</span> 751 /Users/lukehodges/desktop/middle.sh</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="sourceCode cell-code" id="cb57"><pre class="sourceCode bash code-with-copy"><code class="sourceCode bash"><span id="cb57-1"><a href="#cb57-1" aria-hidden="true" tabindex="-1"></a><span class="fu">chmod</span> 751 /Users/lukehodges/desktop/203b-hw/middle.sh</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
 </div>
 <div class="cell">
-<div class="sourceCode cell-code" id="cb58"><pre class="sourceCode bash code-with-copy"><code class="sourceCode bash"><span id="cb58-1"><a href="#cb58-1" aria-hidden="true" tabindex="-1"></a><span class="ex">/Users/lukehodges/desktop/middle.sh</span> pg42671.txt 20 5</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="sourceCode cell-code" id="cb58"><pre class="sourceCode bash code-with-copy"><code class="sourceCode bash"><span id="cb58-1"><a href="#cb58-1" aria-hidden="true" tabindex="-1"></a><span class="ex">/Users/lukehodges/desktop/203b-hw/middle.sh</span> pg42671.txt 20 5</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
 <div class="cell-output cell-output-stdout">
 <pre><code>
 Release date: May 9, 2013 [eBook #42671]
@@ -3678,7 +3678,7 @@ Su Mo Tu We Th Fr Sa
 <div class="cell">
 <div class="sourceCode cell-code" id="cb66"><pre class="sourceCode bash code-with-copy"><code class="sourceCode bash"><span id="cb66-1"><a href="#cb66-1" aria-hidden="true" tabindex="-1"></a><span class="fu">date</span></span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
 <div class="cell-output cell-output-stdout">
-<pre><code>Thu Jan 23 21:46:48 PST 2025</code></pre>
+<pre><code>Thu Jan 23 22:59:10 PST 2025</code></pre>
 </div>
 </div>
 <p><strong>Gives you current date and time</strong></p>
@@ -3706,14 +3706,14 @@ Su Mo Tu We Th Fr Sa
 <div class="cell">
 <div class="sourceCode cell-code" id="cb74"><pre class="sourceCode bash code-with-copy"><code class="sourceCode bash"><span id="cb74-1"><a href="#cb74-1" aria-hidden="true" tabindex="-1"></a><span class="fu">uptime</span></span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
 <div class="cell-output cell-output-stdout">
-<pre><code>21:46  up 4 days,  4:57, 2 users, load averages: 3.50 3.19 2.98</code></pre>
+<pre><code>22:59  up 4 days,  6:10, 2 users, load averages: 6.11 3.74 2.95</code></pre>
 </div>
 </div>
 <p><strong>Shows you how long the computer has been running</strong></p>
 <div class="cell">
 <div class="sourceCode cell-code" id="cb76"><pre class="sourceCode bash code-with-copy"><code class="sourceCode bash"><span id="cb76-1"><a href="#cb76-1" aria-hidden="true" tabindex="-1"></a><span class="fu">who</span> am i</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
 <div class="cell-output cell-output-stdout">
-<pre><code>lukehodges                    Jan 23 21:46 </code></pre>
+<pre><code>lukehodges                    Jan 23 22:59 </code></pre>
 </div>
 </div>
 <p><strong>Gives you name of the user with date and time</strong></p>
@@ -3728,10 +3728,10 @@ lukehodges       ttys000      Jan 23 17:58 </code></pre>
 <div class="cell">
 <div class="sourceCode cell-code" id="cb80"><pre class="sourceCode bash code-with-copy"><code class="sourceCode bash"><span id="cb80-1"><a href="#cb80-1" aria-hidden="true" tabindex="-1"></a><span class="fu">w</span></span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
 <div class="cell-output cell-output-stdout">
-<pre><code>21:46  up 4 days,  4:57, 2 users, load averages: 3.50 3.19 2.98
+<pre><code>22:59  up 4 days,  6:10, 2 users, load averages: 6.11 3.74 2.95
 USER       TTY      FROM    LOGIN@  IDLE WHAT
 lukehodges console  -      Sun16   4days -
-lukehodges s000     -      17:58    3:48 -bash</code></pre>
+lukehodges s000     -      17:58    5:00 -bash</code></pre>
 </div>
 </div>
 <p><strong>Seems to summarize and add from the information above.</strong></p>
@@ -3769,7 +3769,7 @@ lukehodges ttys000                         Mon Jan 20 09:49 - 09:49  (00:00)</co
 <div class="sourceCode cell-code" id="cb88"><pre class="sourceCode bash code-with-copy"><code class="sourceCode bash"><span id="cb88-1"><a href="#cb88-1" aria-hidden="true" tabindex="-1"></a><span class="bu">time</span> sleep 5</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
 <div class="cell-output cell-output-stdout">
 <pre><code>
-real    0m5.013s
+real    0m5.012s
 user    0m0.003s
 sys 0m0.005s</code></pre>
 </div>
