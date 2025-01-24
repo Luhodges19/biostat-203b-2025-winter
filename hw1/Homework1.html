@@ -6,7 +6,7 @@
 
 <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=yes">
 
-<meta name="author" content="Luke Hodges nd UID">
+<meta name="author" content="Luke Hodges 906182810">
 
 <title>Biostat 203B Homework 1</title>
 <style>
@@ -3086,7 +3086,14 @@ vertical-align: -.125em;
    
   <ul>
   <li><a href="#q1.-gitgithub" id="toc-q1.-gitgithub" class="nav-link active" data-scroll-target="#q1.-gitgithub">Q1. Git/GitHub</a></li>
-  <li><a href="#content-of-mimic-folder" id="toc-content-of-mimic-folder" class="nav-link" data-scroll-target="#content-of-mimic-folder">content of mimic folder</a></li>
+  <li><a href="#q2.-data-ethics-training" id="toc-q2.-data-ethics-training" class="nav-link" data-scroll-target="#q2.-data-ethics-training">Q2. Data ethics training</a></li>
+  <li><a href="#q3.-linux-shell-commands" id="toc-q3.-linux-shell-commands" class="nav-link" data-scroll-target="#q3.-linux-shell-commands">Q3. Linux Shell Commands</a></li>
+  <li><a href="#content-of-mimic-folder" id="toc-content-of-mimic-folder" class="nav-link" data-scroll-target="#content-of-mimic-folder">content of mimic folder</a>
+  <ul>
+  <li><a href="#q4.-whos-popular-in-price-and-prejudice" id="toc-q4.-whos-popular-in-price-and-prejudice" class="nav-link" data-scroll-target="#q4.-whos-popular-in-price-and-prejudice">Q4. Who’s popular in Price and Prejudice</a></li>
+  <li><a href="#q5.-more-fun-with-linux" id="toc-q5.-more-fun-with-linux" class="nav-link" data-scroll-target="#q5.-more-fun-with-linux">Q5. More fun with Linux</a></li>
+  <li><a href="#q6.-book" id="toc-q6.-book" class="nav-link" data-scroll-target="#q6.-book">Q6. Book</a></li>
+  </ul></li>
   </ul>
 </nav>
 </div>
@@ -3107,7 +3114,7 @@ vertical-align: -.125em;
     <div>
     <div class="quarto-title-meta-heading">Author</div>
     <div class="quarto-title-meta-contents">
-             <p>Luke Hodges nd UID </p>
+             <p>Luke Hodges 906182810 </p>
           </div>
   </div>
     
@@ -3159,9 +3166,15 @@ loaded via a namespace (and not attached):
 <li><p>After this course, you can make this repository public and use it to demonstrate your skill sets on job market.</p></li>
 </ol>
 <p><strong>Solution</strong> Done.</p>
-<p>Q2. Data ethics training This exercise (and later in this course) uses the MIMIC-IV data v3.1, a freely accessible critical care database developed by the MIT Lab for Computational Physiology. Follow the instructions at https://mimic.mit.edu/docs/gettingstarted/ to (1) complete the CITI Data or Specimens Only Research course and (2) obtain the PhysioNet credential for using the MIMIC-IV data. Display the verification links to your completion report and completion certificate here. You must complete Q2 before working on the remaining questions. (Hint: The CITI training takes a few hours and the PhysioNet credentialing takes a couple days; do not leave it to the last minute.)</p>
+</section>
+<section id="q2.-data-ethics-training" class="level2">
+<h2 class="anchored" data-anchor-id="q2.-data-ethics-training">Q2. Data ethics training</h2>
+<p>This exercise (and later in this course) uses the MIMIC-IV data v3.1, a freely accessible critical care database developed by the MIT Lab for Computational Physiology. Follow the instructions at https://mimic.mit.edu/docs/gettingstarted/ to (1) complete the CITI Data or Specimens Only Research course and (2) obtain the PhysioNet credential for using the MIMIC-IV data. Display the verification links to your completion report and completion certificate here. You must complete Q2 before working on the remaining questions. (Hint: The CITI training takes a few hours and the PhysioNet credentialing takes a couple days; do not leave it to the last minute.)</p>
 <p><strong>Solution</strong> Here is the <a href="https://www.citiprogram.org/verify/?ke969a4f4-b4ad-4066-bb3f-8febb17a314d-67306596">Completion Report</a> and my <a href="https://www.citiprogram.org/verify/?w1ebe72ea-777e-4eee-8de7-0e0dd1c611a3-67306596">Completion Certificate</a> of my CITI Training.</p>
-<p>Q3. Linux Shell Commands Make the MIMIC-IV v3.1 data available at location ~/mimic. The output of the ls -l ~/mimic command should be similar to the below (from my laptop).</p>
+</section>
+<section id="q3.-linux-shell-commands" class="level2">
+<h2 class="anchored" data-anchor-id="q3.-linux-shell-commands">Q3. Linux Shell Commands</h2>
+<p>Make the MIMIC-IV v3.1 data available at location ~/mimic. The output of the ls -l ~/mimic command should be similar to the below (from my laptop).</p>
 </section>
 <section id="content-of-mimic-folder" class="level1">
 <h1>content of mimic folder</h1>
@@ -3188,7 +3201,7 @@ lrwxr-xr-x   1 lukehodges  staff     38 Jan 20 19:35 mimic-iv-3.1 -&gt; /Users/l
 <div class="cell">
 <div class="sourceCode cell-code" id="cb5"><pre class="sourceCode bash code-with-copy"><code class="sourceCode bash"><span id="cb5-1"><a href="#cb5-1" aria-hidden="true" tabindex="-1"></a><span class="fu">ls</span> <span class="at">-l</span> ~/mimic/hosp/</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
 <div class="cell-output cell-output-stdout">
-<pre><code>total 48268528
+<pre><code>total 48249320
 -rw-r--r--@ 1 lukehodges  staff     19928140 Jun 24  2024 admissions.csv.gz
 -rw-r--r--@ 1 lukehodges  staff       427554 Apr 12  2024 d_hcpcs.csv.gz
 -rw-r--r--@ 1 lukehodges  staff       876360 Apr 12  2024 d_icd_diagnoses.csv.gz
@@ -3234,7 +3247,7 @@ lrwxr-xr-x   1 lukehodges  staff     38 Jan 20 19:35 mimic-iv-3.1 -&gt; /Users/l
 <ol start="3" type="1">
 <li>Briefly describe what Bash commands zcat, zless, zmore, and zgrep do.</li>
 </ol>
-<p><strong>Solution</strong> Zcat will compress from standard input or decompress to standard output.</p>
+<p><strong>Solution</strong> Zcat decompresses a compressed file (.gz).</p>
 <p><strong>Solution</strong> Zmore views compressed files, but cannot navigate as easily</p>
 <p><strong>Solution</strong> Zless views compressed files with easy navigation line by line</p>
 <p><strong>Solution</strong> Zgrep searches compressed files for terms and returns with matching lines.</p>
@@ -3399,7 +3412,7 @@ lrwxr-xr-x   1 lukehodges  staff     38 Jan 20 19:35 mimic-iv-3.1 -&gt; /Users/l
 </div>
 </div>
 <p>So there are nine different admission types.</p>
-<p>For Admissions location,</p>
+<p>For Admissions location:</p>
 <div class="cell">
 <div class="sourceCode cell-code" id="cb33"><pre class="sourceCode bash code-with-copy"><code class="sourceCode bash"><span id="cb33-1"><a href="#cb33-1" aria-hidden="true" tabindex="-1"></a><span class="fu">zcat</span> <span class="op">&lt;</span> ~/mimic/hosp/admissions.csv.gz <span class="kw">|</span> </span>
 <span id="cb33-2"><a href="#cb33-2" aria-hidden="true" tabindex="-1"></a><span class="fu">tail</span> <span class="at">-n</span> +2 <span class="kw">|</span></span>
@@ -3411,8 +3424,8 @@ lrwxr-xr-x   1 lukehodges  staff     38 Jan 20 19:35 mimic-iv-3.1 -&gt; /Users/l
 <pre><code>      12</code></pre>
 </div>
 </div>
-<p>There are twelve different admission types.</p>
-<p>For insurance,</p>
+<p>There are twelve different admission locations.</p>
+<p>For insurance:</p>
 <div class="cell">
 <div class="sourceCode cell-code" id="cb35"><pre class="sourceCode bash code-with-copy"><code class="sourceCode bash"><span id="cb35-1"><a href="#cb35-1" aria-hidden="true" tabindex="-1"></a><span class="fu">zcat</span> <span class="op">&lt;</span> ~/mimic/hosp/admissions.csv.gz <span class="kw">|</span> </span>
 <span id="cb35-2"><a href="#cb35-2" aria-hidden="true" tabindex="-1"></a><span class="fu">tail</span> <span class="at">-n</span> +2 <span class="kw">|</span></span>
@@ -3425,7 +3438,7 @@ lrwxr-xr-x   1 lukehodges  staff     38 Jan 20 19:35 mimic-iv-3.1 -&gt; /Users/l
 </div>
 </div>
 <p>There are six insurance</p>
-<p>For ethnicity</p>
+<p>For ethnicity:</p>
 <div class="cell">
 <div class="sourceCode cell-code" id="cb37"><pre class="sourceCode bash code-with-copy"><code class="sourceCode bash"><span id="cb37-1"><a href="#cb37-1" aria-hidden="true" tabindex="-1"></a><span class="fu">zcat</span> <span class="op">&lt;</span> ~/mimic/hosp/admissions.csv.gz <span class="kw">|</span> </span>
 <span id="cb37-2"><a href="#cb37-2" aria-hidden="true" tabindex="-1"></a><span class="fu">tail</span> <span class="at">-n</span> +2 <span class="kw">|</span></span>
@@ -3442,7 +3455,7 @@ lrwxr-xr-x   1 lukehodges  staff     38 Jan 20 19:35 mimic-iv-3.1 -&gt; /Users/l
 <li>The icusays.csv.gz file contains all the ICU stays during the study period. How many ICU stays, identified by stay_id, are in this data file? How many unique patients, identified by subject_id, are in this data file?</li>
 </ol>
 <p><strong>Solution</strong></p>
-<p>To start, we must peek into the icusays.csv.gz file</p>
+<p>To start, we must look into the icusays.csv.gz file</p>
 <div class="cell">
 <div class="sourceCode cell-code" id="cb39"><pre class="sourceCode bash code-with-copy"><code class="sourceCode bash"><span id="cb39-1"><a href="#cb39-1" aria-hidden="true" tabindex="-1"></a><span class="fu">zcat</span> <span class="op">&lt;</span> ~/mimic/icu/icustays.csv.gz <span class="kw">|</span> <span class="fu">head</span></span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
 <div class="cell-output cell-output-stdout">
@@ -3494,7 +3507,8 @@ lrwxr-xr-x   1 lukehodges  staff     38 Jan 20 19:35 mimic-iv-3.1 -&gt; /Users/l
 <pre><code>-rw-r--r--@ 1 lukehodges  staff   2.4G Oct  3 09:08 /Users/lukehodges/mimic/hosp/labevents.csv.gz</code></pre>
 </div>
 </div>
-<p>This file is 2.4G Checking file size for the uncompressed version</p>
+<p>This file is 2.4G</p>
+<p>Checking file size for the uncompressed version</p>
 <div class="cell">
 <div class="sourceCode cell-code" id="cb47"><pre class="sourceCode bash code-with-copy"><code class="sourceCode bash"><span id="cb47-1"><a href="#cb47-1" aria-hidden="true" tabindex="-1"></a><span class="fu">ls</span> <span class="at">-lh</span> ~/mimic/hosp/labevents.csv</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
 <div class="cell-output cell-output-stdout">
@@ -3509,9 +3523,9 @@ lrwxr-xr-x   1 lukehodges  staff     38 Jan 20 19:35 mimic-iv-3.1 -&gt; /Users/l
 <div class="cell-output cell-output-stdout">
 <pre><code> 158374765
 
-real    0m55.694s
-user    1m21.053s
-sys 0m5.134s</code></pre>
+real    0m51.552s
+user    1m14.924s
+sys 0m4.920s</code></pre>
 </div>
 </div>
 <p>For Uncompressed</p>
@@ -3520,16 +3534,17 @@ sys 0m5.134s</code></pre>
 <div class="cell-output cell-output-stdout">
 <pre><code> 158374765 /Users/lukehodges/mimic/hosp/labevents.csv
 
-real    0m57.143s
-user    0m54.624s
-sys 0m2.425s</code></pre>
+real    0m53.225s
+user    0m50.623s
+sys 0m2.493s</code></pre>
 </div>
 </div>
 <p>This shows that compressed is slower than uncompressed.</p>
 <p>This is because compressed has to go through the decompressing of the file</p>
 <p>In other words, compressed saves storage, but slows time</p>
 <p>Uncompressed takes up storage, but is faster.</p>
-<p>Q4. Who’s popular in Price and Prejudice</p>
+<section id="q4.-whos-popular-in-price-and-prejudice" class="level2">
+<h2 class="anchored" data-anchor-id="q4.-whos-popular-in-price-and-prejudice">Q4. Who’s popular in Price and Prejudice</h2>
 <ol type="1">
 <li>You and your friend just have finished reading Pride and Prejudice by Jane Austen. Among the four main characters in the book, Elizabeth, Jane, Lydia, and Darcy, your friend thinks that Darcy was the most mentioned. You, however, are certain it was Elizabeth. Obtain the full text of the novel from http://www.gutenberg.org/cache/epub/42671/pg42671.txt and save to your local folder.</li>
 </ol>
@@ -3554,7 +3569,7 @@ Darcy:
 </div>
 </div>
 <p>Explain what wget -nc does. Do not put this text file pg42671.txt in Git. Complete the following loop to tabulate the number of times each of the four characters is mentioned using Linux commands.</p>
-<p>Wget -nc downloads the file, but not replicated if it already is downloaded.</p>
+<p>Wget -nc downloads the file, but doers not replicate if it already is downloaded.</p>
 <ol start="2" type="1">
 <li>What’s the difference between the following two commands?</li>
 </ol>
@@ -3566,9 +3581,11 @@ Darcy:
 <div class="sourceCode cell-code" id="cb56"><pre class="sourceCode bash code-with-copy"><code class="sourceCode bash"><span id="cb56-1"><a href="#cb56-1" aria-hidden="true" tabindex="-1"></a><span class="bu">echo</span> <span class="st">&#39;hello, world&#39;</span> <span class="op">&gt;&gt;</span> test2.txt</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
 </div>
 <p>The first command directs the output to the test1.txt, saying ‘hello, world’.</p>
-<p>The second command appends (adds it) to a file named test2. txt.</p>
-<p>Using your favorite text editor (e.g., vi), type the following and save the file as middle.sh: #!/bin/sh # Select lines from the middle of a file. # Usage: bash middle.sh filename end_line num_lines head -n “$2” “$1” | tail -n “$3”</p>
+<p>The second command appends (adds it) to a file named test2.txt.</p>
+<p>Using your favorite text editor (e.g., vi), type the following and save the file as middle.sh:</p>
+<p>#!/bin/sh # Select lines from the middle of a file. # Usage: bash middle.sh filename end_line num_lines head -n “$2” “$1” | tail -n “$3”</p>
 <p>Using chmod to make the file executable by the owner, and run</p>
+<p>The middle.sh is set to my desktop. The command chmod 751 gives executive function and access to the user.</p>
 <div class="cell">
 <div class="sourceCode cell-code" id="cb57"><pre class="sourceCode bash code-with-copy"><code class="sourceCode bash"><span id="cb57-1"><a href="#cb57-1" aria-hidden="true" tabindex="-1"></a><span class="fu">chmod</span> 751 /Users/lukehodges/desktop/middle.sh</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
 </div>
@@ -3583,8 +3600,11 @@ Language: English
 </div>
 </div>
 <p>Explain the output. Explain the meaning of “$1”, “$2”, and “$3” in this shell script. Why do we need the first line of the shell script?</p>
-<p><strong>Fill Out What They Mean</strong></p>
-<p>#Q5. More fun with Linux Try following commands in Bash and interpret the results: cal, cal 2025, cal 9 1752 (anything unusual?), date, hostname, arch, uname -a, uptime, who am i, who, w, id, last | head, echo {con,pre}{sent,fer}{s,ed}, time sleep 5, history | tail.</p>
+<p><strong>The output is the 20th line of the file pg42671.txt and the following 5 lines. The “$1” is the first argument, which is the file name. The “$2” is the second argument, which is the line. The “$3” is the third argument, which is the number of lines. The first line of the shell script is needed to tell the computer what shell to use to run the script.</strong></p>
+</section>
+<section id="q5.-more-fun-with-linux" class="level2">
+<h2 class="anchored" data-anchor-id="q5.-more-fun-with-linux">Q5. More fun with Linux</h2>
+<p>Try following commands in Bash and interpret the results: cal, cal 2025, cal 9 1752 (anything unusual?), date, hostname, arch, uname -a, uptime, who am i, who, w, id, last | head, echo {con,pre}{sent,fer}{s,ed}, time sleep 5, history | tail.</p>
 <div class="cell">
 <div class="sourceCode cell-code" id="cb60"><pre class="sourceCode bash code-with-copy"><code class="sourceCode bash"><span id="cb60-1"><a href="#cb60-1" aria-hidden="true" tabindex="-1"></a><span class="fu">cal</span></span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
 <div class="cell-output cell-output-stdout">
@@ -3654,18 +3674,18 @@ Su Mo Tu We Th Fr Sa
                       </code></pre>
 </div>
 </div>
-<p>**This makes a calendar for September, 1752. It skips 3-13.</p>
+<p><strong>This makes a calendar for September, 1752. It skips 3-13.</strong></p>
 <div class="cell">
 <div class="sourceCode cell-code" id="cb66"><pre class="sourceCode bash code-with-copy"><code class="sourceCode bash"><span id="cb66-1"><a href="#cb66-1" aria-hidden="true" tabindex="-1"></a><span class="fu">date</span></span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
 <div class="cell-output cell-output-stdout">
-<pre><code>Tue Jan 21 15:04:46 PST 2025</code></pre>
+<pre><code>Thu Jan 23 21:46:48 PST 2025</code></pre>
 </div>
 </div>
 <p><strong>Gives you current date and time</strong></p>
 <div class="cell">
 <div class="sourceCode cell-code" id="cb68"><pre class="sourceCode bash code-with-copy"><code class="sourceCode bash"><span id="cb68-1"><a href="#cb68-1" aria-hidden="true" tabindex="-1"></a><span class="fu">hostname</span></span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
 <div class="cell-output cell-output-stdout">
-<pre><code>dhcp-10-144-188-127.dgsom.guest</code></pre>
+<pre><code>Lukes-MacBook-Pro-96.local</code></pre>
 </div>
 </div>
 <p><strong>Gives name of local computer</strong></p>
@@ -3675,44 +3695,46 @@ Su Mo Tu We Th Fr Sa
 <pre><code>i386</code></pre>
 </div>
 </div>
-<p><strong>Indicates the arch of the computer (32-bit system)</strong></p>
+<p><strong>Indicates the architecture of the computer (32-bit system)</strong></p>
 <div class="cell">
 <div class="sourceCode cell-code" id="cb72"><pre class="sourceCode bash code-with-copy"><code class="sourceCode bash"><span id="cb72-1"><a href="#cb72-1" aria-hidden="true" tabindex="-1"></a><span class="fu">uname</span> <span class="at">-a</span></span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
 <div class="cell-output cell-output-stdout">
-<pre><code>Darwin dhcp-10-144-188-127.dgsom.guest 24.0.0 Darwin Kernel Version 24.0.0: Mon Aug 12 20:54:30 PDT 2024; root:xnu-11215.1.10~2/RELEASE_X86_64 x86_64</code></pre>
+<pre><code>Darwin Lukes-MacBook-Pro-96.local 24.0.0 Darwin Kernel Version 24.0.0: Mon Aug 12 20:54:30 PDT 2024; root:xnu-11215.1.10~2/RELEASE_X86_64 x86_64</code></pre>
 </div>
 </div>
-<p><strong>Gives you more details of the local computer system</strong></p>
+<p>**Gives you more details of the local computer system, like version.</p>
 <div class="cell">
 <div class="sourceCode cell-code" id="cb74"><pre class="sourceCode bash code-with-copy"><code class="sourceCode bash"><span id="cb74-1"><a href="#cb74-1" aria-hidden="true" tabindex="-1"></a><span class="fu">uptime</span></span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
 <div class="cell-output cell-output-stdout">
-<pre><code>15:04  up 1 day, 22:15, 1 user, load averages: 2.67 2.91 3.12</code></pre>
+<pre><code>21:46  up 4 days,  4:57, 2 users, load averages: 3.50 3.19 2.98</code></pre>
 </div>
 </div>
 <p><strong>Shows you how long the computer has been running</strong></p>
 <div class="cell">
 <div class="sourceCode cell-code" id="cb76"><pre class="sourceCode bash code-with-copy"><code class="sourceCode bash"><span id="cb76-1"><a href="#cb76-1" aria-hidden="true" tabindex="-1"></a><span class="fu">who</span> am i</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
 <div class="cell-output cell-output-stdout">
-<pre><code>lukehodges                    Jan 21 15:04 </code></pre>
+<pre><code>lukehodges                    Jan 23 21:46 </code></pre>
 </div>
 </div>
 <p><strong>Gives you name of the user with date and time</strong></p>
 <div class="cell">
 <div class="sourceCode cell-code" id="cb78"><pre class="sourceCode bash code-with-copy"><code class="sourceCode bash"><span id="cb78-1"><a href="#cb78-1" aria-hidden="true" tabindex="-1"></a><span class="fu">who</span></span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
 <div class="cell-output cell-output-stdout">
-<pre><code>lukehodges       console      Jan 19 16:49 </code></pre>
+<pre><code>lukehodges       console      Jan 19 16:49 
+lukehodges       ttys000      Jan 23 17:58 </code></pre>
 </div>
 </div>
-<p><strong>Gives you who is currently using the local computer</strong></p>
+<p>**Gives you who is currently using the local computer.</p>
 <div class="cell">
 <div class="sourceCode cell-code" id="cb80"><pre class="sourceCode bash code-with-copy"><code class="sourceCode bash"><span id="cb80-1"><a href="#cb80-1" aria-hidden="true" tabindex="-1"></a><span class="fu">w</span></span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
 <div class="cell-output cell-output-stdout">
-<pre><code>15:04  up 1 day, 22:15, 1 user, load averages: 2.67 2.91 3.12
+<pre><code>21:46  up 4 days,  4:57, 2 users, load averages: 3.50 3.19 2.98
 USER       TTY      FROM    LOGIN@  IDLE WHAT
-lukehodges console  -      Sun16   1day  -</code></pre>
+lukehodges console  -      Sun16   4days -
+lukehodges s000     -      17:58    3:48 -bash</code></pre>
 </div>
 </div>
-<p><strong>Seems to give you more information on the users and what they’re doing</strong></p>
+<p><strong>Seems to summarize and add from the information above.</strong></p>
 <div class="cell">
 <div class="sourceCode cell-code" id="cb82"><pre class="sourceCode bash code-with-copy"><code class="sourceCode bash"><span id="cb82-1"><a href="#cb82-1" aria-hidden="true" tabindex="-1"></a><span class="fu">id</span></span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
 <div class="cell-output cell-output-stdout">
@@ -3723,7 +3745,8 @@ lukehodges console  -      Sun16   1day  -</code></pre>
 <div class="cell">
 <div class="sourceCode cell-code" id="cb84"><pre class="sourceCode bash code-with-copy"><code class="sourceCode bash"><span id="cb84-1"><a href="#cb84-1" aria-hidden="true" tabindex="-1"></a><span class="fu">last</span> <span class="kw">|</span> <span class="fu">head</span></span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
 <div class="cell-output cell-output-stdout">
-<pre><code>lukehodges ttys000                         Tue Jan 21 12:26 - 12:26  (00:00)
+<pre><code>lukehodges ttys000                         Thu Jan 23 17:58   still logged in
+lukehodges ttys000                         Tue Jan 21 12:26 - 12:26  (00:00)
 lukehodges ttys000                         Tue Jan 21 12:23 - 12:23  (00:00)
 lukehodges ttys001                         Mon Jan 20 22:34 - 22:34  (00:00)
 lukehodges ttys001                         Mon Jan 20 19:33 - 19:33  (00:00)
@@ -3731,8 +3754,7 @@ lukehodges ttys001                         Mon Jan 20 18:46 - 18:46  (00:00)
 lukehodges ttys001                         Mon Jan 20 18:45 - 18:45  (00:00)
 lukehodges ttys000                         Mon Jan 20 18:44 - 18:44  (00:00)
 lukehodges ttys001                         Mon Jan 20 18:42 - 18:42  (00:00)
-lukehodges ttys000                         Mon Jan 20 09:49 - 09:49  (00:00)
-lukehodges ttys000                         Mon Jan 20 09:43 - 09:43  (00:00)</code></pre>
+lukehodges ttys000                         Mon Jan 20 09:49 - 09:49  (00:00)</code></pre>
 </div>
 </div>
 <p><strong>Displays the first few lines of people who have logged in and when</strong></p>
@@ -3747,9 +3769,9 @@ lukehodges ttys000                         Mon Jan 20 09:43 - 09:43  (00:00)</co
 <div class="sourceCode cell-code" id="cb88"><pre class="sourceCode bash code-with-copy"><code class="sourceCode bash"><span id="cb88-1"><a href="#cb88-1" aria-hidden="true" tabindex="-1"></a><span class="bu">time</span> sleep 5</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
 <div class="cell-output cell-output-stdout">
 <pre><code>
-real    0m5.014s
+real    0m5.013s
 user    0m0.003s
-sys 0m0.006s</code></pre>
+sys 0m0.005s</code></pre>
 </div>
 </div>
 <p><strong>Shows how long the sleep command takes to run</strong></p>
@@ -3757,12 +3779,16 @@ sys 0m0.006s</code></pre>
 <div class="sourceCode cell-code" id="cb90"><pre class="sourceCode bash code-with-copy"><code class="sourceCode bash"><span id="cb90-1"><a href="#cb90-1" aria-hidden="true" tabindex="-1"></a><span class="bu">history</span> <span class="kw">|</span> <span class="fu">tail</span></span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
 </div>
 <p><strong>Displays the last several commands executed</strong></p>
-<p>Q6. Book Git clone the repository https://github.com/christophergandrud/Rep-Res-Book for the book Reproducible Research with R and RStudio to your local machine. Do not put this repository within your homework repository biostat-203b-2025-winter.</p>
+</section>
+<section id="q6.-book" class="level2">
+<h2 class="anchored" data-anchor-id="q6.-book">Q6. Book</h2>
+<p>Git clone the repository https://github.com/christophergandrud/Rep-Res-Book for the book Reproducible Research with R and RStudio to your local machine. Do not put this repository within your homework repository biostat-203b-2025-winter.</p>
 Open the project by clicking rep-res-3rd-edition.Rproj and compile the book by clicking Build Book in the Build panel of RStudio. (Hint: I was able to build git_book and epub_book directly. For pdf_book, I needed to add a line
 <p>to the file Rep-Res-Book/rep-res-3rd-edition/latex/preabmle.tex.)</p>
 <p>The point of this exercise is (1) to obtain the book for free and (2) to see an example how a complicated project such as a book can be organized in a reproducible way. Use sudo apt install PKGNAME to install required Ubuntu packages and tlmgr install PKGNAME to install missing TexLive packages.</p>
 <p>For grading purpose, include a screenshot of Section 4.1.5 of the book here.</p>
-<p><strong>Solution</strong> Here is the <a href="https://drive.google.com/file/d/15_cgNaiddl9u8btlhf_dY5PF1whKVtRp/view">picture</a></p>
+<p><strong>Solution</strong> Here is the <a href="https://drive.google.com/file/d/15_cgNaiddl9u8btlhf_dY5PF1whKVtRp/view">picture</a> of section 4.1.5.</p>
+</section>
 </section>
 
 </main>
