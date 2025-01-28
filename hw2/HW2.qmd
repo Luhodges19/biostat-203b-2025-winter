@@ -1,0 +1,86 @@
+title: "Biostat 203B Homework 1"
+subtitle: Due Jan 24, 2025 @ 11:59PM
+author: Your Name and UID
+format:
+  html:
+    theme: cosmo
+    embed-resources: true
+    number-sections: false
+    toc: true
+    toc-depth: 4
+    toc-location: left
+    code-fold: false
+    link-external-icon: true
+    link-external-newwindow: true
+---
+
+Display machine information for reproducibility:
+```{r}
+#| eval: true
+sessionInfo()
+```
+**Load necessary libraries (you can add more as needed).**
+
+**Installing the arrow package**
+
+install.packages("arrow")
+
+library(arrow)
+
+**installing the data.table package**
+
+install.packages("data.table)
+
+library(data.table)
+
+**installing the duckdb package)**
+
+install.packages("duckdb")
+
+library(duckdb)
+
+**Installing the memuse package**
+
+install.packages("memuse")
+
+library(memuse)
+
+**Installing the pryr package**
+
+install.packages("pryr")
+
+library(pryr)
+
+**Installing the R.utils package**
+
+install.packages("R.utils")
+
+library(R.utils)
+
+**Installing the tidyverse package**
+
+install.packages("tidyverse")
+
+library(tidyverse)
+
+**installing the jupyter package**
+
+install.packages("jupyter")
+
+library(jupyter)
+
+**Display memory information of your computer**
+
+memuse::Sys.meminfo()
+
+**In this exercise, we explore various tools for ingesting the MIMIC-IV data introduced in homework 1.**
+
+Display the contents of MIMIC hosp and icu data folders:
+
+```{bash}
+ls -l ~/mimic/hosp/
+```
+
+```{bash}
+ls -l ~/mimic/icu/
+```
