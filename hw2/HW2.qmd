@@ -21,6 +21,10 @@ sessionInfo()
 ```
 **Load necessary libraries (you can add more as needed).**
 
+install.packages("chattr")
+
+library(chattr)
+
 **Installing the arrow package**
 
 install.packages("arrow")
@@ -29,7 +33,7 @@ library(arrow)
 
 **installing the data.table package**
 
-install.packages("data.table)
+install.packages("data.table")
 
 library(data.table)
 
@@ -84,3 +88,113 @@ ls -l ~/mimic/hosp/
 ```{bash}
 ls -l ~/mimic/icu/
 ```
+Q1.1 Speed, memory, and data types
+There are quite a few utilities in R for reading plain text data files. Let us test the speed of reading a moderate sized compressed csv file, admissions.csv.gz, by three functions: read.csv in base R, read_csv in tidyverse, and fread in the data.table package.
+
+There are quite a few utilities in R for reading plain text data files. Let us test the speed of reading a moderate sized compressed csv file, admissions.csv.gz, by three functions: read.csv in base R, read_csv in tidyverse, and fread in the data.table package.
+
+**The system.time for the base R command is:**
+```{r}
+
+system.time({
+  admissions.r <- read.csv("~/mimic/hosp/admissions.csv.gz")
+})
+```
+**Here, the user time is 9.233, the system is 0.222, and the elapsed time is 9.533**
+
+**The system.time for by using the read_csv command in tidyverse is**
+
+```{r}
+system.time({
+  admissions.tidy <- read_csv("~/mimic/hosp/admissions.csv.gz")
+})
+```
+
+**Here, the user time is 3.707, the system is 0.329, and the elapsed time is 1.673.**
+
+**Compared to the R one, the user and elapsed time is faster, but the system is slower**
+
+**The system.time for the fread in the data.table package**
+
+```{r}
+system.time({
+  admissions.data <- fread("~/mimic/hosp/admissions.csv.gz")
+})
+```
+**Here, the user, system, and elapsed time is 2.86, 0.201, and 0.918, respectively**
+
+**Given this, the data.table package is the fastest, followed by the tidyverse, and the base R command is the slowest for the user**
+
+**For the system, the data.table package is the fastest, followed by the base R command, and the tidyverse is the slowest**
+
+**For the elapsed time, the data.table package is the fastest, followed by the tidyverse, and the base R command is the slowest**
+
+Which function is fastest? Is there difference in the (default) parsed data types? How much memory does each resultant dataframe or tibble use? (Hint: system.time measures run times; pryr::object_size measures memory usage; all these readers can take gz file as input without explicit decompression.)
+
+**The function that is the fastest is the fread in the data.table package**
+
+**The difference in the default parsed data types is that the base R command uses a data frame, the tidyverse uses a tibble, and the data.table package uses a data.table**
+
+**The memory usage for the R command**
+```{r}
+pryr::object_size(admissions.r)
+```
+**It is 200.10 for the memory usage for the R command**
+
+**The memory usage for the tidyverse command**
+```{r}
+pryr::object_size(admissions.tidy)
+```
+**It is 70.08 MB for the memory usage for the tidyverse command for the data admissions.tidy**
+
+**The memory usage for the data.table command**
+```{r}
+pryr::object_size(admissions.data)
+```
+**It is 63.46 MB for the memory usage for the data.table command for the data admissions.data**
+
+**The data.table package uses the least amount of memory, followed by the tidyverse, and the base R command uses the most amount of memory**
+
+Q2. Ingest big data files
+
+Let us focus on a bigger file, labevents.csv.gz, which is about 130x bigger than admissions.csv.gz.
+
+```{bash}
+ls -l ~/mimic/hosp/labevents.csv.gz
+```
+
+Display the first 10 lines of this file.
+```{bash}
+zcat < ~/mimic/hosp/labevents.csv.gz | head -10
+```
+
+**Please see above for the first ten lines of the file labevents.csv.gz**
+
+Q2.1 Ingest labevents.csv.gz by read_csv
+
+Try to ingest labevents.csv.gz using read_csv. What happens? If it takes more than 3 minutes on your computer, then abort the program and report your findings.
+
+```{r}
+system.time({
+  labevents.tidy <- read_csv("~/mimic/hosp/labevents.csv.gz")
+})
+```
+
+**While processing the data, I waited about ten minutes to ingest, however, I had to abort the program because it did not finish**
+
+Q2.2 Ingest selected columns of labevents.csv.gz by read_csv
+Try to ingest only columns subject_id, itemid, charttime, and valuenum in labevents.csv.gz using read_csv. Does this solve the ingestion issue? (Hint: col_select argument in read_csv.)
+
+```{r}
+system.time({
+  labevents.tidy <- read_csv("~/mimic/hosp/labevents.csv.gz", col_select = c("subject_id", "itemid", "charttime", "valuenum"))
+})
+```
+**It took about 8 minutes for it to respond. The user, system, and elapsed times are: 418.660, 644.646, and 350.702, respectively.**
+
+**Technically, this does solve the ingestion problem after eight minutes as it was able to respond with the times compared to without the columns. With this in mind, if we were to base it off the three minute mark, then no, this did not fix the issue**
+
+
+
+
+
