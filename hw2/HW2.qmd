@@ -19,59 +19,18 @@ Display machine information for reproducibility:
 #| eval: true
 sessionInfo()
 ```
-**Load necessary libraries (you can add more as needed).**
 
-install.packages("chattr")
+Load necessary libraries (tidyverse, data.table, arrow)
 
-library(chattr)
-
-**Installing the arrow package**
-
-install.packages("arrow")
-
+```{r}
 library(arrow)
-
-**installing the data.table package**
-
-install.packages("data.table")
-
 library(data.table)
-
-**installing the duckdb package)**
-
-install.packages("duckdb")
-
 library(duckdb)
-
-**Installing the memuse package**
-
-install.packages("memuse")
-
 library(memuse)
-
-**Installing the pryr package**
-
-install.packages("pryr")
-
 library(pryr)
-
-**Installing the R.utils package**
-
-install.packages("R.utils")
-
 library(R.utils)
-
-**Installing the tidyverse package**
-
-install.packages("tidyverse")
-
 library(tidyverse)
-
-**installing the jupyter package**
-
-install.packages("jupyter")
-
-library(jupyter)
+```
 
 **Display memory information of your computer**
 
@@ -95,7 +54,6 @@ There are quite a few utilities in R for reading plain text data files. Let us t
 
 **The system.time for the base R command is:**
 ```{r}
-
 system.time({
   admissions.r <- read.csv("~/mimic/hosp/admissions.csv.gz")
 })
@@ -175,6 +133,7 @@ Q2.1 Ingest labevents.csv.gz by read_csv
 Try to ingest labevents.csv.gz using read_csv. What happens? If it takes more than 3 minutes on your computer, then abort the program and report your findings.
 
 ```{r}
+#| eval: false
 system.time({
   labevents.tidy <- read_csv("~/mimic/hosp/labevents.csv.gz")
 })
@@ -186,6 +145,7 @@ Q2.2 Ingest selected columns of labevents.csv.gz by read_csv
 Try to ingest only columns subject_id, itemid, charttime, and valuenum in labevents.csv.gz using read_csv. Does this solve the ingestion issue? (Hint: col_select argument in read_csv.)
 
 ```{r}
+#| eval: false
 system.time({
   labevents.tidy <- read_csv("~/mimic/hosp/labevents.csv.gz", col_select = c("subject_id", "itemid", "charttime", "valuenum"))
 })
@@ -194,7 +154,26 @@ system.time({
 
 **Technically, this does solve the ingestion problem after eight minutes as it was able to respond with the times compared to without the columns. With this in mind, if we were to base it off the three minute mark, then no, this did not fix the issue**
 
+Q2.3 Ingest a subset of labevents.csv.gz
 
+Our first strategy to handle this big data file is to make a subset of the labevents data. Read the MIMIC documentation for the content in data file labevents.csv.
 
+In later exercises, we will only be interested in the following lab items: creatinine (50912), potassium (50971), sodium (50983), chloride (50902), bicarbonate (50882), hematocrit (51221), white blood cell count (51301), and glucose (50931) and the following columns: subject_id, itemid, charttime, valuenum. Write a Bash command to extract these columns and rows from labevents.csv.gz and save the result to a new file labevents_filtered.csv.gz in the current working directory. (Hint: Use zcat < to pipe the output of labevents.csv.gz to awk and then to gzip to compress the output. Do not put labevents_filtered.csv.gz in Git! To save render time, you can put #| eval: false at the beginning of this code chunk. TA will change it to #| eval: true before rendering your qmd file.)
 
+```{bash}
+#| eval: false
+zcat < ~/mimic/hosp/labevents.csv.gz | awk -F, 'BEGIN {OFS=","} 
+{if ($4 == 50912 || $4 == 50971 || $4 == 50983 || $4 == 50902 || 
+$4 == 50882 || $4 == 51221 || $4 == 51301 || $4 == 50931) 
+print $1, $4, $5, $8}' | gzip > labevents_filtered.csv.gz
+```
 
+Display the first 10 lines of the new file labevents_filtered.csv.gz. How many lines are in this new file, excluding the header? How long does it take read_csv to ingest labevents_filtered.csv.gz?
+
+```{bash}
+zcat < labevents_filtered.csv.gz | head -10
+```
+
+```{bash}
+zcat < labevents_filtered.csv.gz | wc -l
+```
