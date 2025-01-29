@@ -285,7 +285,7 @@ Attaching package: 'R.utils'</code></pre>
 <span id="cb32-3"><a href="#cb32-3" aria-hidden="true" tabindex="-1"></a>})</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
 <div class="cell-output cell-output-stdout">
 <pre><code>   user  system elapsed 
- 10.978   0.186  11.167 </code></pre>
+ 11.884   0.368  13.353 </code></pre>
 </div>
 </div>
 <p><strong>Here, the user time is 9.233, the system is 0.222, and the elapsed time is 9.533</strong></p>
@@ -307,7 +307,7 @@ dttm (5): admittime, dischtime, deathtime, edregtime, edouttime
 </div>
 <div class="cell-output cell-output-stdout">
 <pre><code>   user  system elapsed 
-  3.726   0.336   1.591 </code></pre>
+  3.725   0.347   1.724 </code></pre>
 </div>
 </div>
 <p><strong>Here, the user time is 3.707, the system is 0.329, and the elapsed time is 1.673.</strong></p>
@@ -319,7 +319,7 @@ dttm (5): admittime, dischtime, deathtime, edregtime, edouttime
 <span id="cb37-3"><a href="#cb37-3" aria-hidden="true" tabindex="-1"></a>})</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
 <div class="cell-output cell-output-stdout">
 <pre><code>   user  system elapsed 
-  2.687   0.132   0.796 </code></pre>
+  3.244   0.282   1.305 </code></pre>
 </div>
 </div>
 <p><strong>Here, the user, system, and elapsed time is 2.86, 0.201, and 0.918, respectively</strong></p>
@@ -397,27 +397,64 @@ dttm (5): admittime, dischtime, deathtime, edregtime, edouttime
 <p><strong>Technically, this does solve the ingestion problem after eight minutes as it was able to respond with the times compared to without the columns. With this in mind, if we were to base it off the three minute mark, then no, this did not fix the issue</strong></p>
 <p>Q2.3 Ingest a subset of labevents.csv.gz</p>
 <p>Our first strategy to handle this big data file is to make a subset of the labevents data. Read the MIMIC documentation for the content in data file labevents.csv.</p>
+<div class="cell">
+<div class="sourceCode cell-code" id="cb51"><pre class="sourceCode bash code-with-copy"><code class="sourceCode bash"><span id="cb51-1"><a href="#cb51-1" aria-hidden="true" tabindex="-1"></a><span class="fu">zcat</span> <span class="op">&lt;</span> ~/mimic/hosp/labevents.csv.gz <span class="kw">|</span> <span class="fu">head</span> <span class="at">-6</span></span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="cell-output cell-output-stdout">
+<pre><code>labevent_id,subject_id,hadm_id,specimen_id,itemid,order_provider_id,charttime,storetime,value,valuenum,valueuom,ref_range_lower,ref_range_upper,flag,priority,comments
+1,10000032,,2704548,50931,P69FQC,2180-03-23 11:51:00,2180-03-23 15:56:00,___,95,mg/dL,70,100,,ROUTINE,"IF FASTING, 70-100 NORMAL, &gt;125 PROVISIONAL DIABETES."
+2,10000032,,36092842,51071,P69FQC,2180-03-23 11:51:00,2180-03-23 16:00:00,NEG,,,,,,ROUTINE,
+3,10000032,,36092842,51074,P69FQC,2180-03-23 11:51:00,2180-03-23 16:00:00,NEG,,,,,,ROUTINE,
+4,10000032,,36092842,51075,P69FQC,2180-03-23 11:51:00,2180-03-23 16:00:00,NEG,,,,,,ROUTINE,"BENZODIAZEPINE IMMUNOASSAY SCREEN DOES NOT DETECT SOME DRUGS,;INCLUDING LORAZEPAM, CLONAZEPAM, AND FLUNITRAZEPAM."
+5,10000032,,36092842,51079,P69FQC,2180-03-23 11:51:00,2180-03-23 16:00:00,NEG,,,,,,ROUTINE,</code></pre>
+</div>
+</div>
 <p>In later exercises, we will only be interested in the following lab items: creatinine (50912), potassium (50971), sodium (50983), chloride (50902), bicarbonate (50882), hematocrit (51221), white blood cell count (51301), and glucose (50931) and the following columns: subject_id, itemid, charttime, valuenum. Write a Bash command to extract these columns and rows from labevents.csv.gz and save the result to a new file labevents_filtered.csv.gz in the current working directory. (Hint: Use zcat &lt; to pipe the output of labevents.csv.gz to awk and then to gzip to compress the output. Do not put labevents_filtered.csv.gz in Git! To save render time, you can put #| eval: false at the beginning of this code chunk. TA will change it to #| eval: true before rendering your qmd file.)</p>
 <div class="cell">
-<div class="sourceCode cell-code" id="cb51"><pre class="sourceCode bash code-with-copy"><code class="sourceCode bash"><span id="cb51-1"><a href="#cb51-1" aria-hidden="true" tabindex="-1"></a><span class="fu">zcat</span> <span class="op">&lt;</span> ~/mimic/hosp/labevents.csv.gz <span class="kw">|</span> <span class="fu">awk</span> <span class="at">-F,</span> <span class="st">'BEGIN {OFS=","} </span></span>
-<span id="cb51-2"><a href="#cb51-2" aria-hidden="true" tabindex="-1"></a><span class="st">{if ($4 == 50912 || $4 == 50971 || $4 == 50983 || $4 == 50902 || </span></span>
-<span id="cb51-3"><a href="#cb51-3" aria-hidden="true" tabindex="-1"></a><span class="st">$4 == 50882 || $4 == 51221 || $4 == 51301 || $4 == 50931) </span></span>
-<span id="cb51-4"><a href="#cb51-4" aria-hidden="true" tabindex="-1"></a><span class="st">print $1, $4, $5, $8}'</span> <span class="kw">|</span> <span class="fu">gzip</span> <span class="op">&gt;</span> labevents_filtered.csv.gz</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="sourceCode cell-code" id="cb53"><pre class="sourceCode bash code-with-copy"><code class="sourceCode bash"><span id="cb53-1"><a href="#cb53-1" aria-hidden="true" tabindex="-1"></a><span class="fu">zcat</span> <span class="op">&lt;</span> ~/mimic/hosp/labevents.csv.gz <span class="kw">|</span> <span class="fu">awk</span> <span class="at">-F,</span> <span class="st">'</span></span>
+<span id="cb53-2"><a href="#cb53-2" aria-hidden="true" tabindex="-1"></a><span class="st">  BEGIN {OFS=","; print "subject_id,itemid,charttime,valuenum"} </span></span>
+<span id="cb53-3"><a href="#cb53-3" aria-hidden="true" tabindex="-1"></a><span class="st">  $5 == 50912 || $5 == 50971 || $5 == 50983 || $5 == 50902 || $5 == 50882 || $5 ==   51221 || $5 == 51301 || $5 == 50931 {</span></span>
+<span id="cb53-4"><a href="#cb53-4" aria-hidden="true" tabindex="-1"></a><span class="st">    print $2, $5, $7, $10</span></span>
+<span id="cb53-5"><a href="#cb53-5" aria-hidden="true" tabindex="-1"></a><span class="st">}'</span> <span class="kw">|</span> <span class="fu">gzip</span> <span class="op">&gt;</span> labevents_filtered.csv.gz</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
 </div>
 <p>Display the first 10 lines of the new file labevents_filtered.csv.gz. How many lines are in this new file, excluding the header? How long does it take read_csv to ingest labevents_filtered.csv.gz?</p>
 <div class="cell">
-<div class="sourceCode cell-code" id="cb52"><pre class="sourceCode bash code-with-copy"><code class="sourceCode bash"><span id="cb52-1"><a href="#cb52-1" aria-hidden="true" tabindex="-1"></a><span class="fu">zcat</span> <span class="op">&lt;</span> labevents_filtered.csv.gz <span class="kw">|</span> <span class="fu">head</span> <span class="at">-10</span></span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="sourceCode cell-code" id="cb54"><pre class="sourceCode bash code-with-copy"><code class="sourceCode bash"><span id="cb54-1"><a href="#cb54-1" aria-hidden="true" tabindex="-1"></a><span class="fu">zcat</span> <span class="op">&lt;</span> labevents_filtered.csv.gz <span class="kw">|</span> <span class="fu">head</span> <span class="at">-10</span></span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
 <div class="cell-output cell-output-stdout">
-<pre><code>zcat: (stdin): unexpected end of file</code></pre>
+<pre><code>subject_id,itemid,charttime,valuenum
+10000032,50931,2180-03-23 11:51:00,95
+10000032,50882,2180-03-23 11:51:00,27
+10000032,50902,2180-03-23 11:51:00,101
+10000032,50912,2180-03-23 11:51:00,0.4
+10000032,50971,2180-03-23 11:51:00,3.7
+10000032,50983,2180-03-23 11:51:00,136
+10000032,51221,2180-03-23 11:51:00,45.4
+10000032,51301,2180-03-23 11:51:00,3
+10000032,51221,2180-05-06 22:25:00,42.6</code></pre>
 </div>
 </div>
 <div class="cell">
-<div class="sourceCode cell-code" id="cb54"><pre class="sourceCode bash code-with-copy"><code class="sourceCode bash"><span id="cb54-1"><a href="#cb54-1" aria-hidden="true" tabindex="-1"></a><span class="fu">zcat</span> <span class="op">&lt;</span> labevents_filtered.csv.gz <span class="kw">|</span> <span class="fu">wc</span> <span class="at">-l</span></span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="sourceCode cell-code" id="cb56"><pre class="sourceCode bash code-with-copy"><code class="sourceCode bash"><span id="cb56-1"><a href="#cb56-1" aria-hidden="true" tabindex="-1"></a><span class="fu">zcat</span> <span class="op">&lt;</span> labevents_filtered.csv.gz <span class="kw">|</span> <span class="fu">wc</span> <span class="at">-l</span></span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
 <div class="cell-output cell-output-stdout">
-<pre><code>zcat: (stdin): unexpected end of file
-       0</code></pre>
+<pre><code> 32679897</code></pre>
 </div>
 </div>
+<p>Q2.4 Ingest labevents.csv by Apache Arrow</p>
+<p>Our second strategy is to use Apache Arrow for larger-than-memory data analytics. Unfortunately Arrow does not work with gz files directly. First decompress labevents.csv.gz to labevents.csv and put it in the current working directory (do not add it in git!). To save render time, put #| eval: false at the beginning of this code chunk. TA will change it to #| eval: true when rendering your qmd file.</p>
+<div class="cell">
+<div class="sourceCode cell-code" id="cb58"><pre class="sourceCode bash code-with-copy"><code class="sourceCode bash"><span id="cb58-1"><a href="#cb58-1" aria-hidden="true" tabindex="-1"></a><span class="fu">zcat</span> <span class="op">&lt;</span> ~/mimic/hosp/labevents.csv.gz <span class="op">&gt;</span> labevents.csv</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+</div>
+<p><strong>Now, let us double check that the labevents.csv file is there</strong></p>
+<div class="cell">
+<div class="sourceCode cell-code" id="cb59"><pre class="sourceCode bash code-with-copy"><code class="sourceCode bash"><span id="cb59-1"><a href="#cb59-1" aria-hidden="true" tabindex="-1"></a><span class="fu">ls</span> <span class="at">-l</span> ~/mimic/hosp/labevents.csv</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="cell-output cell-output-stdout">
+<pre><code>-rw-r--r--@ 1 lukehodges  staff  18402851720 Jan 20 22:00 /Users/lukehodges/mimic/hosp/labevents.csv</code></pre>
+</div>
+</div>
+<p><strong>It looks like the file is successfully placed as directed</strong></p>
+<p>Then use arrow::open_dataset to ingest labevents.csv, select columns, and filter itemid as in Q2.3.</p>
+<p><strong>Using open_dataset to ingest labevents.csv</strong></p>
+<p>How long does the ingest+select+filter process take? Display the number of rows and the first 10 rows of the result tibble, and make sure they match those in Q2.3. (Hint: use dplyr verbs for selecting columns and filtering rows.)</p>
+<p>Write a few sentences to explain what is Apache Arrow. Imagine you want to explain it to a layman in an elevator.</p>
 
 </main>
 <!-- /main column -->
