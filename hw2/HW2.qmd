@@ -30,6 +30,7 @@ library(memuse)
 library(pryr)
 library(R.utils)
 library(tidyverse)
+library(dplyr)
 ```
 
 **Display memory information of your computer**
@@ -173,6 +174,12 @@ zcat < ~/mimic/hosp/labevents.csv.gz | awk -F, '
 }' | gzip > labevents_filtered.csv.gz
 ```
 
+**Checking to see how big the file size is**
+```{bash}
+ls -lh labevents_filtered.csv.gz
+```
+**It is 166 MB which is similar to what Dr. Zhou said in slack.**
+
 Display the first 10 lines of the new file labevents_filtered.csv.gz. How many lines are in this new file, excluding the header? How long does it take read_csv to ingest labevents_filtered.csv.gz?
 
 ```{bash}
@@ -204,11 +211,54 @@ Then use arrow::open_dataset to ingest labevents.csv, select columns, and filter
 **Using open_dataset to ingest labevents.csv**
 
 ```{r}
-#| eval: false
+labelevents.arrow <- arrow::open_dataset("labevents.csv", format = "csv")
 ```
 
+**Now we have to select the columns and filter the new table labelevets.arrow**
 
-How long does the ingest+select+filter process take? Display the number of rows and the first 10 rows of the result tibble, and make sure they match those in Q2.3. (Hint: use dplyr verbs for selecting columns and filtering rows.)
+```{r}
+labevents.filtered.arrow <- labelevents.arrow %>%
+  dplyr::select(subject_id, itemid, charttime, valuenum) %>%
+  dplyr::filter(itemid %in% c(50912, 50971, 50983, 50902, 50882, 51221, 51301, 50931))
+```
 
+How long does the ingest+select+filter process take? 
+
+```{r}
+system.time({
+  labevents.arrow <- arrow::open_dataset("labevents.csv", format = "csv") %>%
+    dplyr::select(subject_id, itemid, charttime, valuenum) %>%
+    dplyr::filter(itemid %in% c(50912, 50971, 50983, 50902, 50882, 51221, 51301, 50931))
+})
+```
+**Using arrow, the user, system, and elapsed times are more faster. They are 0.047, 0.014, and 0.110, respectively**
+
+Display the number of rows.
+
+```{r}
+nrow(labevents.filtered.arrow)
+```
+**Nrow only counts the rows of data, not the header row. Therefore, the total rows would be 32679896, which is the same as the 
+number of lines in the file labevents_filtered.csv.gz, as we saw in the previous question**
+
+First ten rows of the result tibble. 
+```{r}
+first10 <- labevents.filtered.arrow %>%
+  head(10) %>%
+  collect()
+```
+
+```{r}
+print(first10)
+```
+
+**Does this match up to the one above? Let us find out**
+
+```{bash}
+zcat < labevents_filtered.csv.gz | head -10
+```
+**Although it directly matches those in Q2.3, the only thing that does not is the charttime. The hour seems to be off, despite the minute being the same**
 
 Write a few sentences to explain what is Apache Arrow. Imagine you want to explain it to a layman in an elevator.
+
+**Apache Arrow is a development platform for in-memory data. It is designed to accelerate the processing of large data sets that are too big to fit into memory. It is a memory format that is designed to be fast and efficient. It is used to store and process data in a way that is more efficient than traditional formats.**
