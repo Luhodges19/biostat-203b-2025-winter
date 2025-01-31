@@ -290,7 +290,7 @@ drwxr-xr-x@ 3 lukehodges  staff           96 Jan 30 22:13 labevents.filtered
 <span id="cb33-3"><a href="#cb33-3" aria-hidden="true" tabindex="-1"></a>})</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
 <div class="cell-output cell-output-stdout">
 <pre><code>   user  system elapsed 
- 10.915   0.228  11.148 </code></pre>
+ 11.161   0.222  11.390 </code></pre>
 </div>
 </div>
 <p><strong>Here, the user time is 9.233, the system is 0.222, and the elapsed time is 9.533</strong></p>
@@ -312,7 +312,7 @@ dttm (5): admittime, dischtime, deathtime, edregtime, edouttime
 </div>
 <div class="cell-output cell-output-stdout">
 <pre><code>   user  system elapsed 
-  3.719   0.386   1.689 </code></pre>
+  3.765   0.814   1.738 </code></pre>
 </div>
 </div>
 <p><strong>Here, the user time is 3.707, the system is 0.329, and the elapsed time is 1.673.</strong></p>
@@ -324,7 +324,7 @@ dttm (5): admittime, dischtime, deathtime, edregtime, edouttime
 <span id="cb38-3"><a href="#cb38-3" aria-hidden="true" tabindex="-1"></a>})</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
 <div class="cell-output cell-output-stdout">
 <pre><code>   user  system elapsed 
-  2.666   0.154   0.822 </code></pre>
+  2.703   0.166   0.839 </code></pre>
 </div>
 </div>
 <p><strong>Here, the user, system, and elapsed time is 2.86, 0.201, and 0.918, respectively</strong></p>
@@ -490,7 +490,7 @@ dttm (5): admittime, dischtime, deathtime, edregtime, edouttime
 <span id="cb66-5"><a href="#cb66-5" aria-hidden="true" tabindex="-1"></a>})</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
 <div class="cell-output cell-output-stdout">
 <pre><code>   user  system elapsed 
-  0.039   0.011   0.042 </code></pre>
+  0.042   0.011   0.044 </code></pre>
 </div>
 </div>
 <p><strong>Using arrow, the user, system, and elapsed times are more faster. They are 0.047, 0.014, and 0.110, respectively</strong></p>
@@ -561,7 +561,7 @@ dttm (5): admittime, dischtime, deathtime, edregtime, edouttime
 <div class="sourceCode cell-code" id="cb77"><pre class="sourceCode bash code-with-copy"><code class="sourceCode bash"><span id="cb77-1"><a href="#cb77-1" aria-hidden="true" tabindex="-1"></a><span class="fu">ls</span> <span class="at">-l</span> ~/mimic/hosp/labevents</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
 <div class="cell-output cell-output-stdout">
 <pre><code>total 5341192
--rw-r--r--@ 1 lukehodges  staff  2731040379 Jan 30 22:23 part-0.parquet</code></pre>
+-rw-r--r--@ 1 lukehodges  staff  2731040379 Jan 30 23:01 part-0.parquet</code></pre>
 </div>
 </div>
 <p>How large is the Parquet file(s)?</p>
@@ -577,7 +577,7 @@ dttm (5): admittime, dischtime, deathtime, edregtime, edouttime
 <span id="cb79-7"><a href="#cb79-7" aria-hidden="true" tabindex="-1"></a>})</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
 <div class="cell-output cell-output-stdout">
 <pre><code>   user  system elapsed 
-  0.451   0.061   0.514 </code></pre>
+  0.449   0.057   0.507 </code></pre>
 </div>
 </div>
 <p><strong>The user, system, and elapsed times are 0.0489, 0.094, and 0.605 respectively</strong></p>
@@ -592,7 +592,7 @@ dttm (5): admittime, dischtime, deathtime, edregtime, edouttime
 <div class="sourceCode cell-code" id="cb82"><pre class="sourceCode bash code-with-copy"><code class="sourceCode bash"><span id="cb82-1"><a href="#cb82-1" aria-hidden="true" tabindex="-1"></a><span class="fu">ls</span> <span class="at">-l</span> ~/mimic/hosp/labevents.filtered</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
 <div class="cell-output cell-output-stdout">
 <pre><code>total 327688
--rw-r--r--@ 1 lukehodges  staff  152917918 Jan 30 22:24 part-0.parquet</code></pre>
+-rw-r--r--@ 1 lukehodges  staff  152917919 Jan 30 23:02 part-0.parquet</code></pre>
 </div>
 </div>
 <p><strong>The file size is 152.9 MB after being filtered</strong></p>
@@ -631,6 +631,80 @@ dttm (5): admittime, dischtime, deathtime, edregtime, edouttime
 <p><strong>This is the exact same as what we saw before</strong></p>
 <p>Write a few sentences to explain what is the Parquet format. Imagine you want to explain it to a layman in an elevator.</p>
 <p><strong>NEED TO DO THIS PART</strong></p>
+<p>Q2.6 DuckDB</p>
+<p>Ingest the Parquet file, convert it to a DuckDB table by arrow::to_duckdb, select columns, and filter rows as in Q2.5. How long does the ingest+convert+select+filter process take? Display the number of rows and the first 10 rows of the result tibble and make sure they match those in Q2.3. (Hint: use dplyr verbs for selecting columns and filtering rows.)</p>
+<p>Write a few sentences to explain what is DuckDB. Imagine you want to explain it to a layman in an elevator.</p>
+<p><strong>The first step is to ingest the parquet file</strong></p>
+<div class="cell">
+<div class="sourceCode cell-code" id="cb89"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb89-1"><a href="#cb89-1" aria-hidden="true" tabindex="-1"></a>labevents.duckdb <span class="ot">&lt;-</span> arrow<span class="sc">::</span><span class="fu">open_dataset</span>(<span class="st">"~/mimic/hosp/labevents/part-0.parquet"</span>, </span>
+<span id="cb89-2"><a href="#cb89-2" aria-hidden="true" tabindex="-1"></a>                                       <span class="at">format =</span> <span class="st">"parquet"</span>)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+</div>
+<p><strong>Now let us convert it to DuckDB table by arrow::to_duckdb</strong></p>
+<div class="cell">
+<div class="sourceCode cell-code" id="cb90"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb90-1"><a href="#cb90-1" aria-hidden="true" tabindex="-1"></a>labevents.duckdb.table <span class="ot">&lt;-</span> arrow<span class="sc">::</span><span class="fu">to_duckdb</span>(labevents.duckdb, </span>
+<span id="cb90-2"><a href="#cb90-2" aria-hidden="true" tabindex="-1"></a>                                           <span class="at">table =</span> <span class="st">"labevents.ddb"</span>)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+</div>
+<p><strong>Now, let us select columns and filter rows as in Q2.5</strong></p>
+<div class="cell">
+<div class="sourceCode cell-code" id="cb91"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb91-1"><a href="#cb91-1" aria-hidden="true" tabindex="-1"></a>labevents.filter.duckdb <span class="ot">&lt;-</span> labevents.duckdb.table <span class="sc">%&gt;%</span></span>
+<span id="cb91-2"><a href="#cb91-2" aria-hidden="true" tabindex="-1"></a>  dplyr<span class="sc">::</span><span class="fu">select</span>(subject_id, itemid, charttime, valuenum) <span class="sc">%&gt;%</span></span>
+<span id="cb91-3"><a href="#cb91-3" aria-hidden="true" tabindex="-1"></a>    dplyr<span class="sc">::</span><span class="fu">filter</span>(itemid <span class="sc">%in%</span> <span class="fu">c</span>(<span class="dv">50912</span>, <span class="dv">50971</span>, <span class="dv">50983</span>, <span class="dv">50902</span>, <span class="dv">50882</span>, <span class="dv">51221</span>, <span class="dv">51301</span>, <span class="dv">50931</span>))</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+</div>
+<p><strong>How long does the ingest+convert+select+filter process take?</strong></p>
+<div class="cell">
+<div class="sourceCode cell-code" id="cb92"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb92-1"><a href="#cb92-1" aria-hidden="true" tabindex="-1"></a><span class="fu">system.time</span>({</span>
+<span id="cb92-2"><a href="#cb92-2" aria-hidden="true" tabindex="-1"></a>  labevents.filter.duckdb <span class="ot">&lt;-</span> </span>
+<span id="cb92-3"><a href="#cb92-3" aria-hidden="true" tabindex="-1"></a>    arrow<span class="sc">::</span><span class="fu">open_dataset</span>(<span class="st">"~/mimic/hosp/labevents/part-0.parquet"</span>, </span>
+<span id="cb92-4"><a href="#cb92-4" aria-hidden="true" tabindex="-1"></a>                                                  <span class="at">format =</span> <span class="st">"parquet"</span>) <span class="sc">%&gt;%</span></span>
+<span id="cb92-5"><a href="#cb92-5" aria-hidden="true" tabindex="-1"></a>    arrow<span class="sc">::</span><span class="fu">to_duckdb</span>(<span class="at">table =</span> <span class="st">"labevents.ddb_v2"</span>) <span class="sc">%&gt;%</span></span>
+<span id="cb92-6"><a href="#cb92-6" aria-hidden="true" tabindex="-1"></a>    dplyr<span class="sc">::</span><span class="fu">select</span>(subject_id, itemid, charttime, valuenum) <span class="sc">%&gt;%</span></span>
+<span id="cb92-7"><a href="#cb92-7" aria-hidden="true" tabindex="-1"></a>    dplyr<span class="sc">::</span><span class="fu">filter</span>(itemid <span class="sc">%in%</span> <span class="fu">c</span>(<span class="dv">50912</span>, <span class="dv">50971</span>, <span class="dv">50983</span>, <span class="dv">50902</span>, <span class="dv">50882</span>, <span class="dv">51221</span>, </span>
+<span id="cb92-8"><a href="#cb92-8" aria-hidden="true" tabindex="-1"></a>                                <span class="dv">51301</span>, <span class="dv">50931</span>))</span>
+<span id="cb92-9"><a href="#cb92-9" aria-hidden="true" tabindex="-1"></a>})</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="cell-output cell-output-stdout">
+<pre><code>   user  system elapsed 
+  0.489   0.086   0.578 </code></pre>
+</div>
+</div>
+<p><strong>The user, system, and elapsed times are 0.509, 0.092, and 0.626, respectively. This is slower than both the arrow and paraquet methods</strong></p>
+<p>Display the number of rows and the first 10 rows of the result tibble and make sure they match those in Q2.3.</p>
+<p><strong>This command was taken and modified directly from the website attached to the homework for this section</strong></p>
+<div class="cell">
+<div class="sourceCode cell-code" id="cb94"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb94-1"><a href="#cb94-1" aria-hidden="true" tabindex="-1"></a><span class="fu">nrow</span>(</span>
+<span id="cb94-2"><a href="#cb94-2" aria-hidden="true" tabindex="-1"></a>  <span class="fu">collect</span>(labevents.filter.duckdb)</span>
+<span id="cb94-3"><a href="#cb94-3" aria-hidden="true" tabindex="-1"></a>  )</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="cell-output cell-output-stdout">
+<pre><code>[1] 32679896</code></pre>
+</div>
+</div>
+<p><strong>This is identical to what we have seen above</strong></p>
+<p>first 10 rows of the result tibble</p>
+<div class="cell">
+<div class="sourceCode cell-code" id="cb96"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb96-1"><a href="#cb96-1" aria-hidden="true" tabindex="-1"></a>first10.duckdb <span class="ot">&lt;-</span> labevents.filter.duckdb <span class="sc">%&gt;%</span></span>
+<span id="cb96-2"><a href="#cb96-2" aria-hidden="true" tabindex="-1"></a>  <span class="fu">head</span>(<span class="dv">10</span>) <span class="sc">%&gt;%</span></span>
+<span id="cb96-3"><a href="#cb96-3" aria-hidden="true" tabindex="-1"></a>  <span class="fu">collect</span>()</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+</div>
+<div class="cell">
+<div class="sourceCode cell-code" id="cb97"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb97-1"><a href="#cb97-1" aria-hidden="true" tabindex="-1"></a><span class="fu">print</span>(first10.duckdb)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="cell-output cell-output-stdout">
+<pre><code># A tibble: 10 × 4
+   subject_id itemid charttime           valuenum
+        &lt;dbl&gt;  &lt;dbl&gt; &lt;dttm&gt;                 &lt;dbl&gt;
+ 1   10000032  50931 2180-03-23 11:51:00     95  
+ 2   10000032  50882 2180-03-23 11:51:00     27  
+ 3   10000032  50902 2180-03-23 11:51:00    101  
+ 4   10000032  50912 2180-03-23 11:51:00      0.4
+ 5   10000032  50971 2180-03-23 11:51:00      3.7
+ 6   10000032  50983 2180-03-23 11:51:00    136  
+ 7   10000032  51221 2180-03-23 11:51:00     45.4
+ 8   10000032  51301 2180-03-23 11:51:00      3  
+ 9   10000032  51221 2180-05-06 22:25:00     42.6
+10   10000032  51301 2180-05-06 22:25:00      5  </code></pre>
+</div>
+</div>
+<p><strong>This is identical to what we have seen above, with the time zones going back to what they were originally.</strong></p>
+<p>Write a few sentences to explain what is DuckDB. Imagine you want to explain it to a layman in an elevator.</p>
+<p><strong>NEED TO DO THIS</strong></p>
 
 </main>
 <!-- /main column -->

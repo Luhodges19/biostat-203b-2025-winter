@@ -345,3 +345,73 @@ Write a few sentences to explain what is the Parquet format. Imagine you want to
 
 **NEED TO DO THIS PART**
 
+Q2.6 DuckDB
+
+Ingest the Parquet file, convert it to a DuckDB table by arrow::to_duckdb, select columns, and filter rows as in Q2.5. How long does the ingest+convert+select+filter process take? Display the number of rows and the first 10 rows of the result tibble and make sure they match those in Q2.3. (Hint: use dplyr verbs for selecting columns and filtering rows.)
+
+Write a few sentences to explain what is DuckDB. Imagine you want to explain it to a layman in an elevator.
+
+**The first step is to ingest the parquet file**
+
+```{r}
+labevents.duckdb <- arrow::open_dataset("~/mimic/hosp/labevents/part-0.parquet", 
+                                       format = "parquet")
+```
+
+**Now let us convert it to DuckDB table by arrow::to_duckdb**
+
+```{r}
+labevents.duckdb.table <- arrow::to_duckdb(labevents.duckdb, 
+                                           table = "labevents.ddb")
+```
+
+**Now, let us select columns and filter rows as in Q2.5**
+
+```{r}
+labevents.filter.duckdb <- labevents.duckdb.table %>%
+  dplyr::select(subject_id, itemid, charttime, valuenum) %>%
+    dplyr::filter(itemid %in% c(50912, 50971, 50983, 50902, 50882, 51221, 51301, 50931))
+```
+
+**How long does the ingest+convert+select+filter process take?**
+
+```{r}
+system.time({
+  labevents.filter.duckdb <- 
+    arrow::open_dataset("~/mimic/hosp/labevents/part-0.parquet", 
+                                                  format = "parquet") %>%
+    arrow::to_duckdb(table = "labevents.ddb_v2") %>%
+    dplyr::select(subject_id, itemid, charttime, valuenum) %>%
+    dplyr::filter(itemid %in% c(50912, 50971, 50983, 50902, 50882, 51221, 
+                                51301, 50931))
+})
+```
+**The user, system, and elapsed times are 0.509, 0.092, and 0.626, respectively. This is slower than both the arrow and paraquet methods**
+
+Display the number of rows and the first 10 rows of the result tibble and make sure they match those in Q2.3.
+
+**This command was taken and modified directly from the website attached to the homework for this section**
+
+```{r}
+nrow(
+  collect(labevents.filter.duckdb)
+  )
+```
+**This is identical to what we have seen above**
+
+ first 10 rows of the result tibble
+ 
+```{r}
+first10.duckdb <- labevents.filter.duckdb %>%
+  head(10) %>%
+  collect()
+```
+
+```{r}
+print(first10.duckdb)
+```
+**This is identical to what we have seen above, with the time zones going back to what they were originally.**
+
+Write a few sentences to explain what is DuckDB. Imagine you want to explain it to a layman in an elevator.
+
+**NEED TO DO THIS**
