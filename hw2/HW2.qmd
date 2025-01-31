@@ -195,7 +195,6 @@ Q2.4 Ingest labevents.csv by Apache Arrow
 Our second strategy is to use Apache Arrow for larger-than-memory data analytics. Unfortunately Arrow does not work with gz files directly. First decompress labevents.csv.gz to labevents.csv and put it in the current working directory (do not add it in git!). To save render time, put #| eval: false at the beginning of this code chunk. TA will change it to #| eval: true when rendering your qmd file.
 
 ```{bash}
-#| eval: false
 zcat < ~/mimic/hosp/labevents.csv.gz > labevents.csv
 ```
 
@@ -262,3 +261,21 @@ zcat < labevents_filtered.csv.gz | head -10
 Write a few sentences to explain what is Apache Arrow. Imagine you want to explain it to a layman in an elevator.
 
 **Apache Arrow is a development platform for in-memory data. It is designed to accelerate the processing of large data sets that are too big to fit into memory. It is a memory format that is designed to be fast and efficient. It is used to store and process data in a way that is more efficient than traditional formats.**
+
+Q2.5 Compress labevents.csv to Parquet format and ingest/select/filter
+
+Re-write the csv file labevents.csv in the binary Parquet format (Hint: arrow::write_dataset.) 
+
+```{r}
+labevents.parquet <- arrow::write_dataset(labelevents.arrow, path = "~/mimic/hosp", format = "parquet")
+```
+
+How large is the Parquet file(s)?
+
+```{bash}
+ls -lh ~/mimic/hosp/labevents.parquet
+```
+
+
+
+Write a few sentences to explain what is the Parquet format. Imagine you want to explain it to a layman in an elevator.
