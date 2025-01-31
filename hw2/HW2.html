@@ -236,7 +236,7 @@ Attaching package: 'R.utils'</code></pre>
 <div class="cell">
 <div class="sourceCode cell-code" id="cb29"><pre class="sourceCode bash code-with-copy"><code class="sourceCode bash"><span id="cb29-1"><a href="#cb29-1" aria-hidden="true" tabindex="-1"></a><span class="fu">ls</span> <span class="at">-l</span> ~/mimic/hosp/</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
 <div class="cell-output cell-output-stdout">
-<pre><code>total 48249320
+<pre><code>total 48937584
 -rw-r--r--@ 1 lukehodges  staff     19928140 Jun 24  2024 admissions.csv.gz
 -rw-r--r--@ 1 lukehodges  staff       427554 Apr 12  2024 d_hcpcs.csv.gz
 -rw-r--r--@ 1 lukehodges  staff       876360 Apr 12  2024 d_icd_diagnoses.csv.gz
@@ -247,10 +247,13 @@ Attaching package: 'R.utils'</code></pre>
 -rw-r--r--@ 1 lukehodges  staff    811305629 Apr 12  2024 emar.csv.gz
 -rw-r--r--@ 1 lukehodges  staff    748158322 Apr 12  2024 emar_detail.csv.gz
 -rw-r--r--@ 1 lukehodges  staff      2162335 Apr 12  2024 hcpcsevents.csv.gz
+drwxr-xr-x@ 3 lukehodges  staff           96 Jan 30 16:17 labevents
 -rw-r--r--@ 1 lukehodges  staff  18402851720 Jan 20 22:00 labevents.csv
 -rw-r--r--@ 1 lukehodges  staff   2592909134 Oct  3 09:08 labevents.csv.gz
+-rw-r--r--@ 1 lukehodges  staff    174094381 Jan 30 21:01 labevents_filtered.csv.gz
 -rw-r--r--@ 1 lukehodges  staff    117644075 Oct  3 09:08 microbiologyevents.csv.gz
 -rw-r--r--@ 1 lukehodges  staff     44069351 Oct  3 09:08 omr.csv.gz
+-rw-r--r--@ 1 lukehodges  staff    152917918 Jan 30 16:08 part-0.parquet
 -rw-r--r--@ 1 lukehodges  staff      2835586 Apr 12  2024 patients.csv.gz
 -rw-r--r--@ 1 lukehodges  staff    525708076 Apr 12  2024 pharmacy.csv.gz
 -rw-r--r--@ 1 lukehodges  staff    666594177 Apr 12  2024 poe.csv.gz
@@ -286,7 +289,7 @@ Attaching package: 'R.utils'</code></pre>
 <span id="cb33-3"><a href="#cb33-3" aria-hidden="true" tabindex="-1"></a>})</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
 <div class="cell-output cell-output-stdout">
 <pre><code>   user  system elapsed 
- 11.031   0.186  11.245 </code></pre>
+ 11.030   0.233  11.314 </code></pre>
 </div>
 </div>
 <p><strong>Here, the user time is 9.233, the system is 0.222, and the elapsed time is 9.533</strong></p>
@@ -308,7 +311,7 @@ dttm (5): admittime, dischtime, deathtime, edregtime, edouttime
 </div>
 <div class="cell-output cell-output-stdout">
 <pre><code>   user  system elapsed 
-  3.721   0.498   1.848 </code></pre>
+  3.705   0.373   1.678 </code></pre>
 </div>
 </div>
 <p><strong>Here, the user time is 3.707, the system is 0.329, and the elapsed time is 1.673.</strong></p>
@@ -320,7 +323,7 @@ dttm (5): admittime, dischtime, deathtime, edregtime, edouttime
 <span id="cb38-3"><a href="#cb38-3" aria-hidden="true" tabindex="-1"></a>})</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
 <div class="cell-output cell-output-stdout">
 <pre><code>   user  system elapsed 
-  2.662   0.144   0.800 </code></pre>
+  2.856   0.193   0.886 </code></pre>
 </div>
 </div>
 <p><strong>Here, the user, system, and elapsed time is 2.86, 0.201, and 0.918, respectively</strong></p>
@@ -399,29 +402,34 @@ dttm (5): admittime, dischtime, deathtime, edregtime, edouttime
 <p>Q2.3 Ingest a subset of labevents.csv.gz</p>
 <p>Our first strategy to handle this big data file is to make a subset of the labevents data. Read the MIMIC documentation for the content in data file labevents.csv.</p>
 <div class="cell">
-<div class="sourceCode cell-code" id="cb52"><pre class="sourceCode bash code-with-copy"><code class="sourceCode bash"><span id="cb52-1"><a href="#cb52-1" aria-hidden="true" tabindex="-1"></a><span class="fu">zcat</span> <span class="op">&lt;</span> ~/mimic/hosp/labevents.csv.gz <span class="kw">|</span> <span class="fu">head</span> <span class="at">-6</span></span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="sourceCode cell-code" id="cb52"><pre class="sourceCode bash code-with-copy"><code class="sourceCode bash"><span id="cb52-1"><a href="#cb52-1" aria-hidden="true" tabindex="-1"></a><span class="fu">zcat</span> <span class="op">&lt;</span> ~/mimic/hosp/labevents.csv.gz <span class="kw">|</span> <span class="fu">head</span> <span class="at">-10</span></span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
 <div class="cell-output cell-output-stdout">
 <pre><code>labevent_id,subject_id,hadm_id,specimen_id,itemid,order_provider_id,charttime,storetime,value,valuenum,valueuom,ref_range_lower,ref_range_upper,flag,priority,comments
 1,10000032,,2704548,50931,P69FQC,2180-03-23 11:51:00,2180-03-23 15:56:00,___,95,mg/dL,70,100,,ROUTINE,"IF FASTING, 70-100 NORMAL, &gt;125 PROVISIONAL DIABETES."
 2,10000032,,36092842,51071,P69FQC,2180-03-23 11:51:00,2180-03-23 16:00:00,NEG,,,,,,ROUTINE,
 3,10000032,,36092842,51074,P69FQC,2180-03-23 11:51:00,2180-03-23 16:00:00,NEG,,,,,,ROUTINE,
 4,10000032,,36092842,51075,P69FQC,2180-03-23 11:51:00,2180-03-23 16:00:00,NEG,,,,,,ROUTINE,"BENZODIAZEPINE IMMUNOASSAY SCREEN DOES NOT DETECT SOME DRUGS,;INCLUDING LORAZEPAM, CLONAZEPAM, AND FLUNITRAZEPAM."
-5,10000032,,36092842,51079,P69FQC,2180-03-23 11:51:00,2180-03-23 16:00:00,NEG,,,,,,ROUTINE,</code></pre>
+5,10000032,,36092842,51079,P69FQC,2180-03-23 11:51:00,2180-03-23 16:00:00,NEG,,,,,,ROUTINE,
+6,10000032,,36092842,51087,P69FQC,2180-03-23 11:51:00,,,,,,,,ROUTINE,RANDOM.
+7,10000032,,36092842,51089,P69FQC,2180-03-23 11:51:00,2180-03-23 16:15:00,,,,,,,ROUTINE,PRESUMPTIVELY POSITIVE.
+8,10000032,,36092842,51090,P69FQC,2180-03-23 11:51:00,2180-03-23 16:00:00,NEG,,,,,,ROUTINE,METHADONE ASSAY DETECTS ONLY METHADONE (NOT OTHER OPIATES/OPIOIDS).
+9,10000032,,36092842,51092,P69FQC,2180-03-23 11:51:00,2180-03-23 16:00:00,NEG,,,,,,ROUTINE,"OPIATE IMMUNOASSAY SCREEN DOES NOT DETECT SYNTHETIC OPIOIDS;SUCH AS METHADONE, OXYCODONE, FENTANYL, BUPRENORPHINE, TRAMADOL,;NALOXONE, MEPERIDINE.  SEE ONLINE LAB MANUAL FOR DETAILS."</code></pre>
 </div>
 </div>
 <p>In later exercises, we will only be interested in the following lab items: creatinine (50912), potassium (50971), sodium (50983), chloride (50902), bicarbonate (50882), hematocrit (51221), white blood cell count (51301), and glucose (50931) and the following columns: subject_id, itemid, charttime, valuenum. Write a Bash command to extract these columns and rows from labevents.csv.gz and save the result to a new file labevents_filtered.csv.gz in the current working directory. (Hint: Use zcat &lt; to pipe the output of labevents.csv.gz to awk and then to gzip to compress the output. Do not put labevents_filtered.csv.gz in Git! To save render time, you can put #| eval: false at the beginning of this code chunk. TA will change it to #| eval: true before rendering your qmd file.)</p>
 <div class="cell">
 <div class="sourceCode cell-code" id="cb54"><pre class="sourceCode bash code-with-copy"><code class="sourceCode bash"><span id="cb54-1"><a href="#cb54-1" aria-hidden="true" tabindex="-1"></a><span class="fu">zcat</span> <span class="op">&lt;</span> ~/mimic/hosp/labevents.csv.gz <span class="kw">|</span> <span class="fu">awk</span> <span class="at">-F,</span> <span class="st">'</span></span>
-<span id="cb54-2"><a href="#cb54-2" aria-hidden="true" tabindex="-1"></a><span class="st">  BEGIN {OFS=","; print "subject_id,itemid,charttime,valuenum"} </span></span>
-<span id="cb54-3"><a href="#cb54-3" aria-hidden="true" tabindex="-1"></a><span class="st">  $5 == 50912 || $5 == 50971 || $5 == 50983 || $5 == 50902 || $5 == 50882 || $5 ==   51221 || $5 == 51301 || $5 == 50931 {</span></span>
-<span id="cb54-4"><a href="#cb54-4" aria-hidden="true" tabindex="-1"></a><span class="st">    print $2, $5, $7, $10</span></span>
-<span id="cb54-5"><a href="#cb54-5" aria-hidden="true" tabindex="-1"></a><span class="st">}'</span> <span class="kw">|</span> <span class="fu">gzip</span> <span class="op">&gt;</span> labevents_filtered.csv.gz</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<span id="cb54-2"><a href="#cb54-2" aria-hidden="true" tabindex="-1"></a><span class="st">  BEGIN {OFS=","; print "subject_id,itemid,charttime,valuenum"}</span></span>
+<span id="cb54-3"><a href="#cb54-3" aria-hidden="true" tabindex="-1"></a><span class="st">  $5 == 50912 || $5 == 50971 || $5 == 50983 || $5 == 50902 || $5 == 50882 || </span></span>
+<span id="cb54-4"><a href="#cb54-4" aria-hidden="true" tabindex="-1"></a><span class="st">  $5 ==   51221 || $5 == 51301 || $5 == 50931 {</span></span>
+<span id="cb54-5"><a href="#cb54-5" aria-hidden="true" tabindex="-1"></a><span class="st">    print $2, $5, $7, $10</span></span>
+<span id="cb54-6"><a href="#cb54-6" aria-hidden="true" tabindex="-1"></a><span class="st">}'</span> <span class="kw">|</span> <span class="fu">gzip</span> <span class="op">&gt;</span> labevents_filtered.csv.gz</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
 </div>
 <p><strong>Checking to see how big the file size is</strong></p>
 <div class="cell">
 <div class="sourceCode cell-code" id="cb55"><pre class="sourceCode bash code-with-copy"><code class="sourceCode bash"><span id="cb55-1"><a href="#cb55-1" aria-hidden="true" tabindex="-1"></a><span class="fu">ls</span> <span class="at">-lh</span> labevents_filtered.csv.gz</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
 <div class="cell-output cell-output-stdout">
-<pre><code>-rw-r--r--@ 1 lukehodges  staff   166M Jan 29 11:39 labevents_filtered.csv.gz</code></pre>
+<pre><code>-rw-r--r--@ 1 lukehodges  staff   166M Jan 30 21:24 labevents_filtered.csv.gz</code></pre>
 </div>
 </div>
 <p><strong>It is 166 MB which is similar to what Dr.&nbsp;Zhou said in slack.</strong></p>
@@ -447,6 +455,7 @@ dttm (5): admittime, dischtime, deathtime, edregtime, edouttime
 <pre><code> 32679897</code></pre>
 </div>
 </div>
+<p><strong>This is with the header. Therefore, there are actually 32679896 lines of data in the file</strong></p>
 <p>Q2.4 Ingest labevents.csv by Apache Arrow</p>
 <p>Our second strategy is to use Apache Arrow for larger-than-memory data analytics. Unfortunately Arrow does not work with gz files directly. First decompress labevents.csv.gz to labevents.csv and put it in the current working directory (do not add it in git!). To save render time, put #| eval: false at the beginning of this code chunk. TA will change it to #| eval: true when rendering your qmd file.</p>
 <div class="cell">
@@ -461,32 +470,32 @@ dttm (5): admittime, dischtime, deathtime, edregtime, edouttime
 </div>
 <p><strong>It looks like the file is successfully placed as directed</strong></p>
 <p>Then use arrow::open_dataset to ingest labevents.csv, select columns, and filter itemid as in Q2.3.</p>
-<p><strong>Using open_dataset to ingest labevents.csv</strong></p>
+<p><strong>Using open_dataset to ingest labevents.csv. I will make an identical table to labevents.csv, but with arrow instead.</strong></p>
 <div class="cell">
-<div class="sourceCode cell-code" id="cb64"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb64-1"><a href="#cb64-1" aria-hidden="true" tabindex="-1"></a>labelevents.arrow <span class="ot">&lt;-</span> arrow<span class="sc">::</span><span class="fu">open_dataset</span>(<span class="st">"labevents.csv"</span>, <span class="at">format =</span> <span class="st">"csv"</span>)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="sourceCode cell-code" id="cb64"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb64-1"><a href="#cb64-1" aria-hidden="true" tabindex="-1"></a>labevents.arrow <span class="ot">&lt;-</span> arrow<span class="sc">::</span><span class="fu">open_dataset</span>(<span class="st">"labevents.csv"</span>, <span class="at">format =</span> <span class="st">"csv"</span>)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
 </div>
 <p><strong>Now we have to select the columns and filter the new table labelevets.arrow</strong></p>
 <div class="cell">
-<div class="sourceCode cell-code" id="cb65"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb65-1"><a href="#cb65-1" aria-hidden="true" tabindex="-1"></a>labevents.filtered.arrow <span class="ot">&lt;-</span> labelevents.arrow <span class="sc">%&gt;%</span></span>
+<div class="sourceCode cell-code" id="cb65"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb65-1"><a href="#cb65-1" aria-hidden="true" tabindex="-1"></a>labevents.filter.arrow <span class="ot">&lt;-</span> labevents.arrow <span class="sc">%&gt;%</span></span>
 <span id="cb65-2"><a href="#cb65-2" aria-hidden="true" tabindex="-1"></a>  dplyr<span class="sc">::</span><span class="fu">select</span>(subject_id, itemid, charttime, valuenum) <span class="sc">%&gt;%</span></span>
 <span id="cb65-3"><a href="#cb65-3" aria-hidden="true" tabindex="-1"></a>  dplyr<span class="sc">::</span><span class="fu">filter</span>(itemid <span class="sc">%in%</span> <span class="fu">c</span>(<span class="dv">50912</span>, <span class="dv">50971</span>, <span class="dv">50983</span>, <span class="dv">50902</span>, <span class="dv">50882</span>, <span class="dv">51221</span>, <span class="dv">51301</span>, <span class="dv">50931</span>))</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
 </div>
-<p>How long does the ingest+select+filter process take?</p>
+<p><strong>How long does the ingest+select+filter process take?</strong></p>
 <div class="cell">
 <div class="sourceCode cell-code" id="cb66"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb66-1"><a href="#cb66-1" aria-hidden="true" tabindex="-1"></a><span class="fu">system.time</span>({</span>
-<span id="cb66-2"><a href="#cb66-2" aria-hidden="true" tabindex="-1"></a>  labevents.arrow <span class="ot">&lt;-</span> arrow<span class="sc">::</span><span class="fu">open_dataset</span>(<span class="st">"labevents.csv"</span>, <span class="at">format =</span> <span class="st">"csv"</span>) <span class="sc">%&gt;%</span></span>
+<span id="cb66-2"><a href="#cb66-2" aria-hidden="true" tabindex="-1"></a>  labevents.filter.arrow <span class="ot">&lt;-</span> arrow<span class="sc">::</span><span class="fu">open_dataset</span>(<span class="st">"labevents.csv"</span>, <span class="at">format =</span> <span class="st">"csv"</span>) <span class="sc">%&gt;%</span></span>
 <span id="cb66-3"><a href="#cb66-3" aria-hidden="true" tabindex="-1"></a>    dplyr<span class="sc">::</span><span class="fu">select</span>(subject_id, itemid, charttime, valuenum) <span class="sc">%&gt;%</span></span>
 <span id="cb66-4"><a href="#cb66-4" aria-hidden="true" tabindex="-1"></a>    dplyr<span class="sc">::</span><span class="fu">filter</span>(itemid <span class="sc">%in%</span> <span class="fu">c</span>(<span class="dv">50912</span>, <span class="dv">50971</span>, <span class="dv">50983</span>, <span class="dv">50902</span>, <span class="dv">50882</span>, <span class="dv">51221</span>, <span class="dv">51301</span>, <span class="dv">50931</span>))</span>
 <span id="cb66-5"><a href="#cb66-5" aria-hidden="true" tabindex="-1"></a>})</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
 <div class="cell-output cell-output-stdout">
 <pre><code>   user  system elapsed 
-  0.039   0.010   0.041 </code></pre>
+  0.040   0.011   0.042 </code></pre>
 </div>
 </div>
 <p><strong>Using arrow, the user, system, and elapsed times are more faster. They are 0.047, 0.014, and 0.110, respectively</strong></p>
 <p>Display the number of rows.</p>
 <div class="cell">
-<div class="sourceCode cell-code" id="cb68"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb68-1"><a href="#cb68-1" aria-hidden="true" tabindex="-1"></a><span class="fu">nrow</span>(labevents.filtered.arrow)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="sourceCode cell-code" id="cb68"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb68-1"><a href="#cb68-1" aria-hidden="true" tabindex="-1"></a><span class="fu">nrow</span>(labevents.filter.arrow)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
 <div class="cell-output cell-output-stdout">
 <pre><code>[1] 32679896</code></pre>
 </div>
@@ -494,7 +503,7 @@ dttm (5): admittime, dischtime, deathtime, edregtime, edouttime
 <p><strong>Nrow only counts the rows of data, not the header row. Therefore, the total rows would be 32679896, which is the same as the number of lines in the file labevents_filtered.csv.gz, as we saw in the previous question</strong></p>
 <p>First ten rows of the result tibble.</p>
 <div class="cell">
-<div class="sourceCode cell-code" id="cb70"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb70-1"><a href="#cb70-1" aria-hidden="true" tabindex="-1"></a>first10 <span class="ot">&lt;-</span> labevents.filtered.arrow <span class="sc">%&gt;%</span></span>
+<div class="sourceCode cell-code" id="cb70"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb70-1"><a href="#cb70-1" aria-hidden="true" tabindex="-1"></a>first10 <span class="ot">&lt;-</span> labevents.filter.arrow <span class="sc">%&gt;%</span></span>
 <span id="cb70-2"><a href="#cb70-2" aria-hidden="true" tabindex="-1"></a>  <span class="fu">head</span>(<span class="dv">10</span>) <span class="sc">%&gt;%</span></span>
 <span id="cb70-3"><a href="#cb70-3" aria-hidden="true" tabindex="-1"></a>  <span class="fu">collect</span>()</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
 </div>
@@ -504,16 +513,16 @@ dttm (5): admittime, dischtime, deathtime, edregtime, edouttime
 <pre><code># A tibble: 10 × 4
    subject_id itemid charttime           valuenum
         &lt;int&gt;  &lt;int&gt; &lt;dttm&gt;                 &lt;dbl&gt;
- 1   10000980  51301 2191-05-23 03:20:00      4.6
- 2   10000980  50882 2191-05-23 22:45:00     25  
- 3   10000980  50902 2191-05-23 22:45:00    108  
- 4   10000980  50912 2191-05-23 22:45:00      2.1
- 5   10000980  50931 2191-05-23 22:45:00    116  
- 6   10000980  50971 2191-05-23 22:45:00      4  
- 7   10000980  50983 2191-05-23 22:45:00    144  
- 8   10000980  51221 2191-05-23 22:45:00     28  
- 9   10000980  51301 2191-05-23 22:45:00      3.4
-10   10000980  51221 2191-05-30 05:40:00     28.8</code></pre>
+ 1   10000032  50931 2180-03-23 04:51:00     95  
+ 2   10000032  50882 2180-03-23 04:51:00     27  
+ 3   10000032  50902 2180-03-23 04:51:00    101  
+ 4   10000032  50912 2180-03-23 04:51:00      0.4
+ 5   10000032  50971 2180-03-23 04:51:00      3.7
+ 6   10000032  50983 2180-03-23 04:51:00    136  
+ 7   10000032  51221 2180-03-23 04:51:00     45.4
+ 8   10000032  51301 2180-03-23 04:51:00      3  
+ 9   10000032  51221 2180-05-06 15:25:00     42.6
+10   10000032  51301 2180-05-06 15:25:00      5  </code></pre>
 </div>
 </div>
 <p><strong>Does this match up to the one above? Let us find out</strong></p>
@@ -532,9 +541,9 @@ dttm (5): admittime, dischtime, deathtime, edregtime, edouttime
 10000032,51221,2180-05-06 22:25:00,42.6</code></pre>
 </div>
 </div>
-<p><strong>Although it directly matches those in Q2.3, the only thing that does not is the charttime. The hour seems to be off, despite the minute being the same</strong></p>
+<p><strong>Although it directly matches those in Q2.3, the only thing that does not is the charttime. The hour seems to be off, despite the minute being the same. This could be because of a time zone difference of the packages/user.</strong></p>
 <p>Write a few sentences to explain what is Apache Arrow. Imagine you want to explain it to a layman in an elevator.</p>
-<p><strong>Apache Arrow is a development platform for in-memory data. It is designed to accelerate the processing of large data sets that are too big to fit into memory. It is a memory format that is designed to be fast and efficient. It is used to store and process data in a way that is more efficient than traditional formats.</strong></p>
+<p><strong>Apache Arrow is a development platform for in-memory data. It is designed to accelerate the processing of large data sets that are too big to fit into memory.</strong></p>
 
 </main>
 <!-- /main column -->

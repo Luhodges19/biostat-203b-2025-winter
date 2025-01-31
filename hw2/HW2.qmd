@@ -160,7 +160,7 @@ Q2.3 Ingest a subset of labevents.csv.gz
 Our first strategy to handle this big data file is to make a subset of the labevents data. Read the MIMIC documentation for the content in data file labevents.csv.
 
 ```{bash}
-zcat < ~/mimic/hosp/labevents.csv.gz | head -6
+zcat < ~/mimic/hosp/labevents.csv.gz | head -10
 ```
 
 In later exercises, we will only be interested in the following lab items: creatinine (50912), potassium (50971), sodium (50983), chloride (50902), bicarbonate (50882), hematocrit (51221), white blood cell count (51301), and glucose (50931) and the following columns: subject_id, itemid, charttime, valuenum. Write a Bash command to extract these columns and rows from labevents.csv.gz and save the result to a new file labevents_filtered.csv.gz in the current working directory. (Hint: Use zcat < to pipe the output of labevents.csv.gz to awk and then to gzip to compress the output. Do not put labevents_filtered.csv.gz in Git! To save render time, you can put #| eval: false at the beginning of this code chunk. TA will change it to #| eval: true before rendering your qmd file.)
@@ -168,8 +168,9 @@ In later exercises, we will only be interested in the following lab items: creat
 ```{bash}
 #| eval: false
 zcat < ~/mimic/hosp/labevents.csv.gz | awk -F, '
-  BEGIN {OFS=","; print "subject_id,itemid,charttime,valuenum"} 
-  $5 == 50912 || $5 == 50971 || $5 == 50983 || $5 == 50902 || $5 == 50882 || $5 ==   51221 || $5 == 51301 || $5 == 50931 {
+  BEGIN {OFS=","; print "subject_id,itemid,charttime,valuenum"}
+  $5 == 50912 || $5 == 50971 || $5 == 50983 || $5 == 50902 || $5 == 50882 || 
+  $5 ==   51221 || $5 == 51301 || $5 == 50931 {
     print $2, $5, $7, $10
 }' | gzip > labevents_filtered.csv.gz
 ```
@@ -189,12 +190,14 @@ zcat < labevents_filtered.csv.gz | head -10
 ```{bash}
 zcat < labevents_filtered.csv.gz | wc -l
 ```
+**This is with the header. Therefore, there are actually 32679896 lines of data in the file**
 
 Q2.4 Ingest labevents.csv by Apache Arrow
 
 Our second strategy is to use Apache Arrow for larger-than-memory data analytics. Unfortunately Arrow does not work with gz files directly. First decompress labevents.csv.gz to labevents.csv and put it in the current working directory (do not add it in git!). To save render time, put #| eval: false at the beginning of this code chunk. TA will change it to #| eval: true when rendering your qmd file.
 
 ```{bash}
+#| eval: false
 zcat < ~/mimic/hosp/labevents.csv.gz > labevents.csv
 ```
 
@@ -207,25 +210,25 @@ ls -l ~/mimic/hosp/labevents.csv
 
 Then use arrow::open_dataset to ingest labevents.csv, select columns, and filter itemid as in Q2.3. 
 
-**Using open_dataset to ingest labevents.csv**
+**Using open_dataset to ingest labevents.csv. I will make an identical table to labevents.csv, but with arrow instead.**
 
 ```{r}
-labelevents.arrow <- arrow::open_dataset("labevents.csv", format = "csv")
+labevents.arrow <- arrow::open_dataset("labevents.csv", format = "csv")
 ```
 
 **Now we have to select the columns and filter the new table labelevets.arrow**
 
 ```{r}
-labevents.filtered.arrow <- labelevents.arrow %>%
+labevents.filter.arrow <- labevents.arrow %>%
   dplyr::select(subject_id, itemid, charttime, valuenum) %>%
   dplyr::filter(itemid %in% c(50912, 50971, 50983, 50902, 50882, 51221, 51301, 50931))
 ```
 
-How long does the ingest+select+filter process take? 
+**How long does the ingest+select+filter process take?**
 
 ```{r}
 system.time({
-  labevents.arrow <- arrow::open_dataset("labevents.csv", format = "csv") %>%
+  labevents.filter.arrow <- arrow::open_dataset("labevents.csv", format = "csv") %>%
     dplyr::select(subject_id, itemid, charttime, valuenum) %>%
     dplyr::filter(itemid %in% c(50912, 50971, 50983, 50902, 50882, 51221, 51301, 50931))
 })
@@ -235,14 +238,14 @@ system.time({
 Display the number of rows.
 
 ```{r}
-nrow(labevents.filtered.arrow)
+nrow(labevents.filter.arrow)
 ```
 **Nrow only counts the rows of data, not the header row. Therefore, the total rows would be 32679896, which is the same as the 
 number of lines in the file labevents_filtered.csv.gz, as we saw in the previous question**
 
 First ten rows of the result tibble. 
 ```{r}
-first10 <- labevents.filtered.arrow %>%
+first10 <- labevents.filter.arrow %>%
   head(10) %>%
   collect()
 ```
@@ -256,26 +259,8 @@ print(first10)
 ```{bash}
 zcat < labevents_filtered.csv.gz | head -10
 ```
-**Although it directly matches those in Q2.3, the only thing that does not is the charttime. The hour seems to be off, despite the minute being the same**
+**Although it directly matches those in Q2.3, the only thing that does not is the charttime. The hour seems to be off, despite the minute being the same. This could be because of a time zone difference of the packages/user.**
 
 Write a few sentences to explain what is Apache Arrow. Imagine you want to explain it to a layman in an elevator.
 
-**Apache Arrow is a development platform for in-memory data. It is designed to accelerate the processing of large data sets that are too big to fit into memory. It is a memory format that is designed to be fast and efficient. It is used to store and process data in a way that is more efficient than traditional formats.**
-
-Q2.5 Compress labevents.csv to Parquet format and ingest/select/filter
-
-Re-write the csv file labevents.csv in the binary Parquet format (Hint: arrow::write_dataset.) 
-
-```{r}
-labevents.parquet <- arrow::write_dataset(labelevents.arrow, path = "~/mimic/hosp", format = "parquet")
-```
-
-How large is the Parquet file(s)?
-
-```{bash}
-ls -lh ~/mimic/hosp/labevents.parquet
-```
-
-
-
-Write a few sentences to explain what is the Parquet format. Imagine you want to explain it to a layman in an elevator.
+**Apache Arrow is a development platform for in-memory data. It is designed to accelerate the processing of large data sets that are too big to fit into memory.**
