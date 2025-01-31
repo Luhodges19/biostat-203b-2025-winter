@@ -250,6 +250,7 @@ Attaching package: 'R.utils'</code></pre>
 drwxr-xr-x@ 3 lukehodges  staff           96 Jan 30 16:17 labevents
 -rw-r--r--@ 1 lukehodges  staff  18402851720 Jan 20 22:00 labevents.csv
 -rw-r--r--@ 1 lukehodges  staff   2592909134 Oct  3 09:08 labevents.csv.gz
+drwxr-xr-x@ 3 lukehodges  staff           96 Jan 30 22:13 labevents.filtered
 -rw-r--r--@ 1 lukehodges  staff    174094381 Jan 30 21:01 labevents_filtered.csv.gz
 -rw-r--r--@ 1 lukehodges  staff    117644075 Oct  3 09:08 microbiologyevents.csv.gz
 -rw-r--r--@ 1 lukehodges  staff     44069351 Oct  3 09:08 omr.csv.gz
@@ -289,7 +290,7 @@ drwxr-xr-x@ 3 lukehodges  staff           96 Jan 30 16:17 labevents
 <span id="cb33-3"><a href="#cb33-3" aria-hidden="true" tabindex="-1"></a>})</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
 <div class="cell-output cell-output-stdout">
 <pre><code>   user  system elapsed 
- 11.030   0.233  11.314 </code></pre>
+ 10.915   0.228  11.148 </code></pre>
 </div>
 </div>
 <p><strong>Here, the user time is 9.233, the system is 0.222, and the elapsed time is 9.533</strong></p>
@@ -311,7 +312,7 @@ dttm (5): admittime, dischtime, deathtime, edregtime, edouttime
 </div>
 <div class="cell-output cell-output-stdout">
 <pre><code>   user  system elapsed 
-  3.705   0.373   1.678 </code></pre>
+  3.719   0.386   1.689 </code></pre>
 </div>
 </div>
 <p><strong>Here, the user time is 3.707, the system is 0.329, and the elapsed time is 1.673.</strong></p>
@@ -323,7 +324,7 @@ dttm (5): admittime, dischtime, deathtime, edregtime, edouttime
 <span id="cb38-3"><a href="#cb38-3" aria-hidden="true" tabindex="-1"></a>})</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
 <div class="cell-output cell-output-stdout">
 <pre><code>   user  system elapsed 
-  2.856   0.193   0.886 </code></pre>
+  2.666   0.154   0.822 </code></pre>
 </div>
 </div>
 <p><strong>Here, the user, system, and elapsed time is 2.86, 0.201, and 0.918, respectively</strong></p>
@@ -489,7 +490,7 @@ dttm (5): admittime, dischtime, deathtime, edregtime, edouttime
 <span id="cb66-5"><a href="#cb66-5" aria-hidden="true" tabindex="-1"></a>})</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
 <div class="cell-output cell-output-stdout">
 <pre><code>   user  system elapsed 
-  0.040   0.011   0.042 </code></pre>
+  0.039   0.011   0.042 </code></pre>
 </div>
 </div>
 <p><strong>Using arrow, the user, system, and elapsed times are more faster. They are 0.047, 0.014, and 0.110, respectively</strong></p>
@@ -544,6 +545,92 @@ dttm (5): admittime, dischtime, deathtime, edregtime, edouttime
 <p><strong>Although it directly matches those in Q2.3, the only thing that does not is the charttime. The hour seems to be off, despite the minute being the same. This could be because of a time zone difference of the packages/user.</strong></p>
 <p>Write a few sentences to explain what is Apache Arrow. Imagine you want to explain it to a layman in an elevator.</p>
 <p><strong>Apache Arrow is a development platform for in-memory data. It is designed to accelerate the processing of large data sets that are too big to fit into memory.</strong></p>
+<p>Q2.5 Compress labevents.csv to Parquet format and ingest/select/filter</p>
+<p>Re-write the csv file labevents.csv in the binary Parquet format (Hint: arrow::write_dataset.) How large is the Parquet file(s)? How long does the ingest+select+filter process of the Parquet file(s) take? Display the number of rows and the first 10 rows of the result tibble and make sure they match those in Q2.3. (Hint: use dplyr verbs for selecting columns and filtering rows.)</p>
+<p><strong>First, let us create a parquet file from the labevents.csv file</strong></p>
+<div class="cell">
+<div class="sourceCode cell-code" id="cb75"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb75-1"><a href="#cb75-1" aria-hidden="true" tabindex="-1"></a>labevents.parquet <span class="ot">&lt;-</span> arrow<span class="sc">::</span><span class="fu">open_dataset</span>(<span class="st">"labevents.csv"</span>, <span class="at">format =</span> <span class="st">"csv"</span>)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+</div>
+<p><strong>We see that the values updated after doing that in the environment. Let us create a parquet now.</strong></p>
+<div class="cell">
+<div class="sourceCode cell-code" id="cb76"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb76-1"><a href="#cb76-1" aria-hidden="true" tabindex="-1"></a>arrow<span class="sc">::</span><span class="fu">write_dataset</span>(labevents.parquet, <span class="at">path =</span> <span class="st">"~/mimic/hosp/labevents"</span>, </span>
+<span id="cb76-2"><a href="#cb76-2" aria-hidden="true" tabindex="-1"></a>                     <span class="at">format =</span> <span class="st">"parquet"</span>)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+</div>
+<p><strong>This is now creating a parquet of the previously opened dataset labevents.csv</strong></p>
+<div class="cell">
+<div class="sourceCode cell-code" id="cb77"><pre class="sourceCode bash code-with-copy"><code class="sourceCode bash"><span id="cb77-1"><a href="#cb77-1" aria-hidden="true" tabindex="-1"></a><span class="fu">ls</span> <span class="at">-l</span> ~/mimic/hosp/labevents</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="cell-output cell-output-stdout">
+<pre><code>total 5341192
+-rw-r--r--@ 1 lukehodges  staff  2731040379 Jan 30 22:23 part-0.parquet</code></pre>
+</div>
+</div>
+<p>How large is the Parquet file(s)?</p>
+<p><strong>The Parquet file is 2.7 GB before being selected/filtered out</strong></p>
+<p><strong>Now, let us select/filter the columns and rows of the Parquet file</strong></p>
+<div class="cell">
+<div class="sourceCode cell-code" id="cb79"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb79-1"><a href="#cb79-1" aria-hidden="true" tabindex="-1"></a><span class="fu">system.time</span>({</span>
+<span id="cb79-2"><a href="#cb79-2" aria-hidden="true" tabindex="-1"></a>  labevents.filter.parquet <span class="ot">&lt;-</span> arrow<span class="sc">::</span><span class="fu">open_dataset</span>(<span class="st">"~/mimic/hosp/labevents"</span>, </span>
+<span id="cb79-3"><a href="#cb79-3" aria-hidden="true" tabindex="-1"></a>                                                  <span class="at">format =</span> <span class="st">"parquet"</span>) <span class="sc">%&gt;%</span></span>
+<span id="cb79-4"><a href="#cb79-4" aria-hidden="true" tabindex="-1"></a>    dplyr<span class="sc">::</span><span class="fu">select</span>(subject_id, itemid, charttime, valuenum) <span class="sc">%&gt;%</span></span>
+<span id="cb79-5"><a href="#cb79-5" aria-hidden="true" tabindex="-1"></a>    dplyr<span class="sc">::</span><span class="fu">filter</span>(itemid <span class="sc">%in%</span> <span class="fu">c</span>(<span class="dv">50912</span>, <span class="dv">50971</span>, <span class="dv">50983</span>, <span class="dv">50902</span>, <span class="dv">50882</span>, <span class="dv">51221</span>, </span>
+<span id="cb79-6"><a href="#cb79-6" aria-hidden="true" tabindex="-1"></a>                                <span class="dv">51301</span>, <span class="dv">50931</span>))</span>
+<span id="cb79-7"><a href="#cb79-7" aria-hidden="true" tabindex="-1"></a>})</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="cell-output cell-output-stdout">
+<pre><code>   user  system elapsed 
+  0.451   0.061   0.514 </code></pre>
+</div>
+</div>
+<p><strong>The user, system, and elapsed times are 0.0489, 0.094, and 0.605 respectively</strong></p>
+<p><strong>Now, let us see how large the file size is now that it is filtered</strong></p>
+<div class="cell">
+<div class="sourceCode cell-code" id="cb81"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb81-1"><a href="#cb81-1" aria-hidden="true" tabindex="-1"></a>arrow<span class="sc">::</span><span class="fu">write_dataset</span>(labevents.filter.parquet, </span>
+<span id="cb81-2"><a href="#cb81-2" aria-hidden="true" tabindex="-1"></a>                     <span class="at">path =</span> <span class="st">"~/mimic/hosp/labevents.filtered"</span>, </span>
+<span id="cb81-3"><a href="#cb81-3" aria-hidden="true" tabindex="-1"></a>                     <span class="at">format =</span> <span class="st">"parquet"</span>)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+</div>
+<p><strong>Check for file size now</strong></p>
+<div class="cell">
+<div class="sourceCode cell-code" id="cb82"><pre class="sourceCode bash code-with-copy"><code class="sourceCode bash"><span id="cb82-1"><a href="#cb82-1" aria-hidden="true" tabindex="-1"></a><span class="fu">ls</span> <span class="at">-l</span> ~/mimic/hosp/labevents.filtered</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="cell-output cell-output-stdout">
+<pre><code>total 327688
+-rw-r--r--@ 1 lukehodges  staff  152917918 Jan 30 22:24 part-0.parquet</code></pre>
+</div>
+</div>
+<p><strong>The file size is 152.9 MB after being filtered</strong></p>
+<p>Display the number of rows and the first 10 rows of the result tibble and make sure they match those in Q2.3.</p>
+<div class="cell">
+<div class="sourceCode cell-code" id="cb84"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb84-1"><a href="#cb84-1" aria-hidden="true" tabindex="-1"></a><span class="fu">nrow</span>(labevents.filter.parquet)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="cell-output cell-output-stdout">
+<pre><code>[1] 32679896</code></pre>
+</div>
+</div>
+<p><strong>This is the same amount as we saw before, 32679896</strong></p>
+<p>The first ten rows of the result tibble:</p>
+<div class="cell">
+<div class="sourceCode cell-code" id="cb86"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb86-1"><a href="#cb86-1" aria-hidden="true" tabindex="-1"></a>first10.parquet <span class="ot">&lt;-</span> labevents.filter.parquet <span class="sc">%&gt;%</span></span>
+<span id="cb86-2"><a href="#cb86-2" aria-hidden="true" tabindex="-1"></a>  <span class="fu">head</span>(<span class="dv">10</span>) <span class="sc">%&gt;%</span></span>
+<span id="cb86-3"><a href="#cb86-3" aria-hidden="true" tabindex="-1"></a>  <span class="fu">collect</span>()</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+</div>
+<div class="cell">
+<div class="sourceCode cell-code" id="cb87"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb87-1"><a href="#cb87-1" aria-hidden="true" tabindex="-1"></a><span class="fu">print</span>(first10.parquet)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="cell-output cell-output-stdout">
+<pre><code># A tibble: 10 × 4
+   subject_id itemid charttime           valuenum
+        &lt;int&gt;  &lt;int&gt; &lt;dttm&gt;                 &lt;dbl&gt;
+ 1   10000032  50931 2180-03-23 04:51:00     95  
+ 2   10000032  50882 2180-03-23 04:51:00     27  
+ 3   10000032  50902 2180-03-23 04:51:00    101  
+ 4   10000032  50912 2180-03-23 04:51:00      0.4
+ 5   10000032  50971 2180-03-23 04:51:00      3.7
+ 6   10000032  50983 2180-03-23 04:51:00    136  
+ 7   10000032  51221 2180-03-23 04:51:00     45.4
+ 8   10000032  51301 2180-03-23 04:51:00      3  
+ 9   10000032  51221 2180-05-06 15:25:00     42.6
+10   10000032  51301 2180-05-06 15:25:00      5  </code></pre>
+</div>
+</div>
+<p><strong>This is the exact same as what we saw before</strong></p>
+<p>Write a few sentences to explain what is the Parquet format. Imagine you want to explain it to a layman in an elevator.</p>
+<p><strong>NEED TO DO THIS PART</strong></p>
 
 </main>
 <!-- /main column -->

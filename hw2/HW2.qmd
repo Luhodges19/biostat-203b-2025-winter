@@ -264,3 +264,84 @@ zcat < labevents_filtered.csv.gz | head -10
 Write a few sentences to explain what is Apache Arrow. Imagine you want to explain it to a layman in an elevator.
 
 **Apache Arrow is a development platform for in-memory data. It is designed to accelerate the processing of large data sets that are too big to fit into memory.**
+
+Q2.5 Compress labevents.csv to Parquet format and ingest/select/filter
+
+Re-write the csv file labevents.csv in the binary Parquet format (Hint: arrow::write_dataset.) How large is the Parquet file(s)? How long does the ingest+select+filter process of the Parquet file(s) take? Display the number of rows and the first 10 rows of the result tibble and make sure they match those in Q2.3. (Hint: use dplyr verbs for selecting columns and filtering rows.)
+
+**First, let us create a parquet file from the labevents.csv file**
+
+```{r}
+labevents.parquet <- arrow::open_dataset("labevents.csv", format = "csv")
+```
+
+**We see that the values updated after doing that in the environment. Let us create a parquet now.**
+
+```{r}
+arrow::write_dataset(labevents.parquet, path = "~/mimic/hosp/labevents", 
+                     format = "parquet")
+```
+
+**This is now creating a parquet of the previously opened dataset labevents.csv**
+
+```{bash}
+ls -l ~/mimic/hosp/labevents
+```
+
+How large is the Parquet file(s)?
+
+**The Parquet file is 2.7 GB before being selected/filtered out**
+
+**Now, let us select/filter the columns and rows of the Parquet file**
+
+```{r}
+system.time({
+  labevents.filter.parquet <- arrow::open_dataset("~/mimic/hosp/labevents", 
+                                                  format = "parquet") %>%
+    dplyr::select(subject_id, itemid, charttime, valuenum) %>%
+    dplyr::filter(itemid %in% c(50912, 50971, 50983, 50902, 50882, 51221, 
+                                51301, 50931))
+})
+```
+**The user, system, and elapsed times are 0.0489, 0.094, and 0.605 respectively**
+
+**Now, let us see how large the file size is now that it is filtered**
+
+```{r}
+arrow::write_dataset(labevents.filter.parquet, 
+                     path = "~/mimic/hosp/labevents.filtered", 
+                     format = "parquet")
+```
+
+**Check for file size now**
+
+```{bash}
+ls -l ~/mimic/hosp/labevents.filtered
+```
+
+**The file size is 152.9 MB after being filtered**
+
+Display the number of rows and the first 10 rows of the result tibble and make sure they match those in Q2.3.
+
+```{r}
+nrow(labevents.filter.parquet)
+```
+**This is the same amount as we saw before, 32679896**
+
+The first ten rows of the result tibble: 
+
+```{r}
+first10.parquet <- labevents.filter.parquet %>%
+  head(10) %>%
+  collect()
+```
+
+```{r}
+print(first10.parquet)
+```
+**This is the exact same as what we saw before**
+
+Write a few sentences to explain what is the Parquet format. Imagine you want to explain it to a layman in an elevator.
+
+**NEED TO DO THIS PART**
+
