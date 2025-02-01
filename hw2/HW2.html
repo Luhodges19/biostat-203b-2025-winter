@@ -236,7 +236,7 @@ Attaching package: 'R.utils'</code></pre>
 <div class="cell">
 <div class="sourceCode cell-code" id="cb29"><pre class="sourceCode bash code-with-copy"><code class="sourceCode bash"><span id="cb29-1"><a href="#cb29-1" aria-hidden="true" tabindex="-1"></a><span class="fu">ls</span> <span class="at">-l</span> ~/mimic/hosp/</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
 <div class="cell-output cell-output-stdout">
-<pre><code>total 48937584
+<pre><code>total 48888024
 -rw-r--r--@ 1 lukehodges  staff     19928140 Jun 24  2024 admissions.csv.gz
 -rw-r--r--@ 1 lukehodges  staff       427554 Apr 12  2024 d_hcpcs.csv.gz
 -rw-r--r--@ 1 lukehodges  staff       876360 Apr 12  2024 d_icd_diagnoses.csv.gz
@@ -269,16 +269,17 @@ drwxr-xr-x@ 3 lukehodges  staff           96 Jan 30 22:13 labevents.filtered
 <div class="cell">
 <div class="sourceCode cell-code" id="cb31"><pre class="sourceCode bash code-with-copy"><code class="sourceCode bash"><span id="cb31-1"><a href="#cb31-1" aria-hidden="true" tabindex="-1"></a><span class="fu">ls</span> <span class="at">-l</span> ~/mimic/icu/</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
 <div class="cell-output cell-output-stdout">
-<pre><code>total 8506784
--rw-r--r--@ 1 lukehodges  staff       41566 Apr 12  2024 caregiver.csv.gz
--rw-r--r--@ 1 lukehodges  staff  3502392765 Apr 12  2024 chartevents.csv.gz
--rw-r--r--@ 1 lukehodges  staff       58741 Apr 12  2024 d_items.csv.gz
--rw-r--r--@ 1 lukehodges  staff    63481196 Apr 12  2024 datetimeevents.csv.gz
--rw-r--r--@ 1 lukehodges  staff     3342355 Oct  3 07:36 icustays.csv.gz
--rw-r--r--@ 1 lukehodges  staff   311642048 Apr 12  2024 ingredientevents.csv.gz
--rw-r--r--@ 1 lukehodges  staff   401088206 Apr 12  2024 inputevents.csv.gz
--rw-r--r--@ 1 lukehodges  staff    49307639 Apr 12  2024 outputevents.csv.gz
--rw-r--r--@ 1 lukehodges  staff    24096834 Apr 12  2024 procedureevents.csv.gz</code></pre>
+<pre><code>total 90426912
+-rw-r--r--@ 1 lukehodges  staff        41566 Apr 12  2024 caregiver.csv.gz
+-rw-r--r--@ 1 lukehodges  staff  41935806083 Jan 31 17:39 chartevents.csv
+-rw-r--r--@ 1 lukehodges  staff   3502392765 Apr 12  2024 chartevents.csv.gz
+-rw-r--r--@ 1 lukehodges  staff        58741 Apr 12  2024 d_items.csv.gz
+-rw-r--r--@ 1 lukehodges  staff     63481196 Apr 12  2024 datetimeevents.csv.gz
+-rw-r--r--@ 1 lukehodges  staff      3342355 Oct  3 07:36 icustays.csv.gz
+-rw-r--r--@ 1 lukehodges  staff    311642048 Apr 12  2024 ingredientevents.csv.gz
+-rw-r--r--@ 1 lukehodges  staff    401088206 Apr 12  2024 inputevents.csv.gz
+-rw-r--r--@ 1 lukehodges  staff     49307639 Apr 12  2024 outputevents.csv.gz
+-rw-r--r--@ 1 lukehodges  staff     24096834 Apr 12  2024 procedureevents.csv.gz</code></pre>
 </div>
 </div>
 <p>Q1.1 Speed, memory, and data types There are quite a few utilities in R for reading plain text data files. Let us test the speed of reading a moderate sized compressed csv file, admissions.csv.gz, by three functions: read.csv in base R, read_csv in tidyverse, and fread in the data.table package.</p>
@@ -290,7 +291,7 @@ drwxr-xr-x@ 3 lukehodges  staff           96 Jan 30 22:13 labevents.filtered
 <span id="cb33-3"><a href="#cb33-3" aria-hidden="true" tabindex="-1"></a>})</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
 <div class="cell-output cell-output-stdout">
 <pre><code>   user  system elapsed 
- 11.161   0.222  11.390 </code></pre>
+ 10.936   0.225  11.186 </code></pre>
 </div>
 </div>
 <p><strong>Here, the user time is 9.233, the system is 0.222, and the elapsed time is 9.533</strong></p>
@@ -312,7 +313,7 @@ dttm (5): admittime, dischtime, deathtime, edregtime, edouttime
 </div>
 <div class="cell-output cell-output-stdout">
 <pre><code>   user  system elapsed 
-  3.765   0.814   1.738 </code></pre>
+  3.763   0.804   1.739 </code></pre>
 </div>
 </div>
 <p><strong>Here, the user time is 3.707, the system is 0.329, and the elapsed time is 1.673.</strong></p>
@@ -324,7 +325,7 @@ dttm (5): admittime, dischtime, deathtime, edregtime, edouttime
 <span id="cb38-3"><a href="#cb38-3" aria-hidden="true" tabindex="-1"></a>})</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
 <div class="cell-output cell-output-stdout">
 <pre><code>   user  system elapsed 
-  2.703   0.166   0.839 </code></pre>
+  2.645   0.166   0.841 </code></pre>
 </div>
 </div>
 <p><strong>Here, the user, system, and elapsed time is 2.86, 0.201, and 0.918, respectively</strong></p>
@@ -490,7 +491,7 @@ dttm (5): admittime, dischtime, deathtime, edregtime, edouttime
 <span id="cb66-5"><a href="#cb66-5" aria-hidden="true" tabindex="-1"></a>})</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
 <div class="cell-output cell-output-stdout">
 <pre><code>   user  system elapsed 
-  0.042   0.011   0.044 </code></pre>
+  0.040   0.010   0.043 </code></pre>
 </div>
 </div>
 <p><strong>Using arrow, the user, system, and elapsed times are more faster. They are 0.047, 0.014, and 0.110, respectively</strong></p>
@@ -561,7 +562,7 @@ dttm (5): admittime, dischtime, deathtime, edregtime, edouttime
 <div class="sourceCode cell-code" id="cb77"><pre class="sourceCode bash code-with-copy"><code class="sourceCode bash"><span id="cb77-1"><a href="#cb77-1" aria-hidden="true" tabindex="-1"></a><span class="fu">ls</span> <span class="at">-l</span> ~/mimic/hosp/labevents</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
 <div class="cell-output cell-output-stdout">
 <pre><code>total 5341192
--rw-r--r--@ 1 lukehodges  staff  2731040379 Jan 30 23:01 part-0.parquet</code></pre>
+-rw-r--r--@ 1 lukehodges  staff  2731040379 Jan 31 18:26 part-0.parquet</code></pre>
 </div>
 </div>
 <p>How large is the Parquet file(s)?</p>
@@ -577,7 +578,7 @@ dttm (5): admittime, dischtime, deathtime, edregtime, edouttime
 <span id="cb79-7"><a href="#cb79-7" aria-hidden="true" tabindex="-1"></a>})</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
 <div class="cell-output cell-output-stdout">
 <pre><code>   user  system elapsed 
-  0.449   0.057   0.507 </code></pre>
+  0.477   0.082   0.558 </code></pre>
 </div>
 </div>
 <p><strong>The user, system, and elapsed times are 0.0489, 0.094, and 0.605 respectively</strong></p>
@@ -592,7 +593,7 @@ dttm (5): admittime, dischtime, deathtime, edregtime, edouttime
 <div class="sourceCode cell-code" id="cb82"><pre class="sourceCode bash code-with-copy"><code class="sourceCode bash"><span id="cb82-1"><a href="#cb82-1" aria-hidden="true" tabindex="-1"></a><span class="fu">ls</span> <span class="at">-l</span> ~/mimic/hosp/labevents.filtered</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
 <div class="cell-output cell-output-stdout">
 <pre><code>total 327688
--rw-r--r--@ 1 lukehodges  staff  152917919 Jan 30 23:02 part-0.parquet</code></pre>
+-rw-r--r--@ 1 lukehodges  staff  152917918 Jan 31 18:26 part-0.parquet</code></pre>
 </div>
 </div>
 <p><strong>The file size is 152.9 MB after being filtered</strong></p>
@@ -663,7 +664,7 @@ dttm (5): admittime, dischtime, deathtime, edregtime, edouttime
 <span id="cb92-9"><a href="#cb92-9" aria-hidden="true" tabindex="-1"></a>})</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
 <div class="cell-output cell-output-stdout">
 <pre><code>   user  system elapsed 
-  0.489   0.086   0.578 </code></pre>
+  0.475   0.082   0.559 </code></pre>
 </div>
 </div>
 <p><strong>The user, system, and elapsed times are 0.509, 0.092, and 0.626, respectively. This is slower than both the arrow and paraquet methods</strong></p>
@@ -690,21 +691,125 @@ dttm (5): admittime, dischtime, deathtime, edregtime, edouttime
 <pre><code># A tibble: 10 × 4
    subject_id itemid charttime           valuenum
         &lt;dbl&gt;  &lt;dbl&gt; &lt;dttm&gt;                 &lt;dbl&gt;
- 1   10000032  50931 2180-03-23 11:51:00     95  
- 2   10000032  50882 2180-03-23 11:51:00     27  
- 3   10000032  50902 2180-03-23 11:51:00    101  
- 4   10000032  50912 2180-03-23 11:51:00      0.4
- 5   10000032  50971 2180-03-23 11:51:00      3.7
- 6   10000032  50983 2180-03-23 11:51:00    136  
- 7   10000032  51221 2180-03-23 11:51:00     45.4
- 8   10000032  51301 2180-03-23 11:51:00      3  
- 9   10000032  51221 2180-05-06 22:25:00     42.6
-10   10000032  51301 2180-05-06 22:25:00      5  </code></pre>
+ 1   10000980  51301 2191-05-23 10:20:00      4.6
+ 2   10000980  50882 2191-05-24 05:45:00     25  
+ 3   10000980  50902 2191-05-24 05:45:00    108  
+ 4   10000980  50912 2191-05-24 05:45:00      2.1
+ 5   10000980  50931 2191-05-24 05:45:00    116  
+ 6   10000980  50971 2191-05-24 05:45:00      4  
+ 7   10000980  50983 2191-05-24 05:45:00    144  
+ 8   10000980  51221 2191-05-24 05:45:00     28  
+ 9   10000980  51301 2191-05-24 05:45:00      3.4
+10   10000980  51221 2191-05-30 12:40:00     28.8</code></pre>
 </div>
 </div>
 <p><strong>This is identical to what we have seen above, with the time zones going back to what they were originally.</strong></p>
 <p>Write a few sentences to explain what is DuckDB. Imagine you want to explain it to a layman in an elevator.</p>
 <p><strong>NEED TO DO THIS</strong></p>
+<p>Q3. Ingest and filter chartevents.csv.gz chartevents.csv.gz contains all the charted data available for a patient. During their ICU stay, the primary repository of a patient’s information is their electronic chart. The itemid variable indicates a single measurement type in the database. The value variable is the value measured for itemid. The first 10 lines of chartevents.csv.gz are</p>
+<div class="cell">
+<div class="sourceCode cell-code" id="cb99"><pre class="sourceCode bash code-with-copy"><code class="sourceCode bash"><span id="cb99-1"><a href="#cb99-1" aria-hidden="true" tabindex="-1"></a><span class="fu">zcat</span> <span class="op">&lt;</span> ~/mimic/icu/chartevents.csv.gz <span class="kw">|</span> <span class="fu">head</span> <span class="at">-10</span></span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="cell-output cell-output-stdout">
+<pre><code>subject_id,hadm_id,stay_id,caregiver_id,charttime,storetime,itemid,value,valuenum,valueuom,warning
+10000032,29079034,39553978,18704,2180-07-23 12:36:00,2180-07-23 14:45:00,226512,39.4,39.4,kg,0
+10000032,29079034,39553978,18704,2180-07-23 12:36:00,2180-07-23 14:45:00,226707,60,60,Inch,0
+10000032,29079034,39553978,18704,2180-07-23 12:36:00,2180-07-23 14:45:00,226730,152,152,cm,0
+10000032,29079034,39553978,18704,2180-07-23 14:00:00,2180-07-23 14:18:00,220048,SR (Sinus Rhythm),,,0
+10000032,29079034,39553978,18704,2180-07-23 14:00:00,2180-07-23 14:18:00,224642,Oral,,,0
+10000032,29079034,39553978,18704,2180-07-23 14:00:00,2180-07-23 14:18:00,224650,None,,,0
+10000032,29079034,39553978,18704,2180-07-23 14:00:00,2180-07-23 14:20:00,223761,98.7,98.7,°F,0
+10000032,29079034,39553978,18704,2180-07-23 14:11:00,2180-07-23 14:17:00,220179,84,84,mmHg,0
+10000032,29079034,39553978,18704,2180-07-23 14:11:00,2180-07-23 14:17:00,220180,48,48,mmHg,0</code></pre>
+</div>
+</div>
+<p>d_items.csv.gz is the dictionary for the itemid in chartevents.csv.gz.</p>
+<div class="cell">
+<div class="sourceCode cell-code" id="cb101"><pre class="sourceCode bash code-with-copy"><code class="sourceCode bash"><span id="cb101-1"><a href="#cb101-1" aria-hidden="true" tabindex="-1"></a><span class="fu">zcat</span> <span class="op">&lt;</span> ~/mimic/icu/d_items.csv.gz <span class="kw">|</span> <span class="fu">head</span> <span class="at">-10</span></span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="cell-output cell-output-stdout">
+<pre><code>itemid,label,abbreviation,linksto,category,unitname,param_type,lownormalvalue,highnormalvalue
+220001,Problem List,Problem List,chartevents,General,,Text,,
+220003,ICU Admission date,ICU Admission date,datetimeevents,ADT,,Date and time,,
+220045,Heart Rate,HR,chartevents,Routine Vital Signs,bpm,Numeric,,
+220046,Heart rate Alarm - High,HR Alarm - High,chartevents,Alarms,bpm,Numeric,,
+220047,Heart Rate Alarm - Low,HR Alarm - Low,chartevents,Alarms,bpm,Numeric,,
+220048,Heart Rhythm,Heart Rhythm,chartevents,Routine Vital Signs,,Text,,
+220050,Arterial Blood Pressure systolic,ABPs,chartevents,Routine Vital Signs,mmHg,Numeric,90,140
+220051,Arterial Blood Pressure diastolic,ABPd,chartevents,Routine Vital Signs,mmHg,Numeric,60,90
+220052,Arterial Blood Pressure mean,ABPm,chartevents,Routine Vital Signs,mmHg,Numeric,,</code></pre>
+</div>
+</div>
+<p>How many rows? 433 millions.</p>
+<div class="cell">
+<div class="sourceCode cell-code" id="cb103"><pre class="sourceCode bash code-with-copy"><code class="sourceCode bash"><span id="cb103-1"><a href="#cb103-1" aria-hidden="true" tabindex="-1"></a><span class="fu">zcat</span> <span class="op">&lt;</span> ~/mimic/icu/chartevents.csv.gz <span class="kw">|</span> <span class="fu">tail</span> <span class="at">-n</span> +2 <span class="kw">|</span> <span class="fu">wc</span> <span class="at">-l</span></span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+</div>
+<p>d_items.csv.gz is the dictionary for the itemid in chartevents.csv.gz.</p>
+<div class="cell">
+<div class="sourceCode cell-code" id="cb104"><pre class="sourceCode bash code-with-copy"><code class="sourceCode bash"><span id="cb104-1"><a href="#cb104-1" aria-hidden="true" tabindex="-1"></a><span class="fu">zcat</span> <span class="op">&lt;</span> ~/mimic/icu/d_items.csv.gz <span class="kw">|</span> <span class="fu">head</span> <span class="at">-10</span></span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="cell-output cell-output-stdout">
+<pre><code>itemid,label,abbreviation,linksto,category,unitname,param_type,lownormalvalue,highnormalvalue
+220001,Problem List,Problem List,chartevents,General,,Text,,
+220003,ICU Admission date,ICU Admission date,datetimeevents,ADT,,Date and time,,
+220045,Heart Rate,HR,chartevents,Routine Vital Signs,bpm,Numeric,,
+220046,Heart rate Alarm - High,HR Alarm - High,chartevents,Alarms,bpm,Numeric,,
+220047,Heart Rate Alarm - Low,HR Alarm - Low,chartevents,Alarms,bpm,Numeric,,
+220048,Heart Rhythm,Heart Rhythm,chartevents,Routine Vital Signs,,Text,,
+220050,Arterial Blood Pressure systolic,ABPs,chartevents,Routine Vital Signs,mmHg,Numeric,90,140
+220051,Arterial Blood Pressure diastolic,ABPd,chartevents,Routine Vital Signs,mmHg,Numeric,60,90
+220052,Arterial Blood Pressure mean,ABPm,chartevents,Routine Vital Signs,mmHg,Numeric,,</code></pre>
+</div>
+</div>
+<p>In later exercises, we are interested in the vitals for ICU patients: heart rate (220045), mean non-invasive blood pressure (220181), systolic non-invasive blood pressure (220179), body temperature in Fahrenheit (223761), and respiratory rate (220210). Retrieve a subset of chartevents.csv.gz only containing these items, using the favorite method you learnt in Q2.</p>
+<p>Document the steps and show code. Display the number of rows and the first 10 rows of the result tibble.</p>
+<div class="cell">
+<div class="sourceCode cell-code" id="cb106"><pre class="sourceCode bash code-with-copy"><code class="sourceCode bash"><span id="cb106-1"><a href="#cb106-1" aria-hidden="true" tabindex="-1"></a><span class="fu">zcat</span> <span class="op">&lt;</span> ~/mimic/icu/chartevents.csv.gz <span class="op">&gt;</span> ~/mimic/icu/chartevents.csv</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+</div>
+<p>Make sure that the file is there:</p>
+<div class="cell">
+<div class="sourceCode cell-code" id="cb107"><pre class="sourceCode bash code-with-copy"><code class="sourceCode bash"><span id="cb107-1"><a href="#cb107-1" aria-hidden="true" tabindex="-1"></a><span class="fu">ls</span> <span class="at">-l</span> ~/mimic/icu/chartevents.csv</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="cell-output cell-output-stdout">
+<pre><code>-rw-r--r--@ 1 lukehodges  staff  41935806083 Jan 31 17:39 /Users/lukehodges/mimic/icu/chartevents.csv</code></pre>
+</div>
+</div>
+<div class="cell">
+<div class="sourceCode cell-code" id="cb109"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb109-1"><a href="#cb109-1" aria-hidden="true" tabindex="-1"></a>chartevents.arrow <span class="ot">&lt;-</span> arrow<span class="sc">::</span><span class="fu">open_dataset</span>(<span class="st">"chartevents.csv"</span>, <span class="at">format =</span> <span class="st">"csv"</span>)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+</div>
+<p><strong>Now we have to select the columns and filter the new table labelevets.arrow</strong></p>
+<div class="cell">
+<div class="sourceCode cell-code" id="cb110"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb110-1"><a href="#cb110-1" aria-hidden="true" tabindex="-1"></a>chartevents.filtered.arrow <span class="ot">&lt;-</span> chartevents.arrow <span class="sc">%&gt;%</span></span>
+<span id="cb110-2"><a href="#cb110-2" aria-hidden="true" tabindex="-1"></a>  dplyr<span class="sc">::</span><span class="fu">select</span>(subject_id, itemid, charttime, valuenum) <span class="sc">%&gt;%</span></span>
+<span id="cb110-3"><a href="#cb110-3" aria-hidden="true" tabindex="-1"></a>  dplyr<span class="sc">::</span><span class="fu">filter</span>(itemid <span class="sc">%in%</span> <span class="fu">c</span>(<span class="dv">220045</span>, <span class="dv">220181</span>, <span class="dv">220179</span>, <span class="dv">223761</span>, <span class="dv">220210</span>))</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+</div>
+<div class="cell">
+<div class="sourceCode cell-code" id="cb111"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb111-1"><a href="#cb111-1" aria-hidden="true" tabindex="-1"></a><span class="fu">nrow</span>(chartevents.filtered.arrow)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="cell-output cell-output-stdout">
+<pre><code>[1] 30195426</code></pre>
+</div>
+</div>
+<p>There are 30195426 in chartevents.filtered.arrow</p>
+<p>First ten lines of chartevents.filtered.arrow</p>
+<div class="cell">
+<div class="sourceCode cell-code" id="cb113"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb113-1"><a href="#cb113-1" aria-hidden="true" tabindex="-1"></a>charteventsprint <span class="ot">&lt;-</span> chartevents.filtered.arrow <span class="sc">%&gt;%</span></span>
+<span id="cb113-2"><a href="#cb113-2" aria-hidden="true" tabindex="-1"></a>  <span class="fu">head</span>(<span class="dv">10</span>) <span class="sc">%&gt;%</span></span>
+<span id="cb113-3"><a href="#cb113-3" aria-hidden="true" tabindex="-1"></a>  <span class="fu">collect</span>()</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+</div>
+<div class="cell">
+<div class="sourceCode cell-code" id="cb114"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb114-1"><a href="#cb114-1" aria-hidden="true" tabindex="-1"></a><span class="fu">print</span>(charteventsprint)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="cell-output cell-output-stdout">
+<pre><code># A tibble: 10 × 4
+   subject_id itemid charttime           valuenum
+        &lt;int&gt;  &lt;int&gt; &lt;dttm&gt;                 &lt;dbl&gt;
+ 1   10000032 223761 2180-07-23 07:00:00     98.7
+ 2   10000032 220179 2180-07-23 07:11:00     84  
+ 3   10000032 220181 2180-07-23 07:11:00     56  
+ 4   10000032 220045 2180-07-23 07:12:00     91  
+ 5   10000032 220210 2180-07-23 07:12:00     24  
+ 6   10000032 220045 2180-07-23 07:30:00     93  
+ 7   10000032 220179 2180-07-23 07:30:00     95  
+ 8   10000032 220181 2180-07-23 07:30:00     67  
+ 9   10000032 220210 2180-07-23 07:30:00     21  
+10   10000032 220045 2180-07-23 08:00:00     94  </code></pre>
+</div>
+</div>
 
 </main>
 <!-- /main column -->
