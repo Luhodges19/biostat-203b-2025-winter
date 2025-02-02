@@ -263,7 +263,7 @@ zcat < labevents_filtered.csv.gz | head -10
 
 Write a few sentences to explain what is Apache Arrow. Imagine you want to explain it to a layman in an elevator.
 
-**Apache Arrow is a development platform for in-memory data. It is designed to accelerate the processing of large data sets that are too big to fit into memory.**
+**Apache Arrow is a development platform that allows for easier processing of data that is actively being used (in-memory), leading for quicker access and turn around. It uses a columnar format, rather than a row format which allows for easier access. It is used in many big data applications as it is able to compress it to a smaller file size making it easier to pull and analyze data from.** 
 
 Q2.5 Compress labevents.csv to Parquet format and ingest/select/filter
 
@@ -343,7 +343,7 @@ print(first10.parquet)
 
 Write a few sentences to explain what is the Parquet format. Imagine you want to explain it to a layman in an elevator.
 
-**NEED TO DO THIS PART**
+**Parquet format createsefficient storage of data. It is used by storing and analyzing columns, rather than rows, which is far more effective and efficient. It is used in many big data applications as it is able to compress it to a smaller file size making it easier to pull and analyze data from. It reads individual columns.  **
 
 Q2.6 DuckDB
 
@@ -414,7 +414,7 @@ print(first10.duckdb)
 
 Write a few sentences to explain what is DuckDB. Imagine you want to explain it to a layman in an elevator.
 
-**NEED TO DO THIS**
+**DuckDB, like Parquet and Arrow, utilizes a columnar based format which allows for easier access and storage of the data rather than using rows. It can read both Parquet and Arrow without loading the entire file into memory, which is beneficial for big data applications as it allows for faster turn around.**
 
 Q3. Ingest and filter chartevents.csv.gz
 chartevents.csv.gz contains all the charted data available for a patient. During their ICU stay, the primary repository of a patient’s information is their electronic chart. The itemid variable indicates a single measurement type in the database. The value variable is the value measured for itemid. The first 10 lines of chartevents.csv.gz are

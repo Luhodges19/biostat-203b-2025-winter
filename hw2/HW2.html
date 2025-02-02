@@ -269,7 +269,7 @@ drwxr-xr-x@ 3 lukehodges  staff           96 Jan 30 22:13 labevents.filtered
 <div class="cell">
 <div class="sourceCode cell-code" id="cb31"><pre class="sourceCode bash code-with-copy"><code class="sourceCode bash"><span id="cb31-1"><a href="#cb31-1" aria-hidden="true" tabindex="-1"></a><span class="fu">ls</span> <span class="at">-l</span> ~/mimic/icu/</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
 <div class="cell-output cell-output-stdout">
-<pre><code>total 90426912
+<pre><code>total 90412656
 -rw-r--r--@ 1 lukehodges  staff        41566 Apr 12  2024 caregiver.csv.gz
 -rw-r--r--@ 1 lukehodges  staff  41935806083 Jan 31 17:39 chartevents.csv
 -rw-r--r--@ 1 lukehodges  staff   3502392765 Apr 12  2024 chartevents.csv.gz
@@ -291,7 +291,7 @@ drwxr-xr-x@ 3 lukehodges  staff           96 Jan 30 22:13 labevents.filtered
 <span id="cb33-3"><a href="#cb33-3" aria-hidden="true" tabindex="-1"></a>})</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
 <div class="cell-output cell-output-stdout">
 <pre><code>   user  system elapsed 
- 10.936   0.225  11.186 </code></pre>
+ 11.047   0.206  11.265 </code></pre>
 </div>
 </div>
 <p><strong>Here, the user time is 9.233, the system is 0.222, and the elapsed time is 9.533</strong></p>
@@ -313,7 +313,7 @@ dttm (5): admittime, dischtime, deathtime, edregtime, edouttime
 </div>
 <div class="cell-output cell-output-stdout">
 <pre><code>   user  system elapsed 
-  3.763   0.804   1.739 </code></pre>
+  3.744   0.647   1.831 </code></pre>
 </div>
 </div>
 <p><strong>Here, the user time is 3.707, the system is 0.329, and the elapsed time is 1.673.</strong></p>
@@ -325,7 +325,7 @@ dttm (5): admittime, dischtime, deathtime, edregtime, edouttime
 <span id="cb38-3"><a href="#cb38-3" aria-hidden="true" tabindex="-1"></a>})</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
 <div class="cell-output cell-output-stdout">
 <pre><code>   user  system elapsed 
-  2.645   0.166   0.841 </code></pre>
+  2.712   0.140   0.813 </code></pre>
 </div>
 </div>
 <p><strong>Here, the user, system, and elapsed time is 2.86, 0.201, and 0.918, respectively</strong></p>
@@ -491,7 +491,7 @@ dttm (5): admittime, dischtime, deathtime, edregtime, edouttime
 <span id="cb66-5"><a href="#cb66-5" aria-hidden="true" tabindex="-1"></a>})</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
 <div class="cell-output cell-output-stdout">
 <pre><code>   user  system elapsed 
-  0.040   0.010   0.043 </code></pre>
+  0.039   0.010   0.042 </code></pre>
 </div>
 </div>
 <p><strong>Using arrow, the user, system, and elapsed times are more faster. They are 0.047, 0.014, and 0.110, respectively</strong></p>
@@ -545,7 +545,7 @@ dttm (5): admittime, dischtime, deathtime, edregtime, edouttime
 </div>
 <p><strong>Although it directly matches those in Q2.3, the only thing that does not is the charttime. The hour seems to be off, despite the minute being the same. This could be because of a time zone difference of the packages/user.</strong></p>
 <p>Write a few sentences to explain what is Apache Arrow. Imagine you want to explain it to a layman in an elevator.</p>
-<p><strong>Apache Arrow is a development platform for in-memory data. It is designed to accelerate the processing of large data sets that are too big to fit into memory.</strong></p>
+<p><strong>Apache Arrow is a development platform that allows for easier processing of data that is actively being used (in-memory), leading for quicker access and turn around. It uses a columnar format, rather than a row format which allows for easier access. It is used in many big data applications as it is able to compress it to a smaller file size making it easier to pull and analyze data from.</strong></p>
 <p>Q2.5 Compress labevents.csv to Parquet format and ingest/select/filter</p>
 <p>Re-write the csv file labevents.csv in the binary Parquet format (Hint: arrow::write_dataset.) How large is the Parquet file(s)? How long does the ingest+select+filter process of the Parquet file(s) take? Display the number of rows and the first 10 rows of the result tibble and make sure they match those in Q2.3. (Hint: use dplyr verbs for selecting columns and filtering rows.)</p>
 <p><strong>First, let us create a parquet file from the labevents.csv file</strong></p>
@@ -562,7 +562,7 @@ dttm (5): admittime, dischtime, deathtime, edregtime, edouttime
 <div class="sourceCode cell-code" id="cb77"><pre class="sourceCode bash code-with-copy"><code class="sourceCode bash"><span id="cb77-1"><a href="#cb77-1" aria-hidden="true" tabindex="-1"></a><span class="fu">ls</span> <span class="at">-l</span> ~/mimic/hosp/labevents</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
 <div class="cell-output cell-output-stdout">
 <pre><code>total 5341192
--rw-r--r--@ 1 lukehodges  staff  2731040379 Jan 31 18:26 part-0.parquet</code></pre>
+-rw-r--r--@ 1 lukehodges  staff  2731040379 Feb  1 23:26 part-0.parquet</code></pre>
 </div>
 </div>
 <p>How large is the Parquet file(s)?</p>
@@ -578,7 +578,7 @@ dttm (5): admittime, dischtime, deathtime, edregtime, edouttime
 <span id="cb79-7"><a href="#cb79-7" aria-hidden="true" tabindex="-1"></a>})</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
 <div class="cell-output cell-output-stdout">
 <pre><code>   user  system elapsed 
-  0.477   0.082   0.558 </code></pre>
+  0.450   0.063   0.520 </code></pre>
 </div>
 </div>
 <p><strong>The user, system, and elapsed times are 0.0489, 0.094, and 0.605 respectively</strong></p>
@@ -593,7 +593,7 @@ dttm (5): admittime, dischtime, deathtime, edregtime, edouttime
 <div class="sourceCode cell-code" id="cb82"><pre class="sourceCode bash code-with-copy"><code class="sourceCode bash"><span id="cb82-1"><a href="#cb82-1" aria-hidden="true" tabindex="-1"></a><span class="fu">ls</span> <span class="at">-l</span> ~/mimic/hosp/labevents.filtered</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
 <div class="cell-output cell-output-stdout">
 <pre><code>total 327688
--rw-r--r--@ 1 lukehodges  staff  152917918 Jan 31 18:26 part-0.parquet</code></pre>
+-rw-r--r--@ 1 lukehodges  staff  152917918 Feb  1 23:27 part-0.parquet</code></pre>
 </div>
 </div>
 <p><strong>The file size is 152.9 MB after being filtered</strong></p>
@@ -631,7 +631,7 @@ dttm (5): admittime, dischtime, deathtime, edregtime, edouttime
 </div>
 <p><strong>This is the exact same as what we saw before</strong></p>
 <p>Write a few sentences to explain what is the Parquet format. Imagine you want to explain it to a layman in an elevator.</p>
-<p><strong>NEED TO DO THIS PART</strong></p>
+<p><strong>Parquet format createsefficient storage of data. It is used by storing and analyzing columns, rather than rows, which is far more effective and efficient. It is used in many big data applications as it is able to compress it to a smaller file size making it easier to pull and analyze data from. It reads individual columns. </strong></p>
 <p>Q2.6 DuckDB</p>
 <p>Ingest the Parquet file, convert it to a DuckDB table by arrow::to_duckdb, select columns, and filter rows as in Q2.5. How long does the ingest+convert+select+filter process take? Display the number of rows and the first 10 rows of the result tibble and make sure they match those in Q2.3. (Hint: use dplyr verbs for selecting columns and filtering rows.)</p>
 <p>Write a few sentences to explain what is DuckDB. Imagine you want to explain it to a layman in an elevator.</p>
@@ -664,7 +664,7 @@ dttm (5): admittime, dischtime, deathtime, edregtime, edouttime
 <span id="cb92-9"><a href="#cb92-9" aria-hidden="true" tabindex="-1"></a>})</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
 <div class="cell-output cell-output-stdout">
 <pre><code>   user  system elapsed 
-  0.475   0.082   0.559 </code></pre>
+  0.470   0.067   0.537 </code></pre>
 </div>
 </div>
 <p><strong>The user, system, and elapsed times are 0.509, 0.092, and 0.626, respectively. This is slower than both the arrow and paraquet methods</strong></p>
@@ -691,21 +691,21 @@ dttm (5): admittime, dischtime, deathtime, edregtime, edouttime
 <pre><code># A tibble: 10 × 4
    subject_id itemid charttime           valuenum
         &lt;dbl&gt;  &lt;dbl&gt; &lt;dttm&gt;                 &lt;dbl&gt;
- 1   10000980  51301 2191-05-23 10:20:00      4.6
- 2   10000980  50882 2191-05-24 05:45:00     25  
- 3   10000980  50902 2191-05-24 05:45:00    108  
- 4   10000980  50912 2191-05-24 05:45:00      2.1
- 5   10000980  50931 2191-05-24 05:45:00    116  
- 6   10000980  50971 2191-05-24 05:45:00      4  
- 7   10000980  50983 2191-05-24 05:45:00    144  
- 8   10000980  51221 2191-05-24 05:45:00     28  
- 9   10000980  51301 2191-05-24 05:45:00      3.4
-10   10000980  51221 2191-05-30 12:40:00     28.8</code></pre>
+ 1   10000032  50931 2180-03-23 11:51:00     95  
+ 2   10000032  50882 2180-03-23 11:51:00     27  
+ 3   10000032  50902 2180-03-23 11:51:00    101  
+ 4   10000032  50912 2180-03-23 11:51:00      0.4
+ 5   10000032  50971 2180-03-23 11:51:00      3.7
+ 6   10000032  50983 2180-03-23 11:51:00    136  
+ 7   10000032  51221 2180-03-23 11:51:00     45.4
+ 8   10000032  51301 2180-03-23 11:51:00      3  
+ 9   10000032  51221 2180-05-06 22:25:00     42.6
+10   10000032  51301 2180-05-06 22:25:00      5  </code></pre>
 </div>
 </div>
 <p><strong>This is identical to what we have seen above, with the time zones going back to what they were originally.</strong></p>
 <p>Write a few sentences to explain what is DuckDB. Imagine you want to explain it to a layman in an elevator.</p>
-<p><strong>NEED TO DO THIS</strong></p>
+<p><strong>DuckDB, like Parquet and Arrow, utilizes a columnar based format which allows for easier access and storage of the data rather than using rows. It can read both Parquet and Arrow without loading the entire file into memory, which is beneficial for big data applications as it allows for faster turn around.</strong></p>
 <p>Q3. Ingest and filter chartevents.csv.gz chartevents.csv.gz contains all the charted data available for a patient. During their ICU stay, the primary repository of a patient’s information is their electronic chart. The itemid variable indicates a single measurement type in the database. The value variable is the value measured for itemid. The first 10 lines of chartevents.csv.gz are</p>
 <div class="cell">
 <div class="sourceCode cell-code" id="cb99"><pre class="sourceCode bash code-with-copy"><code class="sourceCode bash"><span id="cb99-1"><a href="#cb99-1" aria-hidden="true" tabindex="-1"></a><span class="fu">zcat</span> <span class="op">&lt;</span> ~/mimic/icu/chartevents.csv.gz <span class="kw">|</span> <span class="fu">head</span> <span class="at">-10</span></span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
