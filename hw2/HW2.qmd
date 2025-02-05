@@ -1,6 +1,6 @@
 title: "Biostat 203B Homework 1"
 subtitle: Due Jan 24, 2025 @ 11:59PM
-author: Your Name and UID
+author: Luke Hodges and 906182810
 format:
   html:
     theme: cosmo
@@ -16,7 +16,6 @@ format:
 
 Display machine information for reproducibility:
 ```{r}
-#| eval: true
 sessionInfo()
 ```
 
@@ -48,6 +47,7 @@ ls -l ~/mimic/hosp/
 ```{bash}
 ls -l ~/mimic/icu/
 ```
+
 Q1.1 Speed, memory, and data types
 There are quite a few utilities in R for reading plain text data files. Let us test the speed of reading a moderate sized compressed csv file, admissions.csv.gz, by three functions: read.csv in base R, read_csv in tidyverse, and fread in the data.table package.
 
@@ -59,7 +59,7 @@ system.time({
   admissions.r <- read.csv("~/mimic/hosp/admissions.csv.gz")
 })
 ```
-**Here, the user time is 9.233, the system is 0.222, and the elapsed time is 9.533**
+**Here, the user time is 11.046, the system is 0.222, and the elapsed time is 11.331**
 
 **The system.time for by using the read_csv command in tidyverse is**
 
@@ -68,8 +68,7 @@ system.time({
   admissions.tidy <- read_csv("~/mimic/hosp/admissions.csv.gz")
 })
 ```
-
-**Here, the user time is 3.707, the system is 0.329, and the elapsed time is 1.673.**
+**Here, the user time is 3.915, the system is 0.391, and the elapsed time is 2.378.**
 
 **Compared to the R one, the user and elapsed time is faster, but the system is slower**
 
@@ -80,7 +79,7 @@ system.time({
   admissions.data <- fread("~/mimic/hosp/admissions.csv.gz")
 })
 ```
-**Here, the user, system, and elapsed time is 2.86, 0.201, and 0.918, respectively**
+**Here, the user, system, and elapsed time is 2.87, 0.19, and 0.984, respectively**
 
 **Given this, the data.table package is the fastest, followed by the tidyverse, and the base R command is the slowest for the user**
 
@@ -104,7 +103,7 @@ pryr::object_size(admissions.r)
 ```{r}
 pryr::object_size(admissions.tidy)
 ```
-**It is 70.08 MB for the memory usage for the tidyverse command for the data admissions.tidy**
+**It is 70.02 MB for the memory usage for the tidyverse command for the data admissions.tidy**
 
 **The memory usage for the data.table command**
 ```{r}
@@ -113,6 +112,44 @@ pryr::object_size(admissions.data)
 **It is 63.46 MB for the memory usage for the data.table command for the data admissions.data**
 
 **The data.table package uses the least amount of memory, followed by the tidyverse, and the base R command uses the most amount of memory**
+
+Q1.2 User-supplied data types
+
+Re-ingest admissions.csv.gz by indicating appropriate column data types in read_csv. Does the run time change? How much memory does the result tibble use? (Hint: col_types argument in read_csv.)
+
+**Conducting the system time by explicitly stating the column types in the read_csv command**
+
+```{r}
+system.time({
+  admissions.reingest <- read_csv("~/mimic/hosp/admissions.csv.gz", 
+                              col_types = cols(subject_id = col_integer(), 
+                                               hadm_id = col_integer(), 
+                                               admittime = col_datetime(format = ""), 
+                                               dischtime = col_datetime(format = ""), 
+                                               deathtime = col_datetime(format = ""), 
+                                               admission_type = col_character(), 
+                                               admit_provider_id = col_character(),
+                                               admission_location = col_character(),
+                                               discharge_location = col_character(), 
+                                               insurance = col_character(), 
+                                               language = col_character(), 
+                                               marital_status = col_character(),
+                                               race = col_character(),
+                                               edregtime = col_datetime(format = ""),
+                                               edouttime = col_datetime(format = ""),
+                                               hospital_expire_flag = col_integer()))
+                                
+})
+```
+
+**The run time decreases for the user, system and elapsed when using the col_types argument in read_csv. The user, system, and elapsed times are 3.340, 0.262, and 1.271, respectively. This is comparing it to the other read_csv command used to make admissions.tidy**
+
+**The memory usage for the re-ingested data**
+
+```{r}
+pryr::object_size(admissions.reingest)
+```
+**The result tibble has the same memory of 63.47 MB, which is lower storage amount than the original amount of 70.02.**
 
 Q2. Ingest big data files
 
@@ -192,9 +229,20 @@ zcat < labevents_filtered.csv.gz | wc -l
 ```
 **This is with the header. Therefore, there are actually 32679896 lines of data in the file**
 
+How long does it take read_csv to ingest labevents_filtered.csv.gz?
+
+```{r}
+system.time({
+  labevents.filtered.tidy <- read_csv("labevents_filtered.csv.gz")
+})
+```
+*The user, system, and elapsed time is 59.259, 4.809, and 12.385, respectively. This is much faster considering that we filtered out the necessary data compared to the prior attempts**
+
 Q2.4 Ingest labevents.csv by Apache Arrow
 
 Our second strategy is to use Apache Arrow for larger-than-memory data analytics. Unfortunately Arrow does not work with gz files directly. First decompress labevents.csv.gz to labevents.csv and put it in the current working directory (do not add it in git!). To save render time, put #| eval: false at the beginning of this code chunk. TA will change it to #| eval: true when rendering your qmd file.
+
+**First, we need to decompress labevents.csv.gz to labevents.csv to the current directory of ~/mimic**
 
 ```{bash}
 #| eval: false
@@ -206,6 +254,7 @@ zcat < ~/mimic/hosp/labevents.csv.gz > labevents.csv
 ```{bash}
 ls -l ~/mimic/hosp/labevents.csv
 ```
+
 **It looks like the file is successfully placed as directed**
 
 Then use arrow::open_dataset to ingest labevents.csv, select columns, and filter itemid as in Q2.3. 
@@ -240,7 +289,8 @@ Display the number of rows.
 ```{r}
 nrow(labevents.filter.arrow)
 ```
-**Nrow only counts the rows of data, not the header row. Therefore, the total rows would be 32679896, which is the same as the 
+
+**nrow only counts the rows of data, not the header row. Therefore, the total rows would be 32679896, which is the same as the 
 number of lines in the file labevents_filtered.csv.gz, as we saw in the previous question**
 
 First ten rows of the result tibble. 
@@ -288,10 +338,6 @@ arrow::write_dataset(labevents.parquet, path = "~/mimic/hosp/labevents",
 ls -l ~/mimic/hosp/labevents
 ```
 
-How large is the Parquet file(s)?
-
-**The Parquet file is 2.7 GB before being selected/filtered out**
-
 **Now, let us select/filter the columns and rows of the Parquet file**
 
 ```{r}
@@ -312,7 +358,6 @@ arrow::write_dataset(labevents.filter.parquet,
                      path = "~/mimic/hosp/labevents.filtered", 
                      format = "parquet")
 ```
-
 **Check for file size now**
 
 ```{bash}
@@ -414,10 +459,11 @@ print(first10.duckdb)
 
 Write a few sentences to explain what is DuckDB. Imagine you want to explain it to a layman in an elevator.
 
-**DuckDB, like Parquet and Arrow, utilizes a columnar based format which allows for easier access and storage of the data rather than using rows. It can read both Parquet and Arrow without loading the entire file into memory, which is beneficial for big data applications as it allows for faster turn around.**
+**DuckDB, like Parquet and Arrow, utilizes a columnar based format which allows for easier access and storage of the data rather than using rows. It can read both Parquet and Arrow without loading the entire file into memory, which is beneficial for big data applications as it allows for faster turn around. It also does paralleling processing as mentioned by Dr. Hua Zhou in class. 
 
 Q3. Ingest and filter chartevents.csv.gz
 chartevents.csv.gz contains all the charted data available for a patient. During their ICU stay, the primary repository of a patient’s information is their electronic chart. The itemid variable indicates a single measurement type in the database. The value variable is the value measured for itemid. The first 10 lines of chartevents.csv.gz are
+
 ```{bash}
 zcat < ~/mimic/icu/chartevents.csv.gz | head -10
 ```
