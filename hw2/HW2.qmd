@@ -1,17 +1,21 @@
-title: "Biostat 203B Homework 1"
+---
+title: "Biostat 203B Homework 2"
 subtitle: Due Jan 24, 2025 @ 11:59PM
-author: Luke Hodges and 906182810
+author: Luke Hodges 906182810
 format:
-  html:
-    theme: cosmo
-    embed-resources: true
-    number-sections: false
-    toc: true
-    toc-depth: 4
-    toc-location: left
-    code-fold: false
-    link-external-icon: true
-    link-external-newwindow: true
+  #typst: default
+  pdf: default 
+  #html: 
+    #theme: cosmo
+    #embed-resources: true
+    #number-sections: false
+    #toc: true
+    #toc-depth: 4
+    #toc-location: left
+    #code-fold: false
+    #link-external-icon: true
+    #link-external-newwindow: true
+
 ---
 
 Display machine information for reproducibility:
@@ -124,20 +128,31 @@ system.time({
   admissions.reingest <- read_csv("~/mimic/hosp/admissions.csv.gz", 
                               col_types = cols(subject_id = col_integer(), 
                                                hadm_id = col_integer(), 
-                                               admittime = col_datetime(format = ""), 
-                                               dischtime = col_datetime(format = ""), 
-                                               deathtime = col_datetime(format = ""), 
-                                               admission_type = col_character(), 
-                                               admit_provider_id = col_character(),
-                                               admission_location = col_character(),
-                                               discharge_location = col_character(), 
+                                               admittime = col_datetime
+                                               (format = ""), 
+                                               dischtime = col_datetime
+                                               (format = ""), 
+                                               deathtime = col_datetime
+                                               (format = ""), 
+                                               admission_type = 
+                                                 col_character(), 
+                                               admit_provider_id = 
+                                                 col_character(),
+                                               admission_location = 
+                                                 col_character(),
+                                               discharge_location = 
+                                                 col_character(), 
                                                insurance = col_character(), 
                                                language = col_character(), 
-                                               marital_status = col_character(),
+                                               marital_status = 
+                                                 col_character(),
                                                race = col_character(),
-                                               edregtime = col_datetime(format = ""),
-                                               edouttime = col_datetime(format = ""),
-                                               hospital_expire_flag = col_integer()))
+                                               edregtime = 
+                                                 col_datetime(format = ""),
+                                               edouttime = 
+                                                 col_datetime(format = ""),
+                                               hospital_expire_flag = 
+                                                 col_integer()))
                                 
 })
 ```
@@ -149,7 +164,7 @@ system.time({
 ```{r}
 pryr::object_size(admissions.reingest)
 ```
-**The result tibble has the same memory of 63.47 MB, which is lower storage amount than the original amount of 70.02.**
+**The result tibble has the same memory of 63.47 MB, which is lower storage amount than the original amount of 70.02. However, this is the same as the amount from using the data.table command**
 
 Q2. Ingest big data files
 
@@ -177,7 +192,7 @@ system.time({
 })
 ```
 
-**While processing the data, I waited about ten minutes to ingest, however, I had to abort the program because it did not finish**
+**While processing the data, I waited about ten minutes to ingest, however, I had to abort the program because it did not finish. I am assumign the data file labevents.csv.gz is a very large file (around 20 GB), which makes it harder to decompress**
 
 Q2.2 Ingest selected columns of labevents.csv.gz by read_csv
 Try to ingest only columns subject_id, itemid, charttime, and valuenum in labevents.csv.gz using read_csv. Does this solve the ingestion issue? (Hint: col_select argument in read_csv.)
@@ -185,20 +200,24 @@ Try to ingest only columns subject_id, itemid, charttime, and valuenum in labeve
 ```{r}
 #| eval: false
 system.time({
-  labevents.tidy <- read_csv("~/mimic/hosp/labevents.csv.gz", col_select = c("subject_id", "itemid", "charttime", "valuenum"))
+  labevents.tidy <- read_csv("~/mimic/hosp/labevents.csv.gz", 
+                             col_select = c("subject_id", "itemid", 
+                                            "charttime", "valuenum"))
 })
 ```
-**It took about 8 minutes for it to respond. The user, system, and elapsed times are: 418.660, 644.646, and 350.702, respectively.**
-
-**Technically, this does solve the ingestion problem after eight minutes as it was able to respond with the times compared to without the columns. With this in mind, if we were to base it off the three minute mark, then no, this did not fix the issue**
+**It took about 8 minutes for it to respond. The user, system, and elapsed times are: 418.660, 644.646, and 350.702, respectively. Technically, this does solve the ingestion problem after eight minutes as it was able to respond with the times compared to without the columns. With this in mind, if we were to base it off the three minute mark, then no, this did not fix the issue**
 
 Q2.3 Ingest a subset of labevents.csv.gz
 
 Our first strategy to handle this big data file is to make a subset of the labevents data. Read the MIMIC documentation for the content in data file labevents.csv.
 
+**Look at the first ten lines of the labevents.csv.gz file so we can understand the ordering of columns**
+
 ```{bash}
 zcat < ~/mimic/hosp/labevents.csv.gz | head -10
 ```
+
+**The resepctive columns are 2, 5, 7, and 10**
 
 In later exercises, we will only be interested in the following lab items: creatinine (50912), potassium (50971), sodium (50983), chloride (50902), bicarbonate (50882), hematocrit (51221), white blood cell count (51301), and glucose (50931) and the following columns: subject_id, itemid, charttime, valuenum. Write a Bash command to extract these columns and rows from labevents.csv.gz and save the result to a new file labevents_filtered.csv.gz in the current working directory. (Hint: Use zcat < to pipe the output of labevents.csv.gz to awk and then to gzip to compress the output. Do not put labevents_filtered.csv.gz in Git! To save render time, you can put #| eval: false at the beginning of this code chunk. TA will change it to #| eval: true before rendering your qmd file.)
 
@@ -211,11 +230,14 @@ zcat < ~/mimic/hosp/labevents.csv.gz | awk -F, '
     print $2, $5, $7, $10
 }' | gzip > labevents_filtered.csv.gz
 ```
+**This file takes a while to load. While talking to Dr. Zhou, we believe that the code runs 8 different times looking specifically for each of the numbers listed above.**
 
 **Checking to see how big the file size is**
+
 ```{bash}
 ls -lh labevents_filtered.csv.gz
 ```
+
 **It is 166 MB which is similar to what Dr. Zhou said in slack.**
 
 Display the first 10 lines of the new file labevents_filtered.csv.gz. How many lines are in this new file, excluding the header? How long does it take read_csv to ingest labevents_filtered.csv.gz?
@@ -227,6 +249,7 @@ zcat < labevents_filtered.csv.gz | head -10
 ```{bash}
 zcat < labevents_filtered.csv.gz | wc -l
 ```
+
 **This is with the header. Therefore, there are actually 32679896 lines of data in the file**
 
 How long does it take read_csv to ingest labevents_filtered.csv.gz?
@@ -270,16 +293,19 @@ labevents.arrow <- arrow::open_dataset("labevents.csv", format = "csv")
 ```{r}
 labevents.filter.arrow <- labevents.arrow %>%
   dplyr::select(subject_id, itemid, charttime, valuenum) %>%
-  dplyr::filter(itemid %in% c(50912, 50971, 50983, 50902, 50882, 51221, 51301, 50931))
+  dplyr::filter(itemid %in% c(50912, 50971, 50983, 50902, 50882, 51221, 
+                              51301, 50931))
 ```
 
 **How long does the ingest+select+filter process take?**
 
 ```{r}
 system.time({
-  labevents.filter.arrow <- arrow::open_dataset("labevents.csv", format = "csv") %>%
+  labevents.filter.arrow <- arrow::open_dataset("labevents.csv", format = 
+                                                  "csv") %>%
     dplyr::select(subject_id, itemid, charttime, valuenum) %>%
-    dplyr::filter(itemid %in% c(50912, 50971, 50983, 50902, 50882, 51221, 51301, 50931))
+    dplyr::filter(itemid %in% c(50912, 50971, 50983, 50902, 50882, 51221, 
+                                51301, 50931))
 })
 ```
 **Using arrow, the user, system, and elapsed times are more faster. They are 0.047, 0.014, and 0.110, respectively**
@@ -328,6 +354,7 @@ labevents.parquet <- arrow::open_dataset("labevents.csv", format = "csv")
 **We see that the values updated after doing that in the environment. Let us create a parquet now.**
 
 ```{r}
+#| eval: false
 arrow::write_dataset(labevents.parquet, path = "~/mimic/hosp/labevents", 
                      format = "parquet")
 ```
@@ -351,14 +378,15 @@ system.time({
 ```
 **The user, system, and elapsed times are 0.0489, 0.094, and 0.605 respectively**
 
-**Now, let us see how large the file size is now that it is filtered**
+**Now we have to write the new dataset for the filtered.parquet. The directory will be in the labevents.filtered folder within the mimic**
 
 ```{r}
 arrow::write_dataset(labevents.filter.parquet, 
                      path = "~/mimic/hosp/labevents.filtered", 
                      format = "parquet")
 ```
-**Check for file size now**
+
+**Check for file size now using the folder in which the filtered parquet is in**
 
 ```{bash}
 ls -l ~/mimic/hosp/labevents.filtered
@@ -371,6 +399,7 @@ Display the number of rows and the first 10 rows of the result tibble and make s
 ```{r}
 nrow(labevents.filter.parquet)
 ```
+
 **This is the same amount as we saw before, 32679896**
 
 The first ten rows of the result tibble: 
@@ -388,7 +417,7 @@ print(first10.parquet)
 
 Write a few sentences to explain what is the Parquet format. Imagine you want to explain it to a layman in an elevator.
 
-**Parquet format createsefficient storage of data. It is used by storing and analyzing columns, rather than rows, which is far more effective and efficient. It is used in many big data applications as it is able to compress it to a smaller file size making it easier to pull and analyze data from. It reads individual columns.  **
+**Parquet format creates efficient storage of data. It is used by storing and analyzing columns, rather than rows, which is far more effective and efficient. It is used in many big data applications as it is able to compress it to a smaller file size making it easier to pull and analyze data from. It reads individual columns.**
 
 Q2.6 DuckDB
 
@@ -415,7 +444,8 @@ labevents.duckdb.table <- arrow::to_duckdb(labevents.duckdb,
 ```{r}
 labevents.filter.duckdb <- labevents.duckdb.table %>%
   dplyr::select(subject_id, itemid, charttime, valuenum) %>%
-    dplyr::filter(itemid %in% c(50912, 50971, 50983, 50902, 50882, 51221, 51301, 50931))
+    dplyr::filter(itemid %in% c(50912, 50971, 50983, 50902, 50882, 51221, 
+                                51301, 50931))
 ```
 
 **How long does the ingest+convert+select+filter process take?**
@@ -438,13 +468,12 @@ Display the number of rows and the first 10 rows of the result tibble and make s
 **This command was taken and modified directly from the website attached to the homework for this section**
 
 ```{r}
-nrow(
-  collect(labevents.filter.duckdb)
+nrow(collect(labevents.filter.duckdb)
   )
 ```
 **This is identical to what we have seen above**
 
- first 10 rows of the result tibble
+First 10 rows of the result tibble
  
 ```{r}
 first10.duckdb <- labevents.filter.duckdb %>%
@@ -467,10 +496,13 @@ chartevents.csv.gz contains all the charted data available for a patient. During
 ```{bash}
 zcat < ~/mimic/icu/chartevents.csv.gz | head -10
 ```
+
 d_items.csv.gz is the dictionary for the itemid in chartevents.csv.gz.
+
 ```{bash}
 zcat < ~/mimic/icu/d_items.csv.gz | head -10
 ```
+
 How many rows? 433 millions.
 
 ```{bash}
@@ -478,11 +510,6 @@ How many rows? 433 millions.
 zcat < ~/mimic/icu/chartevents.csv.gz | tail -n +2 | wc -l
 ```
 
-d_items.csv.gz is the dictionary for the itemid in chartevents.csv.gz.
-
-```{bash}
-zcat < ~/mimic/icu/d_items.csv.gz | head -10
-```
 In later exercises, we are interested in the vitals for ICU patients: heart rate (220045), mean non-invasive blood pressure (220181), systolic non-invasive blood pressure (220179), body temperature in Fahrenheit (223761), and respiratory rate (220210). Retrieve a subset of chartevents.csv.gz only containing these items, using the favorite method you learnt in Q2.
 
 Document the steps and show code. Display the number of rows and the first 10 rows of the result tibble.
@@ -510,6 +537,7 @@ chartevents.filtered.arrow <- chartevents.arrow %>%
   dplyr::filter(itemid %in% c(220045, 220181, 220179, 223761, 220210))
 ```
 
+
 ```{r}
 nrow(chartevents.filtered.arrow)
 ```
@@ -518,7 +546,7 @@ There are 30195426 in chartevents.filtered.arrow
 First ten lines of chartevents.filtered.arrow
 
 ```{r}
-charteventsprint <- chartevents.filtered.arrow %>%
+  charteventsprint <- chartevents.filtered.arrow %>%
   head(10) %>%
   collect()
 ```
