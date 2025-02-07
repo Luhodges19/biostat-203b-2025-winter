@@ -441,14 +441,23 @@ Write a few sentences to explain what is DuckDB. Imagine you want to explain it 
 **The first step is to ingest the parquet file**
 
 ```{r}
-labevents.duckdb <- arrow::open_dataset("~/mimic/hosp/labevents/part-0.parquet", 
+labevents.duckdb <- 
+  arrow::open_dataset("~/mimic/hosp/labevents/part-0.parquet", 
                                        format = "parquet")
 ```
 
-**Then, we can make the new one again since there will be no error**
+
+**Then, we can make the new one again IF the table does not already exist. I received an error about dbplyr, so I installed it.**
+```{r, message=FALSE, warning=FALSE}
+library(dbplyr)
+
+```
+
 ```{r}
- labevents.duckdb.table <- arrow::to_duckdb(labevents.duckdb, 
-                                       table = "labevents.db")
+if (!exists("labevents.duckdb.table")) {
+  labevents.duckdb.table <- arrow::to_duckdb(labevents.duckdb, 
+                                             table = "labevents.db")
+}
 ```
 
 **Now, let us select columns and filter rows as in Q2.5**
@@ -477,11 +486,13 @@ system.time({
 
 Display the number of rows and the first 10 rows of the result tibble and make sure they match those in Q2.3.
 
-**This command was taken and modified directly from the website attached to the homework for this section**
+**This command was taken and modified directly from the website attached to the homework for this section. We have to load dplyr since dbplyr overrode it**
+```{r message=FALSE, warning=FALSE}
+library(dplyr)
+```
 
 ```{r}
-nrow(collect(labevents.filter.duckdb)
-  )
+nrow(collect(labevents.filter.duckdb))
 ```
 **This is identical to what we have seen above**
 
@@ -550,7 +561,7 @@ chartevents.filtered.arrow <- chartevents.arrow %>%
 ```
 
 ```{r}
-nrow(chartevents.filtered.arrow)
+nrow(collect(chartevents.filtered.arrow))
 ```
 There are 30195426 in chartevents.filtered.arrow 
 
