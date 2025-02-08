@@ -487,7 +487,7 @@ system.time({
   labevents.filter.duckdb <- 
     arrow::open_dataset("~/mimic/hosp/labevents/part-0.parquet", 
                                                   format = "parquet") %>%
-    arrow::to_duckdb(table = "labevents.ddb_v2") %>%
+    arrow::to_duckdb(table = "labevents.db") %>%
     dplyr::select(subject_id, itemid, charttime, valuenum) %>%
     dplyr::filter(itemid %in% c(50912, 50971, 50983, 50902, 50882, 51221, 
                                 51301, 50931))
