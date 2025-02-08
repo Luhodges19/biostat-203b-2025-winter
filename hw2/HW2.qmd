@@ -3,18 +3,16 @@ title: "Biostat 203B Homework 2"
 subtitle: Due Jan 24, 2025 @ 11:59PM
 author: Luke Hodges 906182810
 format:
-  #typst: default
-  pdf: default
-  #html: 
-    #theme: cosmo
-    #embed-resources: true
-    #number-sections: false
-    #toc: true
-    #toc-depth: 4
-    #toc-location: left
-    #code-fold: false
-    #link-external-icon: true
-    #link-external-newwindow: true
+  html: 
+    theme: cosmo
+    embed-resources: true
+    number-sections: false
+    toc: true
+    toc-depth: 4
+    toc-location: left
+    code-fold: false
+    link-external-icon: true
+    link-external-newwindow: true
 
 ---
 
@@ -464,30 +462,14 @@ library(dbplyr)
 
 ```
 
-```{r}
-if (!exists("labevents.duckdb.table")) {
-  labevents.duckdb.table <- arrow::to_duckdb(labevents.duckdb, 
-                                             table = "labevents.db")
-}
-```
-
-**Now, let us select columns and filter rows as in Q2.5**
-
-```{r}
-labevents.filter.duckdb <- labevents.duckdb.table %>%
-  dplyr::select(subject_id, itemid, charttime, valuenum) %>%
-    dplyr::filter(itemid %in% c(50912, 50971, 50983, 50902, 50882, 51221, 
-                                51301, 50931))
-```
-
-**How long does the ingest+convert+select+filter process take?**
+**Now, let us select columns and filter rows as in Q2.5 and see how long does the ingest+convert+select+filter process take?**
 
 ```{r}
 system.time({
   labevents.filter.duckdb <- 
     arrow::open_dataset("~/mimic/hosp/labevents/part-0.parquet", 
                                                   format = "parquet") %>%
-    arrow::to_duckdb(table = "labevents.ddb_v2") %>%
+    arrow::to_duckdb(table = "labevents.db") %>%
     dplyr::select(subject_id, itemid, charttime, valuenum) %>%
     dplyr::filter(itemid %in% c(50912, 50971, 50983, 50902, 50882, 51221, 
                                 51301, 50931))
