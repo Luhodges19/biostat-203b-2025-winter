@@ -377,7 +377,7 @@ Write a few sentences to explain what is the Parquet format. Imagine you want to
 
 ```{r}
 #| eval: false
-#Code not processed, kept here in case error occurs and need reference point to build off from
+# Code not processed from Co-Pilot, kept here in case error occurs and need reference point to build off from. 
 
 arrow::write_dataset(arrow::open_dataset("labevents.csv", format="csv"), 
                      path = "~/mimic/hosp/labevents", format = "parquet")
