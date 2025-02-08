@@ -3,16 +3,18 @@ title: "Biostat 203B Homework 2"
 subtitle: Due Jan 24, 2025 @ 11:59PM
 author: Luke Hodges 906182810
 format:
-  html: 
-    theme: cosmo
-    embed-resources: true
-    number-sections: false
-    toc: true
-    toc-depth: 4
-    toc-location: left
-    code-fold: false
-    link-external-icon: true
-    link-external-newwindow: true
+  #typst: default
+  pdf: default
+  #html: 
+    #theme: cosmo
+    #embed-resources: true
+    #number-sections: false
+    #toc: true
+    #toc-depth: 4
+    #toc-location: left
+    #code-fold: false
+    #link-external-icon: true
+    #link-external-newwindow: true
 
 ---
 
