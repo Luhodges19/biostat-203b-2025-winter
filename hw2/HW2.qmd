@@ -34,13 +34,13 @@ library(tidyverse)
 library(dplyr)
 ```
 
-**Display memory information of your computer**
+Display memory information of your computer
 
 ```{r}
 memuse::Sys.meminfo()
 ```
 
-**In this exercise, we explore various tools for ingesting the MIMIC-IV data introduced in homework 1.**
+In this exercise, we explore various tools for ingesting the MIMIC-IV data introduced in homework 1.
 
 Display the contents of MIMIC hosp and icu data folders:
 
@@ -85,15 +85,29 @@ system.time({
 ```
 **Here, the user, system, and elapsed time is 2.87, 0.19, and 0.984, respectively**
 
-**Given this, the data.table package is the fastest, followed by the tidyverse, and the base R command is the slowest for the user**
+Which function is fastest?
 
-**For the system, the data.table package is the fastest, followed by the base R command, and the tidyverse is the slowest**
+**Answer: The function that is the fastest is the fread in the data.table package. The data.table package is the fastest, followed by the tidyverse, and the base R command is the slowest for the user. For the system, the data.table package is the fastest, followed by the base R command, and the tidyverse is the slowest. For the elapsed time, the data.table package is the fastest, followed by the tidyverse, and the base R command is the slowest**
 
-**For the elapsed time, the data.table package is the fastest, followed by the tidyverse, and the base R command is the slowest**
+Is there difference in the (default) parsed data types? 
 
-Which function is fastest? Is there difference in the (default) parsed data types? How much memory does each resultant dataframe or tibble use? (Hint: system.time measures run times; pryr::object_size measures memory usage; all these readers can take gz file as input without explicit decompression.)
+**To look at the structure and default parsed data types, we use the str command**
 
-**The function that is the fastest is the fread in the data.table package**
+```{r}
+str(admissions.r)
+```
+
+```{r}
+str(admissions.tidy)
+```
+
+```{r}
+str(admissions.data)
+```
+
+**The difference in the default parsed data types is that the base R command uses a data frame, the tidyverse uses a tibble, and the data.table package uses a data.table. For example, using the base r command, the first four columns are listed as: int, int, chr, and chr. Using tidyverse, they are num, num, POSIXct, and POSIXct. Using the data.table package, they are int, int, POSIXct, and POSIXct**
+
+How much memory does each resultant dataframe or tibble use? (Hint: system.time measures run times; pryr::object_size measures memory usage; all these readers can take gz file as input without explicit decompression.)
 
 **The memory usage for the R command**
 ```{r}
@@ -115,27 +129,17 @@ pryr::object_size(admissions.data)
 
 **The data.table package uses the least amount of memory, followed by the tidyverse, and the base R command uses the most amount of memory**
 
-**To look at the structure and default parsed data types, we use the str command**
-
-```{r}
-str(admissions.r)
-```
-
-```{r}
-str(admissions.tidy)
-```
-
-```{r}
-str(admissions.data)
-```
-
-**The difference in the default parsed data types is that the base R command uses a data frame, the tidyverse uses a tibble, and the data.table package uses a data.table. For example, using the base r command, the first four columns are listed as: int, int, chr, and chr. Using tidyverse, they are num, num, POSIXct, and POSIXct. Using the data.table package, they are int, int, POSIXct, and POSIXct**
-
 ## Q1.2 User-supplied data types
 
 Re-ingest admissions.csv.gz by indicating appropriate column data types in read_csv. Does the run time change? How much memory does the result tibble use? (Hint: col_types argument in read_csv.)
 
 **Conducting the system time by explicitly stating the column types in the read_csv command**
+
+**We need to look at the colnames for the file**
+
+```{r}
+colnames(admissions.r)
+```
 
 ```{r}
 system.time({
@@ -178,6 +182,7 @@ system.time({
 ```{r}
 pryr::object_size(admissions.reingest)
 ```
+
 **The result tibble has the same memory of 63.47 MB, which is lower storage amount than the original amount of 70.02. However, this is the same as the amount from using the data.table command**
 
 ## Q2. Ingest big data files
@@ -219,7 +224,7 @@ system.time({
                                             "charttime", "valuenum"))
 })
 ```
-**It took about 8 minutes for it to respond. The user, system, and elapsed times are: 418.660, 644.646, and 350.702, respectively. Technically, this does solve the ingestion problem after eight minutes as it was able to respond with the times compared to without the columns. With this in mind, if we were to base it off the three minute mark, then no, this did not fix the issue**
+**It took about 8 minutes for it to respond. The user, system, and elapsed times are: 418.660, 644.646, and 350.702, respectively. Technically, this does solve the ingestion problem after eight minutes as it was able to respond with the times compared to without the columns. With this in mind, if we were to base it off the three minute mark, then no, this did not fix the issue, but overall, yes it did**
 
 ## Q2.3 Ingest a subset of labevents.csv.gz
 
@@ -230,7 +235,6 @@ Our first strategy to handle this big data file is to make a subset of the labev
 ```{bash}
 zcat < ~/mimic/hosp/labevents.csv.gz | head -10
 ```
-
 **The resepctive columns are 2, 5, 7, and 10**
 
 In later exercises, we will only be interested in the following lab items: creatinine (50912), potassium (50971), sodium (50983), chloride (50902), bicarbonate (50882), hematocrit (51221), white blood cell count (51301), and glucose (50931) and the following columns: subject_id, itemid, charttime, valuenum. Write a Bash command to extract these columns and rows from labevents.csv.gz and save the result to a new file labevents_filtered.csv.gz in the current working directory. (Hint: Use zcat < to pipe the output of labevents.csv.gz to awk and then to gzip to compress the output. Do not put labevents_filtered.csv.gz in Git! To save render time, you can put #| eval: false at the beginning of this code chunk. TA will change it to #| eval: true before rendering your qmd file.)
@@ -244,9 +248,9 @@ zcat < ~/mimic/hosp/labevents.csv.gz | awk -F, '
     print $2, $5, $7, $10
 }' | gzip > labevents_filtered.csv.gz
 ```
-**This file takes a while to load. While talking to Dr. Zhou, we believe that the code runs 8 different times looking specifically for each of the numbers listed above.**
+**This file takes a while to load. While talking to Dr. Zhou, we believe that the code runs 8 different times looking specifically for each of the numbers listed above. However, even when I tried that code it still took a while to load. I am assuming this has to do with the age of my computer as it is from 2018**
 
-**Checking to see how big the file size is**
+**Checking to see how big the file size is for comparison with what is said in Slack**
 
 ```{bash}
 ls -lh labevents_filtered.csv.gz
@@ -272,7 +276,7 @@ system.time({
   labevents.filtered.tidy <- read_csv("labevents_filtered.csv.gz")
 })
 ```
-*The user, system, and elapsed time is 59.259, 4.809, and 12.385, respectively. This is much faster considering that we filtered out the necessary data compared to the prior attempts**
+**The user, system, and elapsed time is 59.259, 4.809, and 12.385, respectively. This is much faster considering that we filtered out the necessary data compared to the prior attempts**
 
 ## Q2.4 Ingest labevents.csv by Apache Arrow
 
@@ -329,8 +333,7 @@ Display the number of rows.
 nrow(labevents.filter.arrow)
 ```
 
-**nrow only counts the rows of data, not the header row. Therefore, the total rows would be 32679896, which is the same as the 
-number of lines in the file labevents_filtered.csv.gz, as we saw in the previous question**
+**nrow only counts the rows of data, not the header row. Therefore, the total rows would be 32679896, which is the same as the answer above number of lines in the file labevents_filtered.csv.gz, as we saw in the previous question**
 
 First ten rows of the result tibble. 
 ```{r}
@@ -366,10 +369,15 @@ labevents.parquet <- arrow::open_dataset("labevents.csv", format = "csv")
 
 **We see that the values updated after doing that in the environment. Let us create a parquet now.**
 
+Re-write the csv file labevents.csv in the binary Parquet format (Hint: arrow::write_dataset.) How large is the Parquet file(s)? How long does the ingest+select+filter process of the Parquet file(s) take? Display the number of rows and the first 10 rows of the result tibble and make sure they match those in Q2.3. (Hint: use dplyr verbs for selecting columns and filtering rows.)
+
+Write a few sentences to explain what is the Parquet format. Imagine you want to explain it to a layman in an elevator.
+
 ```{r}
 #| eval: false
-arrow::write_dataset(labevents.parquet, path = "~/mimic/hosp/labevents", 
-                     format = "parquet")
+
+arrow::write_dataset(arrow::open_dataset("labevents.csv", format="csv"), 
+                     path = "~/mimic/hosp/labevents", format = "parquet")
 ```
 
 **This is now creating a parquet of the previously opened dataset labevents.csv**
@@ -378,7 +386,7 @@ arrow::write_dataset(labevents.parquet, path = "~/mimic/hosp/labevents",
 ls -l ~/mimic/hosp/labevents
 ```
 
-**Now, let us select/filter the columns and rows of the Parquet file**
+**Let us figure out the system time for the ingesting+selecting+filtering process. I am assuming that we do not include the arrow::write_dataset part as you said last time to do eval: false.**
 
 ```{r}
 system.time({
@@ -394,6 +402,7 @@ system.time({
 **Now we have to write the new dataset for the filtered.parquet. The directory will be in the labevents.filtered folder within the mimic**
 
 ```{r}
+#| eval: false
 arrow::write_dataset(labevents.filter.parquet, 
                      path = "~/mimic/hosp/labevents.filtered", 
                      format = "parquet")
@@ -446,8 +455,8 @@ labevents.duckdb <-
                                        format = "parquet")
 ```
 
-
 **Then, we can make the new one again IF the table does not already exist. I received an error about dbplyr, so I installed it.**
+
 ```{r, message=FALSE, warning=FALSE}
 library(dbplyr)
 
@@ -487,6 +496,7 @@ system.time({
 Display the number of rows and the first 10 rows of the result tibble and make sure they match those in Q2.3.
 
 **This command was taken and modified directly from the website attached to the homework for this section. We have to load dplyr since dbplyr overrode it**
+
 ```{r message=FALSE, warning=FALSE}
 library(dplyr)
 ```
@@ -494,7 +504,7 @@ library(dplyr)
 ```{r}
 nrow(collect(labevents.filter.duckdb))
 ```
-**This is identical to what we have seen above**
+**This is identical to what we have seen above: 32679896**
 
 First 10 rows of the result tibble
  
