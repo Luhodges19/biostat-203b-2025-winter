@@ -22,12 +22,12 @@ memuse::Sys.meminfo()
 
 In this exercise, we use tidyverse (ggplot2, dplyr, etc) to explore the MIMIC-IV data introduced in homework 1 and to build a cohort of ICU stays.
 
-##Question 1: --- 
+## Question 1: --- 
 
 Q1. Visualizing patient trajectory
 Visualizing a patient’s encounters in a health care system is a common task in clinical data analysis. In this question, we will visualize a patient’s ADT (admission-discharge-transfer) history and ICU vitals in the MIMIC-IV data.
 
-##Question 1.1: ---
+## Question 1.1: ---
 
 Q1.1 ADT history
 A patient’s ADT history records the time of admission, discharge, and transfer in the hospital. This figure shows the ADT history of the patient with subject_id 10001217 in the MIMIC-IV data. The x-axis is the calendar time, and the y-axis is the type of event (ADT, lab, procedure). The color of the line segment represents the care unit. The size of the line segment represents whether the care unit is an ICU/CCU. The crosses represent lab events, and the shape of the dots represents the type of procedure. The title of the figure shows the patient’s demographic information and the subtitle shows top 3 diagnoses.
@@ -376,7 +376,7 @@ guides(
 ```
 
 
-##1.2 Question 
+## 1.2 Question 
 
 **First, let us make sure that the chartevents.csv is read into the system and confirm that we have the right directory for it**
 
@@ -537,7 +537,7 @@ ggplot(chartevents.filtered.arrow,
        aes(x = charttime, y = valuenum, color = factor(itemid))) +
   geom_line(size = 0.8) + 
   geom_point(size = 1.5) + 
-  facet_grid(itemid ~ stay_id, scales = "free_x", space = "free_x", 
+  facet_grid(itemid ~ stay_id, scales = "free", space = "free_x", 
              labeller = labeller(itemid = c(
     "220045" = "HR",
     "220179" = "NBPd",
@@ -562,6 +562,176 @@ ggplot(chartevents.filtered.arrow,
     panel.grid.minor = element_blank(),
     axis.text.x = element_text(angle = 45, hjust = 1, size = 10),
     axis.text.y = element_text(size = 10),
-    legend.position = "none"
+    legend.position = "none",
+    plot.margin = margin(10, 10, 10, 10)
   )
+```
+
+## Q2. ICU stays
+icustays.csv.gz (https://mimic.mit.edu/docs/iv/modules/icu/icustays/) contains data about Intensive Care Units (ICU) stays. The first 10 lines are
+
+```{bash}
+zcat < ~/mimic/icu/icustays.csv.gz | head
+```
+
+## Q2.1 Ingestion
+
+Import icustays.csv.gz as a tibble icustays_tble.
+
+```{r}
+icustays_arrow <- arrow::open_dataset("~/mimic/icu/icustays.csv", 
+                                      format = "csv")
+
+icustays_tble <- icustays_arrow %>%
+  collect() %>%  # Pulls data into memory
+  as_tibble()
+
+glimpse(icustays_tble)
+```
+
+## Q2.2 Summary and visualization
+How many unique subject_id? Can a subject_id have multiple ICU stays? Summarize the number of ICU stays per subject_id by graphs.
+
+**first let us find out how many unique subject_id there are**
+
+```{r}
+
+uniqueicu <- icustays_tble %>%
+  distinct(subject_id) %>%
+  nrow()
+
+print(uniqueicu)
+```
+
+**So there are 65366 unique subject_ids** 
+
+**Now let us check to see if a subject_id have multile stays in the intensive care unit**
+
+```{r}
+icustayscount <- icustays_tble %>%
+  group_by(subject_id) %>%
+  summarise(n = n()) %>%
+  ungroup()
+
+maxstays <- max(icustayscount$n)
+print(maxstays)
+```
+
+**the answer is 41, so some subjects DO have multiple stays in the intensive care unit**
+
+**We can make a histogram to illustrate the amount of icu stays per subject**
+
+```{r}
+
+ggplot(icustayscount, aes(x = icustayscount$n)) +
+  geom_bar(fill = "steelblue") +
+  labs(
+    title = "Distribution of ICU Stays per Subject",
+    x = "Number of ICU Stays",
+    y = "Number of Patients"
+  ) +
+  coord_cartesian(xlim = c(1, 10)) +  # Adjust range as needed
+  theme_minimal()
+
+```
+**This shows that the frequency of subjects only have one stay in the intensive care unit**
+
+
+## Q3
+
+Q3. admissions data
+
+Information of the patients admitted into hospital is available in admissions.csv.gz. See https://mimic.mit.edu/docs/iv/modules/hosp/admissions/ for details of each field in this file. The first 10 lines are
+
+```{bash}
+zcat < ~/mimic/hosp/admissions.csv.gz | head
+```
+
+## Q3.1 Ingestion
+
+Import admissions.csv.gz as a tibble admissions_tble.
+
+```{r}
+admissions_tble <- admissions %>%
+  collect() %>%  # Pulls data into memory
+  as_tibble()
+
+glimpse(admissions_tble)
+```
+
+## Q3.2 Summary and visualization
+
+Summarize the following information by graphics and explain any patterns you see.
+
+number of admissions per patient
+admission hour (anything unusual?)
+admission minute (anything unusual?)
+length of hospital stay (from admission to discharge) (anything unusual?)
+
+**let us start by making a graph of the number of admissions per patient**
+
+```{r}
+admissionscount <- admissions_tble %>%
+  group_by(subject_id) %>%
+  summarise(n = n()) %>%
+  ungroup()
+
+ggplot(admissionscount, aes(x = admissionscount$n)) +
+  geom_bar(fill = "steelblue") +
+  labs(
+    title = "Distribution of Admissions per Subject",
+    x = "Number of Admissions",
+    y = "Number of Patients"
+  ) +
+  coord_cartesian(xlim = c(1, 25)) +  # Adjust range as needed
+  theme_minimal()
+
+```
+**Now let us make a graph summarizing the admission hour (anything unusual?)**
+
+```{r}
+ggplot(admissions_tble, aes(x = hour(admittime))) +
+  geom_bar(fill = "steelblue") +
+  labs(
+    title = "Distribution of Admission Hour",
+    x = "Hour",
+    y = "Number of Admissions"
+  ) +
+  theme_minimal()
+```
+**What is interesting about this graph is that most of the admissions occur at the 12th hour, which is noon. This is interesting as most people would think that admissions would occur in the morning, but this is not the case. On top of this, the admissions in the 23rd and 0th hour are pretty high compared to their neighboring hours. This would make sense since some illnesses, like asthma, a disease that I suffer from, are more likely to get worse at night. Individuals may also try and manage their symptoms throughout the day, until they realize they actually cannot, which they would make this decision before going to bed (11 pm to 12 am)**
+
+**Now let us make a graph summarizing the admission minute (anything unusual?)**
+
+```{r}
+ggplot(admissions_tble, aes(x = minute(admittime))) +
+  geom_bar(fill = "steelblue") +
+  labs(
+    title = "Distribution of Admission Minute",
+    x = "Minute",
+    y = "Number of Admissions"
+  ) +
+  theme_minimal()
+```
+**What is unusual about this is that most of the admissions occurred at each quarter of an hour (0 minutes, 15 minutes, 30 minutes, and 45 minutes). On top of this minute 60 has no admissions in them, which would make sense as when minute sixty hits, it is minute zero of the new hour.**
+
+**Now let us make a graph summarizing the length of hospital stay (from admission to discharge) (anything unusual?)**
+
+```{r}
+admissions_tble <- admissions_tble %>%
+  mutate(admittime = as.POSIXct(admittime, format="%Y-%m-%d %H:%M:%S"),
+         dischtime = as.POSIXct(dischtime, format="%Y-%m-%d %H:%M:%S"))
+
+admissions_tble <- admissions_tble %>%
+  mutate(length_of_stay = difftime(dischtime, admittime, units = "days"))
+
+ggplot(admissions_tble, aes(x = length_of_stay)) +
+  geom_histogram(fill = "steelblue", bins = 50) +
+  labs(
+    title = "Distribution of Length of Stay",
+    x = "Length of Stay (Days)",
+    y = "Number of Admissions"
+  ) +
+  coord_cartesian(xlim = c(1, 100))+
+  theme_minimal()
 ```
