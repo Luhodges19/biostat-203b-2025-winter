@@ -217,7 +217,7 @@ Attaching package: 'R.utils'</code></pre>
 <div class="sourceCode cell-code" id="cb23"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb23-1"><a href="#cb23-1" aria-hidden="true" tabindex="-1"></a>memuse<span class="sc">::</span><span class="fu">Sys.meminfo</span>()</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
 <div class="cell-output cell-output-stdout">
 <pre><code>Totalram:  32.000 GiB 
-Freeram:    9.356 GiB </code></pre>
+Freeram:   20.547 MiB </code></pre>
 </div>
 </div>
 <p>In this exercise, we use tidyverse (ggplot2, dplyr, etc) to explore the MIMIC-IV data introduced in homework 1 and to build a cohort of ICU stays.</p>
@@ -709,6 +709,221 @@ Freeram:    9.356 GiB </code></pre>
 <div>
 <figure class="figure">
 <p><img src="HW3_files/figure-html/unnamed-chunk-27-1.png" class="img-fluid figure-img" width="672"></p>
+</figure>
+</div>
+</div>
+</div>
+<p>##1.2 Question</p>
+<p><strong>First, let us make sure that the chartevents.csv is read into the system and confirm that we have the right directory for it</strong></p>
+<div class="cell">
+<div class="sourceCode cell-code" id="cb67"><pre class="sourceCode bash code-with-copy"><code class="sourceCode bash"><span id="cb67-1"><a href="#cb67-1" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb67-2"><a href="#cb67-2" aria-hidden="true" tabindex="-1"></a><span class="co">#| eval: false</span></span>
+<span id="cb67-3"><a href="#cb67-3" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb67-4"><a href="#cb67-4" aria-hidden="true" tabindex="-1"></a><span class="fu">zcat</span> <span class="op">&lt;</span> ~/mimic/icu/chartevents.csv.gz <span class="op">&gt;</span> ~/mimic/icu/chartevents.csv</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+</div>
+<div class="cell">
+<div class="sourceCode cell-code" id="cb68"><pre class="sourceCode bash code-with-copy"><code class="sourceCode bash"><span id="cb68-1"><a href="#cb68-1" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb68-2"><a href="#cb68-2" aria-hidden="true" tabindex="-1"></a><span class="fu">ls</span> <span class="at">-l</span> ~/mimic/icu/chartevents.csv</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="cell-output cell-output-stdout">
+<pre><code>-rw-r--r--@ 1 lukehodges  staff  41935806083 Feb 17 16:11 /Users/lukehodges/mimic/icu/chartevents.csv</code></pre>
+</div>
+</div>
+<p><strong>We can now open the data set</strong></p>
+<div class="cell">
+<div class="sourceCode cell-code" id="cb70"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb70-1"><a href="#cb70-1" aria-hidden="true" tabindex="-1"></a>chartevents.arrow <span class="ot">&lt;-</span> arrow<span class="sc">::</span><span class="fu">open_dataset</span>(<span class="st">"~/mimic/icu/chartevents.csv"</span>, </span>
+<span id="cb70-2"><a href="#cb70-2" aria-hidden="true" tabindex="-1"></a>                                         <span class="at">format =</span> <span class="st">"csv"</span>)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+</div>
+<p><strong>And filter it based on the information we would like: 220045, 220181, 220179, 223761, and 22010</strong></p>
+<div class="cell">
+<div class="sourceCode cell-code" id="cb71"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb71-1"><a href="#cb71-1" aria-hidden="true" tabindex="-1"></a><span class="fu">library</span>(dplyr</span>
+<span id="cb71-2"><a href="#cb71-2" aria-hidden="true" tabindex="-1"></a>        )</span>
+<span id="cb71-3"><a href="#cb71-3" aria-hidden="true" tabindex="-1"></a>chartevents.filtered.arrow <span class="ot">&lt;-</span> chartevents.arrow <span class="sc">%&gt;%</span></span>
+<span id="cb71-4"><a href="#cb71-4" aria-hidden="true" tabindex="-1"></a>  dplyr<span class="sc">::</span><span class="fu">select</span>(subject_id, itemid, charttime, valuenum) <span class="sc">%&gt;%</span></span>
+<span id="cb71-5"><a href="#cb71-5" aria-hidden="true" tabindex="-1"></a>  dplyr<span class="sc">::</span><span class="fu">filter</span>(itemid <span class="sc">%in%</span> <span class="fu">c</span>(<span class="dv">220045</span>, <span class="dv">220181</span>, <span class="dv">220179</span>, <span class="dv">223761</span>, <span class="dv">220210</span>)) <span class="sc">%&gt;%</span></span>
+<span id="cb71-6"><a href="#cb71-6" aria-hidden="true" tabindex="-1"></a>  dplyr<span class="sc">::</span><span class="fu">filter</span>(subject_id <span class="sc">==</span> <span class="sc">!!</span>subject_id)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+</div>
+<p><strong>Let us make sure that everything looks correct</strong></p>
+<div class="cell">
+<div class="sourceCode cell-code" id="cb72"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb72-1"><a href="#cb72-1" aria-hidden="true" tabindex="-1"></a>charteventsprint <span class="ot">&lt;-</span> chartevents.filtered.arrow <span class="sc">%&gt;%</span></span>
+<span id="cb72-2"><a href="#cb72-2" aria-hidden="true" tabindex="-1"></a><span class="fu">head</span>(<span class="dv">50</span>) <span class="sc">%&gt;%</span></span>
+<span id="cb72-3"><a href="#cb72-3" aria-hidden="true" tabindex="-1"></a><span class="fu">collect</span>()</span>
+<span id="cb72-4"><a href="#cb72-4" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb72-5"><a href="#cb72-5" aria-hidden="true" tabindex="-1"></a><span class="fu">print</span>(charteventsprint)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="cell-output cell-output-stdout">
+<pre><code># A tibble: 50 × 4
+   subject_id itemid charttime           valuenum
+        &lt;int&gt;  &lt;int&gt; &lt;dttm&gt;                 &lt;dbl&gt;
+ 1   10063848 220045 2177-07-29 14:00:00       93
+ 2   10063848 220210 2177-07-29 14:00:00       23
+ 3   10063848 220179 2177-07-29 14:02:00       97
+ 4   10063848 220181 2177-07-29 14:02:00       65
+ 5   10063848 220045 2177-07-27 12:00:00      153
+ 6   10063848 220210 2177-07-27 12:00:00       25
+ 7   10063848 220179 2177-07-27 12:02:00      129
+ 8   10063848 220181 2177-07-27 12:02:00       89
+ 9   10063848 220045 2177-07-27 13:00:00       97
+10   10063848 220210 2177-07-27 13:00:00       28
+# ℹ 40 more rows</code></pre>
+</div>
+</div>
+<p><strong>Like before, we need to make sure that we make the data frame so that ggplot can read it and that the dates and time are consistent</strong></p>
+<div class="cell">
+<div class="sourceCode cell-code" id="cb74"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb74-1"><a href="#cb74-1" aria-hidden="true" tabindex="-1"></a>chartevents.filtered.arrow <span class="ot">&lt;-</span> <span class="fu">as.data.frame</span>(chartevents.filtered.arrow)</span>
+<span id="cb74-2"><a href="#cb74-2" aria-hidden="true" tabindex="-1"></a>chartevents.filtered.arrow<span class="sc">$</span>charttime <span class="ot">&lt;-</span> <span class="fu">as.POSIXct</span>(</span>
+<span id="cb74-3"><a href="#cb74-3" aria-hidden="true" tabindex="-1"></a>  chartevents.filtered.arrow<span class="sc">$</span>charttime, <span class="at">format=</span><span class="st">"%Y-%m-%d %H:%M:%S"</span>)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+</div>
+<p><strong>Received an error saying that the values are not a factor. So let us make it one</strong></p>
+<div class="cell">
+<div class="sourceCode cell-code" id="cb75"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb75-1"><a href="#cb75-1" aria-hidden="true" tabindex="-1"></a>chartevents.filtered.arrow<span class="sc">$</span>subject_id <span class="ot">&lt;-</span> <span class="fu">as.factor</span>(</span>
+<span id="cb75-2"><a href="#cb75-2" aria-hidden="true" tabindex="-1"></a>  chartevents.filtered.arrow<span class="sc">$</span>subject_id)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+</div>
+<p><strong>Let us make sure that the above command worked</strong></p>
+<div class="cell">
+<div class="sourceCode cell-code" id="cb76"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb76-1"><a href="#cb76-1" aria-hidden="true" tabindex="-1"></a><span class="fu">colnames</span>(chartevents.filtered.arrow)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="cell-output cell-output-stdout">
+<pre><code>[1] "subject_id" "itemid"     "charttime"  "valuenum"  </code></pre>
+</div>
+</div>
+<p><strong>Reading in the ICUStays and then filtering it for the ID given</strong></p>
+<div class="cell">
+<div class="sourceCode cell-code" id="cb78"><pre class="sourceCode bash code-with-copy"><code class="sourceCode bash"><span id="cb78-1"><a href="#cb78-1" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb78-2"><a href="#cb78-2" aria-hidden="true" tabindex="-1"></a><span class="fu">zcat</span> <span class="op">&lt;</span> ~/mimic/icu/icustays.csv.gz <span class="op">&gt;</span> ~/mimic/icu/icustays.csv</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+</div>
+<div class="cell">
+<div class="sourceCode cell-code" id="cb79"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb79-1"><a href="#cb79-1" aria-hidden="true" tabindex="-1"></a>icustays <span class="ot">&lt;-</span> arrow<span class="sc">::</span><span class="fu">open_dataset</span>(<span class="st">"~/mimic/icu/icustays.csv"</span>, <span class="at">format =</span> <span class="st">"csv"</span>)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+</div>
+<p><strong>I want to make sure that all the data sets are read in correctly after filtering</strong></p>
+<p><strong>We can now do the same thing but this time filter the icustays with the correct subject_id</strong></p>
+<div class="cell">
+<div class="sourceCode cell-code" id="cb80"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb80-1"><a href="#cb80-1" aria-hidden="true" tabindex="-1"></a>icustays.filtered <span class="ot">&lt;-</span> icustays <span class="sc">%&gt;%</span></span>
+<span id="cb80-2"><a href="#cb80-2" aria-hidden="true" tabindex="-1"></a>  <span class="fu">collect</span>() <span class="sc">%&gt;%</span></span>
+<span id="cb80-3"><a href="#cb80-3" aria-hidden="true" tabindex="-1"></a>  dplyr<span class="sc">::</span><span class="fu">filter</span>(subject_id <span class="sc">==</span> <span class="sc">!!</span>subject_id)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+</div>
+<p><strong>Now we have to ensure that both of the factors are the same so that they can be graphed</strong></p>
+<div class="cell">
+<div class="sourceCode cell-code" id="cb81"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb81-1"><a href="#cb81-1" aria-hidden="true" tabindex="-1"></a>icustays.filtered10 <span class="ot">&lt;-</span> icustays.filtered <span class="sc">%&gt;%</span></span>
+<span id="cb81-2"><a href="#cb81-2" aria-hidden="true" tabindex="-1"></a>  <span class="fu">head</span>(<span class="dv">10</span>) <span class="sc">%&gt;%</span></span>
+<span id="cb81-3"><a href="#cb81-3" aria-hidden="true" tabindex="-1"></a>  <span class="fu">collect</span>()</span>
+<span id="cb81-4"><a href="#cb81-4" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb81-5"><a href="#cb81-5" aria-hidden="true" tabindex="-1"></a><span class="fu">print</span>(icustays.filtered10)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="cell-output cell-output-stdout">
+<pre><code># A tibble: 2 × 8
+  subject_id  hadm_id  stay_id first_careunit  last_careunit intime             
+       &lt;int&gt;    &lt;int&gt;    &lt;int&gt; &lt;chr&gt;           &lt;chr&gt;         &lt;dttm&gt;             
+1   10063848 21345067 31332266 Surgical Inten… Surgical Int… 2177-07-27 11:24:10
+2   10063848 21345067 33836703 Surgical Inten… Surgical Int… 2177-07-30 03:45:32
+# ℹ 2 more variables: outtime &lt;dttm&gt;, los &lt;dbl&gt;</code></pre>
+</div>
+</div>
+<div class="cell">
+<div class="sourceCode cell-code" id="cb83"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb83-1"><a href="#cb83-1" aria-hidden="true" tabindex="-1"></a>chartevents.filtered.arrow<span class="sc">$</span>subject_id <span class="ot">&lt;-</span> <span class="fu">as.integer</span>(</span>
+<span id="cb83-2"><a href="#cb83-2" aria-hidden="true" tabindex="-1"></a>  <span class="fu">as.character</span>(chartevents.filtered.arrow<span class="sc">$</span>subject_id))</span>
+<span id="cb83-3"><a href="#cb83-3" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb83-4"><a href="#cb83-4" aria-hidden="true" tabindex="-1"></a>icustays.filtered<span class="sc">$</span>subject_id <span class="ot">&lt;-</span> <span class="fu">as.integer</span>(</span>
+<span id="cb83-5"><a href="#cb83-5" aria-hidden="true" tabindex="-1"></a>  icustays.filtered<span class="sc">$</span>subject_id)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+</div>
+<p><strong>To make it universal, we will have to figure out what the minimum and maximum charttimes are for both the stay_ids. We do the as.POSIXct as that is the error I got that I needed to fix</strong></p>
+<div class="cell">
+<div class="sourceCode cell-code" id="cb84"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb84-1"><a href="#cb84-1" aria-hidden="true" tabindex="-1"></a>min_datetime1 <span class="ot">&lt;-</span> <span class="fu">as.POSIXct</span>(icustays.filtered<span class="sc">$</span>intime[<span class="dv">1</span>])</span>
+<span id="cb84-2"><a href="#cb84-2" aria-hidden="true" tabindex="-1"></a>max_datetime1 <span class="ot">&lt;-</span> <span class="fu">as.POSIXct</span>(icustays.filtered<span class="sc">$</span>outtime[<span class="dv">1</span>])</span>
+<span id="cb84-3"><a href="#cb84-3" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb84-4"><a href="#cb84-4" aria-hidden="true" tabindex="-1"></a>min_datetime2 <span class="ot">&lt;-</span> <span class="fu">as.POSIXct</span>(icustays.filtered<span class="sc">$</span>intime[<span class="dv">2</span>])</span>
+<span id="cb84-5"><a href="#cb84-5" aria-hidden="true" tabindex="-1"></a>max_datetime2 <span class="ot">&lt;-</span> <span class="fu">as.POSIXct</span>(icustays.filtered<span class="sc">$</span>outtime[<span class="dv">2</span>])</span>
+<span id="cb84-6"><a href="#cb84-6" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb84-7"><a href="#cb84-7" aria-hidden="true" tabindex="-1"></a>min_datetime1</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="cell-output cell-output-stdout">
+<pre><code>[1] "2177-07-27 11:24:10 PDT"</code></pre>
+</div>
+<div class="sourceCode cell-code" id="cb86"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb86-1"><a href="#cb86-1" aria-hidden="true" tabindex="-1"></a>max_datetime1 </span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="cell-output cell-output-stdout">
+<pre><code>[1] "2177-07-30 03:41:48 PDT"</code></pre>
+</div>
+<div class="sourceCode cell-code" id="cb88"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb88-1"><a href="#cb88-1" aria-hidden="true" tabindex="-1"></a>min_datetime2</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="cell-output cell-output-stdout">
+<pre><code>[1] "2177-07-30 03:45:32 PDT"</code></pre>
+</div>
+<div class="sourceCode cell-code" id="cb90"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb90-1"><a href="#cb90-1" aria-hidden="true" tabindex="-1"></a>max_datetime2</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="cell-output cell-output-stdout">
+<pre><code>[1] "2177-07-30 06:49:58 PDT"</code></pre>
+</div>
+</div>
+<p><strong>We are making it so that if the time falls between min and max 1, it is assigned the first stay_id. If it falls between min 2 and max 2, then it is assigned the second</strong></p>
+<div class="cell">
+<div class="sourceCode cell-code" id="cb92"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb92-1"><a href="#cb92-1" aria-hidden="true" tabindex="-1"></a>chartevents.filtered.arrow <span class="ot">&lt;-</span> chartevents.filtered.arrow <span class="sc">%&gt;%</span></span>
+<span id="cb92-2"><a href="#cb92-2" aria-hidden="true" tabindex="-1"></a>  <span class="fu">mutate</span>(<span class="at">stay_id =</span> <span class="fu">case_when</span>(</span>
+<span id="cb92-3"><a href="#cb92-3" aria-hidden="true" tabindex="-1"></a>    charttime <span class="sc">&gt;=</span> min_datetime1 <span class="sc">&amp;</span> </span>
+<span id="cb92-4"><a href="#cb92-4" aria-hidden="true" tabindex="-1"></a>      charttime <span class="sc">&lt;=</span> max_datetime1 <span class="sc">~</span> icustays.filtered<span class="sc">$</span>stay_id[<span class="dv">1</span>],</span>
+<span id="cb92-5"><a href="#cb92-5" aria-hidden="true" tabindex="-1"></a>    charttime <span class="sc">&gt;=</span> min_datetime2 <span class="sc">&amp;</span> </span>
+<span id="cb92-6"><a href="#cb92-6" aria-hidden="true" tabindex="-1"></a>      charttime <span class="sc">&lt;=</span> max_datetime2 <span class="sc">~</span> icustays.filtered<span class="sc">$</span>stay_id[<span class="dv">2</span>],</span>
+<span id="cb92-7"><a href="#cb92-7" aria-hidden="true" tabindex="-1"></a>    <span class="cn">TRUE</span> <span class="sc">~</span> <span class="cn">NA_real_</span>  <span class="co"># Assign NA if charttime does not fit either stay</span></span>
+<span id="cb92-8"><a href="#cb92-8" aria-hidden="true" tabindex="-1"></a>  ))</span>
+<span id="cb92-9"><a href="#cb92-9" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb92-10"><a href="#cb92-10" aria-hidden="true" tabindex="-1"></a>chartevents.filtered.arrow10 <span class="ot">&lt;-</span> chartevents.filtered.arrow <span class="sc">%&gt;%</span></span>
+<span id="cb92-11"><a href="#cb92-11" aria-hidden="true" tabindex="-1"></a>  <span class="fu">head</span>(<span class="dv">10</span>) <span class="sc">%&gt;%</span></span>
+<span id="cb92-12"><a href="#cb92-12" aria-hidden="true" tabindex="-1"></a>  <span class="fu">collect</span>()</span>
+<span id="cb92-13"><a href="#cb92-13" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb92-14"><a href="#cb92-14" aria-hidden="true" tabindex="-1"></a><span class="fu">print</span>(chartevents.filtered.arrow10)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="cell-output cell-output-stdout">
+<pre><code>   subject_id itemid           charttime valuenum  stay_id
+1    10063848 220045 2177-07-29 14:00:00       93 31332266
+2    10063848 220210 2177-07-29 14:00:00       23 31332266
+3    10063848 220179 2177-07-29 14:02:00       97 31332266
+4    10063848 220181 2177-07-29 14:02:00       65 31332266
+5    10063848 220045 2177-07-27 12:00:00      153 31332266
+6    10063848 220210 2177-07-27 12:00:00       25 31332266
+7    10063848 220179 2177-07-27 12:02:00      129 31332266
+8    10063848 220181 2177-07-27 12:02:00       89 31332266
+9    10063848 220045 2177-07-27 13:00:00       97 31332266
+10   10063848 220210 2177-07-27 13:00:00       28 31332266</code></pre>
+</div>
+</div>
+<div class="cell">
+<div class="sourceCode cell-code" id="cb94"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb94-1"><a href="#cb94-1" aria-hidden="true" tabindex="-1"></a>stay_ranges <span class="ot">&lt;-</span> chartevents.filtered.arrow <span class="sc">%&gt;%</span></span>
+<span id="cb94-2"><a href="#cb94-2" aria-hidden="true" tabindex="-1"></a>  <span class="fu">group_by</span>(stay_id) <span class="sc">%&gt;%</span></span>
+<span id="cb94-3"><a href="#cb94-3" aria-hidden="true" tabindex="-1"></a>  <span class="fu">summarise</span>(<span class="at">min_time =</span> <span class="fu">min</span>(charttime), <span class="at">max_time =</span> <span class="fu">max</span>(charttime)) <span class="sc">%&gt;%</span></span>
+<span id="cb94-4"><a href="#cb94-4" aria-hidden="true" tabindex="-1"></a>  <span class="fu">ungroup</span>()</span>
+<span id="cb94-5"><a href="#cb94-5" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb94-6"><a href="#cb94-6" aria-hidden="true" tabindex="-1"></a><span class="co"># Use `scale_x_datetime()` but set the full range to include all timepoints</span></span>
+<span id="cb94-7"><a href="#cb94-7" aria-hidden="true" tabindex="-1"></a>full_min_time <span class="ot">&lt;-</span> <span class="fu">min</span>(stay_ranges<span class="sc">$</span>min_time)</span>
+<span id="cb94-8"><a href="#cb94-8" aria-hidden="true" tabindex="-1"></a>full_max_time <span class="ot">&lt;-</span> <span class="fu">max</span>(stay_ranges<span class="sc">$</span>max_time)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+</div>
+<p><strong>With all the data in one table, we can not make the ggplot</strong></p>
+<div class="cell">
+<div class="sourceCode cell-code" id="cb95"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb95-1"><a href="#cb95-1" aria-hidden="true" tabindex="-1"></a><span class="fu">ggplot</span>(chartevents.filtered.arrow, </span>
+<span id="cb95-2"><a href="#cb95-2" aria-hidden="true" tabindex="-1"></a>       <span class="fu">aes</span>(<span class="at">x =</span> charttime, <span class="at">y =</span> valuenum, <span class="at">color =</span> <span class="fu">factor</span>(itemid))) <span class="sc">+</span></span>
+<span id="cb95-3"><a href="#cb95-3" aria-hidden="true" tabindex="-1"></a>  <span class="fu">geom_line</span>(<span class="at">size =</span> <span class="fl">0.8</span>) <span class="sc">+</span> </span>
+<span id="cb95-4"><a href="#cb95-4" aria-hidden="true" tabindex="-1"></a>  <span class="fu">geom_point</span>(<span class="at">size =</span> <span class="fl">1.5</span>) <span class="sc">+</span> </span>
+<span id="cb95-5"><a href="#cb95-5" aria-hidden="true" tabindex="-1"></a>  <span class="fu">facet_grid</span>(itemid <span class="sc">~</span> stay_id, <span class="at">scales =</span> <span class="st">"free_x"</span>, <span class="at">space =</span> <span class="st">"free_x"</span>, </span>
+<span id="cb95-6"><a href="#cb95-6" aria-hidden="true" tabindex="-1"></a>             <span class="at">labeller =</span> <span class="fu">labeller</span>(<span class="at">itemid =</span> <span class="fu">c</span>(</span>
+<span id="cb95-7"><a href="#cb95-7" aria-hidden="true" tabindex="-1"></a>    <span class="st">"220045"</span> <span class="ot">=</span> <span class="st">"HR"</span>,</span>
+<span id="cb95-8"><a href="#cb95-8" aria-hidden="true" tabindex="-1"></a>    <span class="st">"220179"</span> <span class="ot">=</span> <span class="st">"NBPd"</span>,</span>
+<span id="cb95-9"><a href="#cb95-9" aria-hidden="true" tabindex="-1"></a>    <span class="st">"220181"</span> <span class="ot">=</span> <span class="st">"NBPs"</span>,</span>
+<span id="cb95-10"><a href="#cb95-10" aria-hidden="true" tabindex="-1"></a>    <span class="st">"220210"</span> <span class="ot">=</span> <span class="st">"RR"</span>,</span>
+<span id="cb95-11"><a href="#cb95-11" aria-hidden="true" tabindex="-1"></a>    <span class="st">"223761"</span> <span class="ot">=</span> <span class="st">"Temperature"</span></span>
+<span id="cb95-12"><a href="#cb95-12" aria-hidden="true" tabindex="-1"></a>  ))) <span class="sc">+</span> </span>
+<span id="cb95-13"><a href="#cb95-13" aria-hidden="true" tabindex="-1"></a>  <span class="fu">labs</span>(</span>
+<span id="cb95-14"><a href="#cb95-14" aria-hidden="true" tabindex="-1"></a>    <span class="at">title =</span> <span class="fu">paste</span>(<span class="st">"Patient"</span>, <span class="fu">unique</span>(chartevents.filtered.arrow<span class="sc">$</span>subject_id), </span>
+<span id="cb95-15"><a href="#cb95-15" aria-hidden="true" tabindex="-1"></a>                  <span class="st">"ICU stays - Vitals"</span>),</span>
+<span id="cb95-16"><a href="#cb95-16" aria-hidden="true" tabindex="-1"></a>    <span class="at">x =</span> <span class="st">""</span>,</span>
+<span id="cb95-17"><a href="#cb95-17" aria-hidden="true" tabindex="-1"></a>    <span class="at">y =</span> <span class="st">""</span>,</span>
+<span id="cb95-18"><a href="#cb95-18" aria-hidden="true" tabindex="-1"></a>    <span class="at">color =</span> <span class="st">"Vital Type"</span></span>
+<span id="cb95-19"><a href="#cb95-19" aria-hidden="true" tabindex="-1"></a>  ) <span class="sc">+</span></span>
+<span id="cb95-20"><a href="#cb95-20" aria-hidden="true" tabindex="-1"></a>  <span class="fu">scale_x_datetime</span>(<span class="at">date_labels =</span> <span class="st">"%b %d %H:%M"</span>, <span class="at">date_breaks =</span> <span class="st">"8 hours"</span>) <span class="sc">+</span>  </span>
+<span id="cb95-21"><a href="#cb95-21" aria-hidden="true" tabindex="-1"></a>  <span class="fu">theme_minimal</span>() <span class="sc">+</span></span>
+<span id="cb95-22"><a href="#cb95-22" aria-hidden="true" tabindex="-1"></a>  <span class="fu">theme</span>(</span>
+<span id="cb95-23"><a href="#cb95-23" aria-hidden="true" tabindex="-1"></a>    <span class="at">strip.text.x =</span> <span class="fu">element_text</span>(<span class="at">size =</span> <span class="dv">14</span>, <span class="at">face =</span> <span class="st">"bold"</span>, <span class="at">color =</span> <span class="st">"white"</span>),</span>
+<span id="cb95-24"><a href="#cb95-24" aria-hidden="true" tabindex="-1"></a>    <span class="at">strip.text.y =</span> <span class="fu">element_text</span>(<span class="at">size =</span> <span class="dv">12</span>, <span class="at">face =</span> <span class="st">"bold"</span>),</span>
+<span id="cb95-25"><a href="#cb95-25" aria-hidden="true" tabindex="-1"></a>    <span class="at">strip.background =</span> <span class="fu">element_rect</span>(<span class="at">fill =</span> <span class="st">"grey50"</span>),</span>
+<span id="cb95-26"><a href="#cb95-26" aria-hidden="true" tabindex="-1"></a>    <span class="at">panel.grid.major =</span> <span class="fu">element_line</span>(<span class="at">color =</span> <span class="st">"gray80"</span>),</span>
+<span id="cb95-27"><a href="#cb95-27" aria-hidden="true" tabindex="-1"></a>    <span class="at">panel.grid.minor =</span> <span class="fu">element_blank</span>(),</span>
+<span id="cb95-28"><a href="#cb95-28" aria-hidden="true" tabindex="-1"></a>    <span class="at">axis.text.x =</span> <span class="fu">element_text</span>(<span class="at">angle =</span> <span class="dv">45</span>, <span class="at">hjust =</span> <span class="dv">1</span>, <span class="at">size =</span> <span class="dv">10</span>),</span>
+<span id="cb95-29"><a href="#cb95-29" aria-hidden="true" tabindex="-1"></a>    <span class="at">axis.text.y =</span> <span class="fu">element_text</span>(<span class="at">size =</span> <span class="dv">10</span>),</span>
+<span id="cb95-30"><a href="#cb95-30" aria-hidden="true" tabindex="-1"></a>    <span class="at">legend.position =</span> <span class="st">"none"</span></span>
+<span id="cb95-31"><a href="#cb95-31" aria-hidden="true" tabindex="-1"></a>  )</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="cell-output-display">
+<div>
+<figure class="figure">
+<p><img src="HW3_files/figure-html/unnamed-chunk-44-1.png" class="img-fluid figure-img" width="672"></p>
 </figure>
 </div>
 </div>

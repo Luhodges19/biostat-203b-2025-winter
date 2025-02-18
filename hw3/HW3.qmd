@@ -374,3 +374,194 @@ guides(
     legend.box.spacing = unit(0.01, "cm")
   )
 ```
+
+
+##1.2 Question 
+
+**First, let us make sure that the chartevents.csv is read into the system and confirm that we have the right directory for it**
+
+```{bash}
+
+#| eval: false
+
+zcat < ~/mimic/icu/chartevents.csv.gz > ~/mimic/icu/chartevents.csv
+
+```
+
+```{bash}
+
+ls -l ~/mimic/icu/chartevents.csv
+```
+
+**We can now open the data set**
+
+```{r}
+chartevents.arrow <- arrow::open_dataset("~/mimic/icu/chartevents.csv", 
+                                         format = "csv")
+```
+
+**And filter it based on the information we would like: 220045, 220181, 220179, 223761, and 22010**
+
+```{r}
+library(dplyr
+        )
+chartevents.filtered.arrow <- chartevents.arrow %>%
+  dplyr::select(subject_id, itemid, charttime, valuenum) %>%
+  dplyr::filter(itemid %in% c(220045, 220181, 220179, 223761, 220210)) %>%
+  dplyr::filter(subject_id == !!subject_id)
+  
+```
+
+**Let us make sure that everything looks correct**
+
+```{r}
+charteventsprint <- chartevents.filtered.arrow %>%
+head(50) %>%
+collect()
+
+print(charteventsprint)
+```
+
+**Like before, we need to make sure that we make the data frame so that ggplot can read it and that the dates and time are consistent**
+
+```{r}
+chartevents.filtered.arrow <- as.data.frame(chartevents.filtered.arrow)
+chartevents.filtered.arrow$charttime <- as.POSIXct(
+  chartevents.filtered.arrow$charttime, format="%Y-%m-%d %H:%M:%S")
+```
+
+**Received an error saying that the values are not a factor. So let us make it one**
+
+```{r}
+chartevents.filtered.arrow$subject_id <- as.factor(
+  chartevents.filtered.arrow$subject_id)
+```
+
+**Let us make sure that the above command worked**
+
+```{r}
+colnames(chartevents.filtered.arrow)
+```
+
+**Reading in the ICUStays and then filtering it for the ID given**
+
+```{bash}
+
+zcat < ~/mimic/icu/icustays.csv.gz > ~/mimic/icu/icustays.csv
+
+```
+
+```{r}
+
+icustays <- arrow::open_dataset("~/mimic/icu/icustays.csv", format = "csv")
+
+```
+
+**I want to make sure that all the data sets are read in correctly after filtering**
+
+**We can now do the same thing but this time filter the icustays with the correct subject_id**
+
+```{r}
+icustays.filtered <- icustays %>%
+  collect() %>%
+  dplyr::filter(subject_id == !!subject_id)
+```
+
+**Now we have to ensure that both of the factors are the same so that they can be graphed**
+
+```{r}
+icustays.filtered10 <- icustays.filtered %>%
+  head(10) %>%
+  collect()
+
+print(icustays.filtered10)
+```
+```{r}
+
+chartevents.filtered.arrow$subject_id <- as.integer(
+  as.character(chartevents.filtered.arrow$subject_id))
+
+icustays.filtered$subject_id <- as.integer(
+  icustays.filtered$subject_id)
+
+```
+
+**To make it universal, we will have to figure out what the minimum and maximum charttimes are for both the stay_ids. We do the as.POSIXct as that is the error I got that I needed to fix**
+```{r}
+min_datetime1 <- as.POSIXct(icustays.filtered$intime[1])
+max_datetime1 <- as.POSIXct(icustays.filtered$outtime[1])
+
+min_datetime2 <- as.POSIXct(icustays.filtered$intime[2])
+max_datetime2 <- as.POSIXct(icustays.filtered$outtime[2])
+
+min_datetime1
+max_datetime1 
+min_datetime2
+max_datetime2
+```
+
+**We are making it so that if the time falls between min and max 1, it is assigned the first stay_id. If it falls between min 2 and max 2, then it is assigned the second**
+
+```{r}
+
+chartevents.filtered.arrow <- chartevents.filtered.arrow %>%
+  mutate(stay_id = case_when(
+    charttime >= min_datetime1 & 
+      charttime <= max_datetime1 ~ icustays.filtered$stay_id[1],
+    charttime >= min_datetime2 & 
+      charttime <= max_datetime2 ~ icustays.filtered$stay_id[2],
+    TRUE ~ NA_real_  # Assign NA if charttime does not fit either stay
+  ))
+
+chartevents.filtered.arrow10 <- chartevents.filtered.arrow %>%
+  head(10) %>%
+  collect()
+
+print(chartevents.filtered.arrow10)
+```
+```{r}
+stay_ranges <- chartevents.filtered.arrow %>%
+  group_by(stay_id) %>%
+  summarise(min_time = min(charttime), max_time = max(charttime)) %>%
+  ungroup()
+
+# Use `scale_x_datetime()` but set the full range to include all timepoints
+full_min_time <- min(stay_ranges$min_time)
+full_max_time <- max(stay_ranges$max_time)
+```
+
+**With all the data in one table, we can not make the ggplot**
+
+```{r}
+ggplot(chartevents.filtered.arrow, 
+       aes(x = charttime, y = valuenum, color = factor(itemid))) +
+  geom_line(size = 0.8) + 
+  geom_point(size = 1.5) + 
+  facet_grid(itemid ~ stay_id, scales = "free_x", space = "free_x", 
+             labeller = labeller(itemid = c(
+    "220045" = "HR",
+    "220179" = "NBPd",
+    "220181" = "NBPs",
+    "220210" = "RR",
+    "223761" = "Temperature"
+  ))) + 
+  labs(
+    title = paste("Patient", unique(chartevents.filtered.arrow$subject_id), 
+                  "ICU stays - Vitals"),
+    x = "",
+    y = "",
+    color = "Vital Type"
+  ) +
+  scale_x_datetime(date_labels = "%b %d %H:%M", date_breaks = "8 hours") +  
+  theme_minimal() +
+  theme(
+    strip.text.x = element_text(size = 14, face = "bold", color = "white"),
+    strip.text.y = element_text(size = 12, face = "bold"),
+    strip.background = element_rect(fill = "grey50"),
+    panel.grid.major = element_line(color = "gray80"),
+    panel.grid.minor = element_blank(),
+    axis.text.x = element_text(angle = 45, hjust = 1, size = 10),
+    axis.text.y = element_text(size = 10),
+    legend.position = "none"
+  )
+```
