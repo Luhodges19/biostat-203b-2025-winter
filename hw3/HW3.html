@@ -217,19 +217,16 @@ Attaching package: 'R.utils'</code></pre>
 <div class="sourceCode cell-code" id="cb23"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb23-1"><a href="#cb23-1" aria-hidden="true" tabindex="-1"></a>memuse<span class="sc">::</span><span class="fu">Sys.meminfo</span>()</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
 <div class="cell-output cell-output-stdout">
 <pre><code>Totalram:   32.000 GiB 
-Freeram:   124.133 MiB </code></pre>
+Freeram:   124.582 MiB </code></pre>
 </div>
 </div>
 <p>In this exercise, we use tidyverse (ggplot2, dplyr, etc) to explore the MIMIC-IV data introduced in homework 1 and to build a cohort of ICU stays.</p>
 <section id="question-1" class="level2">
-<h2 class="anchored" data-anchor-id="question-1">Question 1: —</h2>
+<h2 class="anchored" data-anchor-id="question-1">Question 1:</h2>
 <p>Q1. Visualizing patient trajectory Visualizing a patient’s encounters in a health care system is a common task in clinical data analysis. In this question, we will visualize a patient’s ADT (admission-discharge-transfer) history and ICU vitals in the MIMIC-IV data.</p>
 </section>
 <section id="question-1.1" class="level2">
-<h2 class="anchored" data-anchor-id="question-1.1">Question 1.1: —</h2>
-<p>Q1.1 ADT history A patient’s ADT history records the time of admission, discharge, and transfer in the hospital. This figure shows the ADT history of the patient with subject_id 10001217 in the MIMIC-IV data. The x-axis is the calendar time, and the y-axis is the type of event (ADT, lab, procedure). The color of the line segment represents the care unit. The size of the line segment represents whether the care unit is an ICU/CCU. The crosses represent lab events, and the shape of the dots represents the type of procedure. The title of the figure shows the patient’s demographic information and the subtitle shows top 3 diagnoses.</p>
-<p>Do a similar visualization for the patient with subject_id 10063848 using ggplot.</p>
-<p>Hint: We need to pull information from data files patients.csv.gz, admissions.csv.gz, transfers.csv.gz, labevents.csv.gz, procedures_icd.csv.gz, diagnoses_icd.csv.gz, d_icd_procedures.csv.gz, and d_icd_diagnoses.csv.gz. For the big file labevents.csv.gz, use the Parquet format you generated in Homework 2. For reproducibility, make the Parquet folder labevents_pq available at the current working directory hw3, for example, by a symbolic link. Make your code reproducible.</p>
+<h2 class="anchored" data-anchor-id="question-1.1">Question 1.1:</h2>
 <p><strong>Reading in the files for Q1</strong></p>
 <div class="cell">
 <div class="sourceCode cell-code" id="cb25"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb25-1"><a href="#cb25-1" aria-hidden="true" tabindex="-1"></a>patients <span class="ot">&lt;-</span> arrow<span class="sc">::</span><span class="fu">open_dataset</span>(<span class="st">"~/mimic/hosp/patients.csv.gz"</span>, <span class="at">format =</span> <span class="st">"csv"</span>)</span>
@@ -246,10 +243,9 @@ Freeram:   124.133 MiB </code></pre>
 <span id="cb25-12"><a href="#cb25-12" aria-hidden="true" tabindex="-1"></a></span>
 <span id="cb25-13"><a href="#cb25-13" aria-hidden="true" tabindex="-1"></a>d_icd_diagnoses <span class="ot">&lt;-</span> arrow<span class="sc">::</span><span class="fu">open_dataset</span>(<span class="st">"~/mimic/hosp/d_icd_diagnoses.csv.gz"</span>, <span class="at">format =</span> <span class="st">"csv"</span>)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
 </div>
-<p><strong>I want to make sure that all the data sets are read in correctly after filtering</strong></p>
 <p><strong>First, I am going to designate the patient ID so that the TA can change it later and it can be easily filtered. Afterwards, I will then use the subject_id to filter the data sets</strong></p>
 <div class="cell">
-<div class="sourceCode cell-code" id="cb26"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb26-1"><a href="#cb26-1" aria-hidden="true" tabindex="-1"></a>subject_id <span class="ot">&lt;-</span> <span class="dv">10063848</span></span>
+<div class="sourceCode cell-code" id="cb26"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb26-1"><a href="#cb26-1" aria-hidden="true" tabindex="-1"></a>subject_id <span class="ot">&lt;-</span> <span class="dv">10001217</span></span>
 <span id="cb26-2"><a href="#cb26-2" aria-hidden="true" tabindex="-1"></a></span>
 <span id="cb26-3"><a href="#cb26-3" aria-hidden="true" tabindex="-1"></a>patients.filter <span class="ot">&lt;-</span> patients <span class="sc">%&gt;%</span></span>
 <span id="cb26-4"><a href="#cb26-4" aria-hidden="true" tabindex="-1"></a>  <span class="fu">collect</span>() <span class="sc">%&gt;%</span></span>
@@ -285,7 +281,7 @@ Freeram:   124.133 MiB </code></pre>
 <pre><code># A tibble: 1 × 6
   subject_id gender anchor_age anchor_year anchor_year_group dod   
        &lt;int&gt; &lt;chr&gt;       &lt;int&gt;       &lt;int&gt; &lt;chr&gt;             &lt;date&gt;
-1   10063848 F              75        2177 2017 - 2019       NA    </code></pre>
+1   10001217 F              55        2157 2011 - 2013       NA    </code></pre>
 </div>
 </div>
 <p><strong>For Admissions</strong></p>
@@ -296,12 +292,11 @@ Freeram:   124.133 MiB </code></pre>
 <span id="cb29-4"><a href="#cb29-4" aria-hidden="true" tabindex="-1"></a></span>
 <span id="cb29-5"><a href="#cb29-5" aria-hidden="true" tabindex="-1"></a><span class="fu">print</span>(admissions10)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
 <div class="cell-output cell-output-stdout">
-<pre><code># A tibble: 3 × 16
+<pre><code># A tibble: 2 × 16
   subject_id hadm_id admittime           dischtime           deathtime
        &lt;int&gt;   &lt;int&gt; &lt;dttm&gt;              &lt;dttm&gt;              &lt;dttm&gt;   
-1   10063848  2.13e7 2177-07-24 21:29:00 2177-08-06 06:20:00 NA       
-2   10063848  2.41e7 2177-08-27 19:58:00 2177-09-09 08:00:00 NA       
-3   10063848  2.69e7 2177-08-17 14:59:00 2177-08-19 10:25:00 NA       
+1   10001217  2.46e7 2157-11-18 14:56:00 2157-11-25 10:00:00 NA       
+2   10001217  2.77e7 2157-12-18 08:58:00 2157-12-24 06:55:00 NA       
 # ℹ 11 more variables: admission_type &lt;chr&gt;, admit_provider_id &lt;chr&gt;,
 #   admission_location &lt;chr&gt;, discharge_location &lt;chr&gt;, insurance &lt;chr&gt;,
 #   language &lt;chr&gt;, marital_status &lt;chr&gt;, race &lt;chr&gt;, edregtime &lt;dttm&gt;,
@@ -319,16 +314,16 @@ Freeram:   124.133 MiB </code></pre>
 <pre><code># A tibble: 10 × 7
    subject_id  hadm_id transfer_id eventtype careunit        intime             
         &lt;int&gt;    &lt;int&gt;       &lt;int&gt; &lt;chr&gt;     &lt;chr&gt;           &lt;dttm&gt;             
- 1   10063848 21345067    30123135 ED        Emergency Depa… 2177-07-24 14:40:00
- 2   10063848 21345067    31332266 transfer  Surgical Inten… 2177-07-27 11:24:10
- 3   10063848 21345067    32562188 transfer  Med/Surg/Trauma 2177-07-26 13:45:22
- 4   10063848 21345067    33836703 transfer  Surgical Inten… 2177-07-30 03:45:32
- 5   10063848 21345067    36311072 admit     Med/Surg/Trauma 2177-07-24 22:16:00
- 6   10063848 21345067    37426639 transfer  Med/Surg/Trauma 2177-07-30 03:41:48
- 7   10063848 21345067    38029409 transfer  Med/Surg/Trauma 2177-07-30 06:49:58
- 8   10063848 21345067    39239596 discharge UNKNOWN         2177-08-06 06:21:01
- 9   10063848 24092966    30673893 admit     Medicine        2177-08-27 21:11:00
-10   10063848 24092966    32845759 discharge UNKNOWN         2177-09-09 11:12:32
+ 1   10001217 24597018    30437372 transfer  Neurology       2157-11-24 07:32:32
+ 2   10001217 24597018    30487570 discharge UNKNOWN         2157-11-25 10:11:46
+ 3   10001217 24597018    35343802 transfer  Neurology       2157-11-21 14:08:00
+ 4   10001217 24597018    37058438 admit     Medicine        2157-11-18 17:24:00
+ 5   10001217 24597018    37067082 transfer  Surgical Inten… 2157-11-20 11:18:02
+ 6   10001217 24597018    39866888 ED        Emergency Depa… 2157-11-18 09:38:00
+ 7   10001217 27703517    33261790 admit     Neurology       2157-12-18 08:59:25
+ 8   10001217 27703517    34592300 transfer  Surgical Inten… 2157-12-19 07:42:24
+ 9   10001217 27703517    34609030 transfer  Neurology       2157-12-18 10:23:43
+10   10001217 27703517    35495079 discharge UNKNOWN         2157-12-24 06:58:42
 # ℹ 1 more variable: outtime &lt;dttm&gt;</code></pre>
 </div>
 </div>
@@ -340,15 +335,13 @@ Freeram:   124.133 MiB </code></pre>
 <span id="cb33-4"><a href="#cb33-4" aria-hidden="true" tabindex="-1"></a></span>
 <span id="cb33-5"><a href="#cb33-5" aria-hidden="true" tabindex="-1"></a><span class="fu">print</span>(procedures_icd10)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
 <div class="cell-output cell-output-stdout">
-<pre><code># A tibble: 6 × 6
+<pre><code># A tibble: 4 × 6
   subject_id  hadm_id seq_num chartdate  icd_code icd_version
        &lt;int&gt;    &lt;int&gt;   &lt;int&gt; &lt;date&gt;     &lt;chr&gt;          &lt;int&gt;
-1   10063848 21345067       1 2177-07-25 0DB80ZZ           10
-2   10063848 21345067       2 2177-07-25 0DN80ZZ           10
-3   10063848 21345067       3 2177-08-03 4A023N6           10
-4   10063848 21345067       4 2177-07-28 02HV33Z           10
-5   10063848 24092966       1 2177-08-29 0W9G30Z           10
-6   10063848 24092966       2 2177-09-04 0W9G30Z           10</code></pre>
+1   10001217 24597018       1 2157-11-20 0139               9
+2   10001217 24597018       2 2157-11-19 0331               9
+3   10001217 24597018       3 2157-11-22 3897               9
+4   10001217 27703517       1 2157-12-19 0139               9</code></pre>
 </div>
 </div>
 <p><strong>For Diagnoses_icd</strong></p>
@@ -362,16 +355,16 @@ Freeram:   124.133 MiB </code></pre>
 <pre><code># A tibble: 10 × 5
    subject_id  hadm_id seq_num icd_code icd_version
         &lt;int&gt;    &lt;int&gt;   &lt;int&gt; &lt;chr&gt;          &lt;int&gt;
- 1   10063848 21345067       1 K565              10
- 2   10063848 21345067       2 J9601             10
- 3   10063848 21345067       3 D680              10
- 4   10063848 21345067       4 I272              10
- 5   10063848 21345067       5 D6959             10
- 6   10063848 21345067       6 K521              10
- 7   10063848 21345067       7 I471              10
- 8   10063848 21345067       8 N390              10
- 9   10063848 21345067       9 D62               10
-10   10063848 21345067      10 K567              10</code></pre>
+ 1   10001217 24597018       1 3240               9
+ 2   10001217 24597018       2 3484               9
+ 3   10001217 24597018       3 3485               9
+ 4   10001217 24597018       4 5180               9
+ 5   10001217 24597018       5 340                9
+ 6   10001217 24597018       6 04109              9
+ 7   10001217 24597018       7 3051               9
+ 8   10001217 24597018       8 4019               9
+ 9   10001217 24597018       9 V168               9
+10   10001217 24597018      10 V161               9</code></pre>
 </div>
 </div>
 <p><strong>For d_icd_procedures</strong></p>
@@ -486,16 +479,16 @@ Freeram:   124.133 MiB </code></pre>
 <pre><code># A tibble: 10 × 4
    subject_id itemid charttime           valuenum
         &lt;int&gt;  &lt;int&gt; &lt;dttm&gt;                 &lt;dbl&gt;
- 1   10063848  51221 2177-07-24 16:45:00     44.2
- 2   10063848  51301 2177-07-24 16:45:00     12.2
- 3   10063848  50882 2177-07-24 16:45:00     26  
- 4   10063848  50902 2177-07-24 16:45:00     99  
- 5   10063848  50912 2177-07-24 16:45:00      0.9
- 6   10063848  50931 2177-07-24 16:45:00    130  
- 7   10063848  50971 2177-07-24 16:45:00      4.1
- 8   10063848  50983 2177-07-24 16:45:00    142  
- 9   10063848  51221 2177-07-25 00:30:00     41.6
-10   10063848  51301 2177-07-25 00:30:00      8.6</code></pre>
+ 1   10001217  50882 2157-11-18 10:30:00     24  
+ 2   10001217  50902 2157-11-18 10:30:00    107  
+ 3   10001217  50912 2157-11-18 10:30:00      0.6
+ 4   10001217  50931 2157-11-18 10:30:00     86  
+ 5   10001217  50971 2157-11-18 10:30:00      4.4
+ 6   10001217  50983 2157-11-18 10:30:00    140  
+ 7   10001217  51221 2157-11-18 10:30:00     42.2
+ 8   10001217  51301 2157-11-18 10:30:00     12.6
+ 9   10001217  50912 2157-11-20 00:14:00      0.7
+10   10001217  51221 2157-11-20 05:30:00     38.1</code></pre>
 </div>
 </div>
 <p>With this in mind, we now want to create a symbolic link to the parquet we created in HW2, part.0.parquet, so that we can use it in this homework.</p>
@@ -522,16 +515,16 @@ Freeram:   124.133 MiB </code></pre>
 <pre><code># A tibble: 10 × 6
    subject_id  hadm_id seq_num icd_code icd_version long_title                  
         &lt;int&gt;    &lt;int&gt;   &lt;int&gt; &lt;chr&gt;          &lt;int&gt; &lt;chr&gt;                       
- 1   10063848 21345067       1 K565              10 Intestinal adhesions [bands…
- 2   10063848 21345067       2 J9601             10 Acute respiratory failure w…
- 3   10063848 21345067       3 D680              10 Von Willebrand disease      
- 4   10063848 21345067       4 I272              10 Other secondary pulmonary h…
- 5   10063848 21345067       5 D6959             10 Other secondary thrombocyto…
- 6   10063848 21345067       6 K521              10 Toxic gastroenteritis and c…
- 7   10063848 21345067       7 I471              10 Supraventricular tachycardia
- 8   10063848 21345067       8 N390              10 Urinary tract infection, si…
- 9   10063848 21345067       9 D62               10 Acute posthemorrhagic anemia
-10   10063848 21345067      10 K567              10 Ileus, unspecified          </code></pre>
+ 1   10001217 24597018       1 3240               9 Intracranial abscess        
+ 2   10001217 24597018       2 3484               9 Compression of brain        
+ 3   10001217 24597018       3 3485               9 Cerebral edema              
+ 4   10001217 24597018       4 5180               9 Pulmonary collapse          
+ 5   10001217 24597018       5 340                9 Multiple sclerosis          
+ 6   10001217 24597018       6 04109              9 Streptococcus infection in …
+ 7   10001217 24597018       7 3051               9 Tobacco use disorder        
+ 8   10001217 24597018       8 4019               9 Unspecified essential hyper…
+ 9   10001217 24597018       9 V168               9 Family history of other spe…
+10   10001217 24597018      10 V161               9 Family history of malignant…</code></pre>
 </div>
 </div>
 <p><strong>The top diagnoses were intestinal adhesions with obstruction, acurate respiratory failure with hypoxia, and von willebrand disease. We have to make sure we count each of the different long_titles and ensure they are able to put into the ggplot. I received an error regarding an as_vector, so let us set this to true to prevent this happening as well.</strong></p>
@@ -552,15 +545,13 @@ Freeram:   124.133 MiB </code></pre>
 <span id="cb55-7"><a href="#cb55-7" aria-hidden="true" tabindex="-1"></a></span>
 <span id="cb55-8"><a href="#cb55-8" aria-hidden="true" tabindex="-1"></a><span class="fu">print</span>(LJProcedures10)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
 <div class="cell-output cell-output-stdout">
-<pre><code># A tibble: 6 × 7
+<pre><code># A tibble: 4 × 7
   subject_id  hadm_id seq_num chartdate  icd_code icd_version long_title        
        &lt;int&gt;    &lt;int&gt;   &lt;int&gt; &lt;date&gt;     &lt;chr&gt;          &lt;int&gt; &lt;chr&gt;             
-1   10063848 21345067       1 2177-07-25 0DB80ZZ           10 Excision of Small…
-2   10063848 21345067       2 2177-07-25 0DN80ZZ           10 Release Small Int…
-3   10063848 21345067       3 2177-08-03 4A023N6           10 Measurement of Ca…
-4   10063848 21345067       4 2177-07-28 02HV33Z           10 Insertion of Infu…
-5   10063848 24092966       1 2177-08-29 0W9G30Z           10 Drainage of Perit…
-6   10063848 24092966       2 2177-09-04 0W9G30Z           10 Drainage of Perit…</code></pre>
+1   10001217 24597018       1 2157-11-20 0139               9 Other incision of…
+2   10001217 24597018       2 2157-11-19 0331               9 Spinal tap        
+3   10001217 24597018       3 2157-11-22 3897               9 Central venous ca…
+4   10001217 27703517       1 2157-12-19 0139               9 Other incision of…</code></pre>
 </div>
 </div>
 <p><strong>I received an error prior about how this data is not a data.frame. Let us convert these to a data frame to prevent this from happening</strong></p>
@@ -593,7 +584,7 @@ Freeram:   124.133 MiB </code></pre>
 <span id="cb59-6"><a href="#cb59-6" aria-hidden="true" tabindex="-1"></a></span>
 <span id="cb59-7"><a href="#cb59-7" aria-hidden="true" tabindex="-1"></a><span class="fu">print</span>(patient_info)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
 <div class="cell-output cell-output-stdout">
-<pre><code>[1] "Patient 10063848, F,75 years old"</code></pre>
+<pre><code>[1] "Patient 10001217, F,55 years old"</code></pre>
 </div>
 </div>
 <p><strong>When we do the regular ggplot, the legend has text that is way too long. Let us wrap this</strong></p>
@@ -609,26 +600,20 @@ Freeram:   124.133 MiB </code></pre>
 <span id="cb61-8"><a href="#cb61-8" aria-hidden="true" tabindex="-1"></a><span class="fu">print</span>(LJProcedures)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
 <div class="cell-output cell-output-stdout">
 <pre><code>  subject_id  hadm_id seq_num  chartdate icd_code icd_version
-1   10063848 21345067       1 2177-07-25  0DB80ZZ          10
-2   10063848 21345067       2 2177-07-25  0DN80ZZ          10
-3   10063848 21345067       3 2177-08-03  4A023N6          10
-4   10063848 21345067       4 2177-07-28  02HV33Z          10
-5   10063848 24092966       1 2177-08-29  0W9G30Z          10
-6   10063848 24092966       2 2177-09-04  0W9G30Z          10
-                                                                        long_title
-1                                       Excision of Small Intestine, Open Approach
-2                                           Release Small Intestine, Open Approach
-3 Measurement of Cardiac Sampling and Pressure, Right Heart, Percutaneous Approach
-4      Insertion of Infusion Device into Superior Vena Cava, Percutaneous Approach
-5        Drainage of Peritoneal Cavity with Drainage Device, Percutaneous Approach
-6        Drainage of Peritoneal Cavity with Drainage Device, Percutaneous Approach
-                                                                     long_title_wrapped
-1                                          Excision of Small\nIntestine, Open\nApproach
-2                                              Release Small\nIntestine, Open\nApproach
-3 Measurement of\nCardiac Sampling\nand Pressure,\nRight Heart,\nPercutaneous\nApproach
-4      Insertion of\nInfusion Device\ninto Superior\nVena Cava,\nPercutaneous\nApproach
-5        Drainage of\nPeritoneal\nCavity with\nDrainage Device,\nPercutaneous\nApproach
-6        Drainage of\nPeritoneal\nCavity with\nDrainage Device,\nPercutaneous\nApproach</code></pre>
+1   10001217 24597018       1 2157-11-20     0139           9
+2   10001217 24597018       2 2157-11-19     0331           9
+3   10001217 24597018       3 2157-11-22     3897           9
+4   10001217 27703517       1 2157-12-19     0139           9
+                                       long_title
+1                         Other incision of brain
+2                                      Spinal tap
+3 Central venous catheter placement with guidance
+4                         Other incision of brain
+                                  long_title_wrapped
+1                           Other incision of\nbrain
+2                                         Spinal tap
+3 Central venous\ncatheter\nplacement with\nguidance
+4                           Other incision of\nbrain</code></pre>
 </div>
 </div>
 <p><strong>Now let us make each procedure a unique factor so that it can be recognized in ggplot</strong></p>
@@ -705,7 +690,7 @@ Freeram:   124.133 MiB </code></pre>
 ℹ Please use `linewidth` instead.</code></pre>
 </div>
 <div class="cell-output cell-output-stderr">
-<pre><code>Warning: Removed 3 rows containing missing values or values outside the scale range
+<pre><code>Warning: Removed 2 rows containing missing values or values outside the scale range
 (`geom_segment()`).</code></pre>
 </div>
 <div class="cell-output-display">
@@ -730,7 +715,7 @@ Freeram:   124.133 MiB </code></pre>
 <div class="sourceCode cell-code" id="cb68"><pre class="sourceCode bash code-with-copy"><code class="sourceCode bash"><span id="cb68-1"><a href="#cb68-1" aria-hidden="true" tabindex="-1"></a></span>
 <span id="cb68-2"><a href="#cb68-2" aria-hidden="true" tabindex="-1"></a><span class="fu">ls</span> <span class="at">-l</span> ~/mimic/icu/chartevents.csv</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
 <div class="cell-output cell-output-stdout">
-<pre><code>-rw-r--r--@ 1 lukehodges  staff  41935806083 Feb 18 13:27 /Users/lukehodges/mimic/icu/chartevents.csv</code></pre>
+<pre><code>-rw-r--r--@ 1 lukehodges  staff  41935806083 Feb 18 18:24 /Users/lukehodges/mimic/icu/chartevents.csv</code></pre>
 </div>
 </div>
 <p><strong>We can now open the data set</strong></p>
@@ -758,16 +743,16 @@ Freeram:   124.133 MiB </code></pre>
 <pre><code># A tibble: 50 × 4
    subject_id itemid charttime           valuenum
         &lt;int&gt;  &lt;int&gt; &lt;dttm&gt;                 &lt;dbl&gt;
- 1   10063848 220045 2177-07-29 14:00:00       93
- 2   10063848 220210 2177-07-29 14:00:00       23
- 3   10063848 220179 2177-07-29 14:02:00       97
- 4   10063848 220181 2177-07-29 14:02:00       65
- 5   10063848 220045 2177-07-27 12:00:00      153
- 6   10063848 220210 2177-07-27 12:00:00       25
- 7   10063848 220179 2177-07-27 12:02:00      129
- 8   10063848 220181 2177-07-27 12:02:00       89
- 9   10063848 220045 2177-07-27 13:00:00       97
-10   10063848 220210 2177-07-27 13:00:00       28
+ 1   10001217 220045 2157-11-20 11:19:00     86  
+ 2   10001217 220179 2157-11-20 11:19:00    151  
+ 3   10001217 220181 2157-11-20 11:19:00    104  
+ 4   10001217 220210 2157-11-20 11:19:00     18  
+ 5   10001217 223761 2157-11-20 11:31:00     98.5
+ 6   10001217 220045 2157-11-20 12:00:00     91  
+ 7   10001217 220179 2157-11-20 12:00:00    143  
+ 8   10001217 220181 2157-11-20 12:00:00     95  
+ 9   10001217 220210 2157-11-20 12:00:00     24  
+10   10001217 220045 2157-11-20 13:00:00     95  
 # ℹ 40 more rows</code></pre>
 </div>
 </div>
@@ -815,8 +800,8 @@ Freeram:   124.133 MiB </code></pre>
 <pre><code># A tibble: 2 × 8
   subject_id  hadm_id  stay_id first_careunit  last_careunit intime             
        &lt;int&gt;    &lt;int&gt;    &lt;int&gt; &lt;chr&gt;           &lt;chr&gt;         &lt;dttm&gt;             
-1   10063848 21345067 31332266 Surgical Inten… Surgical Int… 2177-07-27 11:24:10
-2   10063848 21345067 33836703 Surgical Inten… Surgical Int… 2177-07-30 03:45:32
+1   10001217 24597018 37067082 Surgical Inten… Surgical Int… 2157-11-20 11:18:02
+2   10001217 27703517 34592300 Surgical Inten… Surgical Int… 2157-12-19 07:42:24
 # ℹ 2 more variables: outtime &lt;dttm&gt;, los &lt;dbl&gt;</code></pre>
 </div>
 </div>
@@ -837,19 +822,19 @@ Freeram:   124.133 MiB </code></pre>
 <span id="cb84-6"><a href="#cb84-6" aria-hidden="true" tabindex="-1"></a></span>
 <span id="cb84-7"><a href="#cb84-7" aria-hidden="true" tabindex="-1"></a>min_datetime1</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
 <div class="cell-output cell-output-stdout">
-<pre><code>[1] "2177-07-27 11:24:10 PDT"</code></pre>
+<pre><code>[1] "2157-11-20 11:18:02 PST"</code></pre>
 </div>
 <div class="sourceCode cell-code" id="cb86"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb86-1"><a href="#cb86-1" aria-hidden="true" tabindex="-1"></a>max_datetime1 </span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
 <div class="cell-output cell-output-stdout">
-<pre><code>[1] "2177-07-30 03:41:48 PDT"</code></pre>
+<pre><code>[1] "2157-11-21 14:08:00 PST"</code></pre>
 </div>
 <div class="sourceCode cell-code" id="cb88"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb88-1"><a href="#cb88-1" aria-hidden="true" tabindex="-1"></a>min_datetime2</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
 <div class="cell-output cell-output-stdout">
-<pre><code>[1] "2177-07-30 03:45:32 PDT"</code></pre>
+<pre><code>[1] "2157-12-19 07:42:24 PST"</code></pre>
 </div>
 <div class="sourceCode cell-code" id="cb90"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb90-1"><a href="#cb90-1" aria-hidden="true" tabindex="-1"></a>max_datetime2</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
 <div class="cell-output cell-output-stdout">
-<pre><code>[1] "2177-07-30 06:49:58 PDT"</code></pre>
+<pre><code>[1] "2157-12-20 06:27:41 PST"</code></pre>
 </div>
 </div>
 <p><strong>We are making it so that if the time falls between min and max 1, it is assigned the first stay_id. If it falls between min 2 and max 2, then it is assigned the second</strong></p>
@@ -867,19 +852,227 @@ Freeram:   124.133 MiB </code></pre>
 <span id="cb92-11"><a href="#cb92-11" aria-hidden="true" tabindex="-1"></a>  <span class="fu">head</span>(<span class="dv">10</span>) <span class="sc">%&gt;%</span></span>
 <span id="cb92-12"><a href="#cb92-12" aria-hidden="true" tabindex="-1"></a>  <span class="fu">collect</span>()</span>
 <span id="cb92-13"><a href="#cb92-13" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb92-14"><a href="#cb92-14" aria-hidden="true" tabindex="-1"></a><span class="fu">print</span>(chartevents.filtered.arrow10)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<span id="cb92-14"><a href="#cb92-14" aria-hidden="true" tabindex="-1"></a><span class="fu">print</span>(chartevents.filtered.arrow)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
 <div class="cell-output cell-output-stdout">
-<pre><code>   subject_id itemid           charttime valuenum  stay_id
-1    10063848 220045 2177-07-29 14:00:00       93 31332266
-2    10063848 220210 2177-07-29 14:00:00       23 31332266
-3    10063848 220179 2177-07-29 14:02:00       97 31332266
-4    10063848 220181 2177-07-29 14:02:00       65 31332266
-5    10063848 220045 2177-07-27 12:00:00      153 31332266
-6    10063848 220210 2177-07-27 12:00:00       25 31332266
-7    10063848 220179 2177-07-27 12:02:00      129 31332266
-8    10063848 220181 2177-07-27 12:02:00       89 31332266
-9    10063848 220045 2177-07-27 13:00:00       97 31332266
-10   10063848 220210 2177-07-27 13:00:00       28 31332266</code></pre>
+<pre><code>    subject_id itemid           charttime valuenum  stay_id
+1     10001217 220045 2157-11-20 11:19:00     86.0 37067082
+2     10001217 220179 2157-11-20 11:19:00    151.0 37067082
+3     10001217 220181 2157-11-20 11:19:00    104.0 37067082
+4     10001217 220210 2157-11-20 11:19:00     18.0 37067082
+5     10001217 223761 2157-11-20 11:31:00     98.5 37067082
+6     10001217 220045 2157-11-20 12:00:00     91.0 37067082
+7     10001217 220179 2157-11-20 12:00:00    143.0 37067082
+8     10001217 220181 2157-11-20 12:00:00     95.0 37067082
+9     10001217 220210 2157-11-20 12:00:00     24.0 37067082
+10    10001217 220045 2157-11-20 13:00:00     95.0 37067082
+11    10001217 220179 2157-11-20 13:00:00    142.0 37067082
+12    10001217 220181 2157-11-20 13:00:00    103.0 37067082
+13    10001217 220210 2157-11-20 13:00:00     25.0 37067082
+14    10001217 220045 2157-11-20 14:00:00    102.0 37067082
+15    10001217 220179 2157-11-20 14:00:00    137.0 37067082
+16    10001217 220181 2157-11-20 14:00:00     93.0 37067082
+17    10001217 220210 2157-11-20 14:00:00     27.0 37067082
+18    10001217 223761 2157-11-20 14:00:00     99.1 37067082
+19    10001217 220045 2157-11-20 15:00:00    106.0 37067082
+20    10001217 220179 2157-11-20 15:00:00    134.0 37067082
+21    10001217 220181 2157-11-20 15:00:00     88.0 37067082
+22    10001217 220210 2157-11-20 15:00:00     20.0 37067082
+23    10001217 220045 2157-11-20 18:00:00     88.0 37067082
+24    10001217 220179 2157-11-20 18:00:00    134.0 37067082
+25    10001217 220181 2157-11-20 18:00:00     90.0 37067082
+26    10001217 220210 2157-11-20 18:03:00     20.0 37067082
+27    10001217 220045 2157-11-20 19:00:00     89.0 37067082
+28    10001217 220179 2157-11-20 19:00:00    141.0 37067082
+29    10001217 220181 2157-11-20 19:00:00     90.0 37067082
+30    10001217 220210 2157-11-20 19:00:00     19.0 37067082
+31    10001217 220045 2157-11-20 20:00:00     86.0 37067082
+32    10001217 220179 2157-11-20 20:00:00    150.0 37067082
+33    10001217 220181 2157-11-20 20:00:00    130.0 37067082
+34    10001217 220210 2157-11-20 20:00:00     22.0 37067082
+35    10001217 223761 2157-11-20 20:00:00     98.6 37067082
+36    10001217 220045 2157-11-20 21:00:00     94.0 37067082
+37    10001217 220179 2157-11-20 21:00:00    135.0 37067082
+38    10001217 220181 2157-11-20 21:00:00     90.0 37067082
+39    10001217 220210 2157-11-20 21:00:00     21.0 37067082
+40    10001217 220045 2157-11-20 22:00:00     78.0 37067082
+41    10001217 220179 2157-11-20 22:00:00    129.0 37067082
+42    10001217 220181 2157-11-20 22:00:00     86.0 37067082
+43    10001217 220210 2157-11-20 22:00:00     21.0 37067082
+44    10001217 220045 2157-11-20 23:00:00     78.0 37067082
+45    10001217 220210 2157-11-20 23:00:00     21.0 37067082
+46    10001217 220179 2157-11-20 23:00:00    140.0 37067082
+47    10001217 220181 2157-11-20 23:00:00     94.0 37067082
+48    10001217 220045 2157-11-21 11:00:00    101.0 37067082
+49    10001217 220179 2157-11-21 11:00:00    145.0 37067082
+50    10001217 220181 2157-11-21 11:00:00     96.0 37067082
+51    10001217 220210 2157-11-21 11:00:00     25.0 37067082
+52    10001217 223761 2157-11-21 11:00:00    100.8 37067082
+53    10001217 220045 2157-11-21 12:00:00     96.0 37067082
+54    10001217 220179 2157-11-21 12:00:00    153.0 37067082
+55    10001217 220181 2157-11-21 12:00:00     99.0 37067082
+56    10001217 220210 2157-11-21 12:00:00     24.0 37067082
+57    10001217 220045 2157-11-21 13:00:00     93.0 37067082
+58    10001217 220179 2157-11-21 13:00:00    144.0 37067082
+59    10001217 220181 2157-11-21 13:00:00     99.0 37067082
+60    10001217 220210 2157-11-21 13:00:00     17.0 37067082
+61    10001217 223761 2157-11-21 13:00:00     99.1 37067082
+62    10001217 220045 2157-11-20 16:00:00     98.0 37067082
+63    10001217 220210 2157-11-20 16:00:00     25.0 37067082
+64    10001217 223761 2157-11-20 16:00:00     99.2 37067082
+65    10001217 220179 2157-11-20 16:15:00    127.0 37067082
+66    10001217 220181 2157-11-20 16:15:00     90.0 37067082
+67    10001217 220045 2157-11-20 17:00:00     94.0 37067082
+68    10001217 220179 2157-11-20 17:00:00    127.0 37067082
+69    10001217 220181 2157-11-20 17:00:00     83.0 37067082
+70    10001217 220210 2157-11-20 17:00:00     24.0 37067082
+71    10001217 223761 2157-11-21 00:00:00     98.1 37067082
+72    10001217 220045 2157-11-21 00:00:00     85.0 37067082
+73    10001217 220179 2157-11-21 00:00:00    125.0 37067082
+74    10001217 220181 2157-11-21 00:00:00     84.0 37067082
+75    10001217 220210 2157-11-21 00:00:00     19.0 37067082
+76    10001217 220045 2157-11-21 01:00:00     85.0 37067082
+77    10001217 220179 2157-11-21 01:00:00    127.0 37067082
+78    10001217 220181 2157-11-21 01:00:00     92.0 37067082
+79    10001217 220210 2157-11-21 01:00:00     15.0 37067082
+80    10001217 220045 2157-11-21 02:00:00     92.0 37067082
+81    10001217 220179 2157-11-21 02:00:00    117.0 37067082
+82    10001217 220181 2157-11-21 02:00:00     80.0 37067082
+83    10001217 220210 2157-11-21 02:00:00     20.0 37067082
+84    10001217 220045 2157-11-21 03:00:00     92.0 37067082
+85    10001217 220179 2157-11-21 03:00:00    130.0 37067082
+86    10001217 220181 2157-11-21 03:00:00     84.0 37067082
+87    10001217 220210 2157-11-21 03:00:00     22.0 37067082
+88    10001217 220045 2157-11-21 04:00:00     95.0 37067082
+89    10001217 220179 2157-11-21 04:00:00    132.0 37067082
+90    10001217 220181 2157-11-21 04:00:00    100.0 37067082
+91    10001217 220210 2157-11-21 04:00:00     20.0 37067082
+92    10001217 223761 2157-11-21 04:00:00     98.5 37067082
+93    10001217 220045 2157-11-21 05:00:00     93.0 37067082
+94    10001217 220179 2157-11-21 05:00:00    139.0 37067082
+95    10001217 220181 2157-11-21 05:00:00     91.0 37067082
+96    10001217 220210 2157-11-21 05:00:00     17.0 37067082
+97    10001217 220179 2157-11-21 06:00:00    142.0 37067082
+98    10001217 220045 2157-11-21 06:34:00     98.0 37067082
+99    10001217 220210 2157-11-21 06:34:00     13.0 37067082
+100   10001217 220045 2157-11-21 07:00:00     97.0 37067082
+101   10001217 220210 2157-11-21 07:00:00     23.0 37067082
+102   10001217 220179 2157-11-21 07:00:00    136.0 37067082
+103   10001217 220181 2157-11-21 07:00:00     91.0 37067082
+104   10001217 223761 2157-11-21 08:00:00     99.7 37067082
+105   10001217 220045 2157-11-21 08:00:00     98.0 37067082
+106   10001217 220179 2157-11-21 08:00:00    134.0 37067082
+107   10001217 220181 2157-11-21 08:00:00     94.0 37067082
+108   10001217 220210 2157-11-21 08:00:00     23.0 37067082
+109   10001217 220045 2157-11-21 09:00:00    104.0 37067082
+110   10001217 220210 2157-11-21 09:00:00     27.0 37067082
+111   10001217 220179 2157-11-21 09:00:00    132.0 37067082
+112   10001217 220181 2157-11-21 09:00:00     91.0 37067082
+113   10001217 220045 2157-11-21 10:00:00    105.0 37067082
+114   10001217 220179 2157-11-21 10:00:00    134.0 37067082
+115   10001217 220181 2157-11-21 10:00:00     94.0 37067082
+116   10001217 220210 2157-11-21 10:00:00     22.0 37067082
+117   10001217 220045 2157-12-19 22:00:00     66.0 34592300
+118   10001217 220179 2157-12-19 22:00:00     98.0 34592300
+119   10001217 220181 2157-12-19 22:00:00     70.0 34592300
+120   10001217 220210 2157-12-19 22:00:00     15.0 34592300
+121   10001217 220045 2157-12-19 23:00:00     72.0 34592300
+122   10001217 220179 2157-12-19 23:00:00    104.0 34592300
+123   10001217 220181 2157-12-19 23:00:00     73.0 34592300
+124   10001217 220210 2157-12-19 23:00:00     18.0 34592300
+125   10001217 223761 2157-12-20 00:00:00     98.6 34592300
+126   10001217 220045 2157-12-20 00:00:00     81.0 34592300
+127   10001217 220179 2157-12-20 00:00:00    119.0 34592300
+128   10001217 220181 2157-12-20 00:00:00     85.0 34592300
+129   10001217 220210 2157-12-20 00:00:00     18.0 34592300
+130   10001217 220045 2157-12-20 01:00:00     82.0 34592300
+131   10001217 220210 2157-12-20 01:00:00     20.0 34592300
+132   10001217 220045 2157-12-20 02:00:00     86.0 34592300
+133   10001217 220210 2157-12-20 02:00:00     18.0 34592300
+134   10001217 220179 2157-12-20 02:04:00    103.0 34592300
+135   10001217 220181 2157-12-20 02:04:00     73.0 34592300
+136   10001217 220045 2157-12-20 03:00:00     92.0 34592300
+137   10001217 220179 2157-12-20 03:00:00    117.0 34592300
+138   10001217 220181 2157-12-20 03:00:00     91.0 34592300
+139   10001217 220210 2157-12-20 03:00:00     22.0 34592300
+140   10001217 220045 2157-12-20 04:00:00     85.0 34592300
+141   10001217 220179 2157-12-20 04:00:00    109.0 34592300
+142   10001217 220181 2157-12-20 04:00:00     81.0 34592300
+143   10001217 220210 2157-12-20 04:00:00     16.0 34592300
+144   10001217 223761 2157-12-20 04:00:00     98.3 34592300
+145   10001217 223761 2157-12-19 12:00:00     98.2 34592300
+146   10001217 220045 2157-12-19 12:00:00     79.0 34592300
+147   10001217 220179 2157-12-19 12:00:00    121.0 34592300
+148   10001217 220181 2157-12-19 12:00:00     82.0 34592300
+149   10001217 220210 2157-12-19 12:00:00     18.0 34592300
+150   10001217 220045 2157-12-19 13:00:00     79.0 34592300
+151   10001217 220179 2157-12-19 13:00:00    125.0 34592300
+152   10001217 220181 2157-12-19 13:00:00     81.0 34592300
+153   10001217 220210 2157-12-19 13:00:00     15.0 34592300
+154   10001217 220045 2157-12-19 14:00:00     87.0 34592300
+155   10001217 220179 2157-12-19 14:00:00    111.0 34592300
+156   10001217 220181 2157-12-19 14:00:00     84.0 34592300
+157   10001217 220210 2157-12-19 14:00:00     13.0 34592300
+158   10001217 220045 2157-12-19 15:00:00     82.0 34592300
+159   10001217 220179 2157-12-19 15:00:00    106.0 34592300
+160   10001217 220181 2157-12-19 15:00:00     78.0 34592300
+161   10001217 220210 2157-12-19 15:00:00     16.0 34592300
+162   10001217 220045 2157-12-19 16:00:00     78.0 34592300
+163   10001217 220210 2157-12-19 16:00:00     19.0 34592300
+164   10001217 223761 2157-12-19 16:00:00     97.8 34592300
+165   10001217 220179 2157-12-19 16:01:00     99.0 34592300
+166   10001217 220181 2157-12-19 16:01:00     78.0 34592300
+167   10001217 220045 2157-12-19 17:00:00     79.0 34592300
+168   10001217 220179 2157-12-19 17:00:00     99.0 34592300
+169   10001217 220181 2157-12-19 17:00:00     68.0 34592300
+170   10001217 220210 2157-12-19 17:00:00     17.0 34592300
+171   10001217 220045 2157-12-19 18:00:00     79.0 34592300
+172   10001217 220179 2157-12-19 18:00:00    110.0 34592300
+173   10001217 220181 2157-12-19 18:00:00     77.0 34592300
+174   10001217 220210 2157-12-19 18:00:00     16.0 34592300
+175   10001217 220045 2157-12-19 19:00:00     73.0 34592300
+176   10001217 220179 2157-12-19 19:00:00    100.0 34592300
+177   10001217 220181 2157-12-19 19:00:00     71.0 34592300
+178   10001217 220210 2157-12-19 19:00:00     15.0 34592300
+179   10001217 220045 2157-12-19 20:00:00     68.0 34592300
+180   10001217 220179 2157-12-19 20:00:00     94.0 34592300
+181   10001217 220181 2157-12-19 20:00:00     66.0 34592300
+182   10001217 220210 2157-12-19 20:00:00     17.0 34592300
+183   10001217 223761 2157-12-19 20:00:00     98.3 34592300
+184   10001217 220045 2157-12-19 21:00:00     67.0 34592300
+185   10001217 220179 2157-12-19 21:00:00     99.0 34592300
+186   10001217 220181 2157-12-19 21:00:00     68.0 34592300
+187   10001217 220210 2157-12-19 21:00:00     17.0 34592300
+188   10001217 220045 2157-12-20 05:00:00     89.0 34592300
+189   10001217 220179 2157-12-20 05:00:00    124.0 34592300
+190   10001217 220181 2157-12-20 05:00:00     92.0 34592300
+191   10001217 220210 2157-12-20 05:00:00     18.0 34592300
+192   10001217 220045 2157-12-20 06:00:00     80.0 34592300
+193   10001217 220179 2157-12-20 06:00:00    107.0 34592300
+194   10001217 220181 2157-12-20 06:00:00     84.0 34592300
+195   10001217 220210 2157-12-20 06:00:00     22.0 34592300
+196   10001217 220045 2157-12-19 07:43:00     96.0 34592300
+197   10001217 220210 2157-12-19 07:44:00     11.0 34592300
+198   10001217 220179 2157-12-19 07:50:00    167.0 34592300
+199   10001217 220181 2157-12-19 07:50:00    114.0 34592300
+200   10001217 220045 2157-12-19 08:00:00     73.0 34592300
+201   10001217 220179 2157-12-19 08:00:00    156.0 34592300
+202   10001217 220181 2157-12-19 08:00:00    112.0 34592300
+203   10001217 220210 2157-12-19 08:00:00     17.0 34592300
+204   10001217 223761 2157-12-19 08:26:00     97.6 34592300
+205   10001217 220045 2157-12-19 09:00:00     69.0 34592300
+206   10001217 220179 2157-12-19 09:00:00    145.0 34592300
+207   10001217 220181 2157-12-19 09:00:00    103.0 34592300
+208   10001217 220210 2157-12-19 09:00:00     14.0 34592300
+209   10001217 220045 2157-12-19 09:25:00     84.0 34592300
+210   10001217 220210 2157-12-19 09:25:00     14.0 34592300
+211   10001217 220045 2157-12-19 10:00:00     81.0 34592300
+212   10001217 220179 2157-12-19 10:00:00    129.0 34592300
+213   10001217 220181 2157-12-19 10:00:00     96.0 34592300
+214   10001217 220210 2157-12-19 10:00:00     14.0 34592300
+215   10001217 220045 2157-12-19 11:00:00     83.0 34592300
+216   10001217 220179 2157-12-19 11:00:00    123.0 34592300
+217   10001217 220181 2157-12-19 11:00:00     87.0 34592300
+218   10001217 220210 2157-12-19 11:00:00     16.0 34592300</code></pre>
 </div>
 </div>
 <div class="cell">
@@ -898,11 +1091,11 @@ Freeram:   124.133 MiB </code></pre>
 <span id="cb95-2"><a href="#cb95-2" aria-hidden="true" tabindex="-1"></a>       <span class="fu">aes</span>(<span class="at">x =</span> charttime, <span class="at">y =</span> valuenum, <span class="at">color =</span> <span class="fu">factor</span>(itemid))) <span class="sc">+</span></span>
 <span id="cb95-3"><a href="#cb95-3" aria-hidden="true" tabindex="-1"></a>  <span class="fu">geom_line</span>(<span class="at">size =</span> <span class="fl">0.8</span>) <span class="sc">+</span> </span>
 <span id="cb95-4"><a href="#cb95-4" aria-hidden="true" tabindex="-1"></a>  <span class="fu">geom_point</span>(<span class="at">size =</span> <span class="fl">1.5</span>) <span class="sc">+</span> </span>
-<span id="cb95-5"><a href="#cb95-5" aria-hidden="true" tabindex="-1"></a>  <span class="fu">facet_grid</span>(itemid <span class="sc">~</span> stay_id, <span class="at">scales =</span> <span class="st">"free"</span>, <span class="at">space =</span> <span class="st">"free_x"</span>, </span>
+<span id="cb95-5"><a href="#cb95-5" aria-hidden="true" tabindex="-1"></a>  <span class="fu">facet_grid</span>(itemid <span class="sc">~</span> stay_id, <span class="at">scales =</span> <span class="st">"free"</span>, <span class="at">space =</span> <span class="st">"fixed"</span>, </span>
 <span id="cb95-6"><a href="#cb95-6" aria-hidden="true" tabindex="-1"></a>             <span class="at">labeller =</span> <span class="fu">labeller</span>(<span class="at">itemid =</span> <span class="fu">c</span>(</span>
 <span id="cb95-7"><a href="#cb95-7" aria-hidden="true" tabindex="-1"></a>    <span class="st">"220045"</span> <span class="ot">=</span> <span class="st">"HR"</span>,</span>
-<span id="cb95-8"><a href="#cb95-8" aria-hidden="true" tabindex="-1"></a>    <span class="st">"220179"</span> <span class="ot">=</span> <span class="st">"NBPd"</span>,</span>
-<span id="cb95-9"><a href="#cb95-9" aria-hidden="true" tabindex="-1"></a>    <span class="st">"220181"</span> <span class="ot">=</span> <span class="st">"NBPs"</span>,</span>
+<span id="cb95-8"><a href="#cb95-8" aria-hidden="true" tabindex="-1"></a>    <span class="st">"220181"</span> <span class="ot">=</span> <span class="st">"NBPd"</span>,</span>
+<span id="cb95-9"><a href="#cb95-9" aria-hidden="true" tabindex="-1"></a>    <span class="st">"220179"</span> <span class="ot">=</span> <span class="st">"NBPs"</span>,</span>
 <span id="cb95-10"><a href="#cb95-10" aria-hidden="true" tabindex="-1"></a>    <span class="st">"220210"</span> <span class="ot">=</span> <span class="st">"RR"</span>,</span>
 <span id="cb95-11"><a href="#cb95-11" aria-hidden="true" tabindex="-1"></a>    <span class="st">"223761"</span> <span class="ot">=</span> <span class="st">"Temperature"</span></span>
 <span id="cb95-12"><a href="#cb95-12" aria-hidden="true" tabindex="-1"></a>  ))) <span class="sc">+</span> </span>
@@ -913,19 +1106,20 @@ Freeram:   124.133 MiB </code></pre>
 <span id="cb95-17"><a href="#cb95-17" aria-hidden="true" tabindex="-1"></a>    <span class="at">y =</span> <span class="st">""</span>,</span>
 <span id="cb95-18"><a href="#cb95-18" aria-hidden="true" tabindex="-1"></a>    <span class="at">color =</span> <span class="st">"Vital Type"</span></span>
 <span id="cb95-19"><a href="#cb95-19" aria-hidden="true" tabindex="-1"></a>  ) <span class="sc">+</span></span>
-<span id="cb95-20"><a href="#cb95-20" aria-hidden="true" tabindex="-1"></a>  <span class="fu">scale_x_datetime</span>(<span class="at">date_labels =</span> <span class="st">"%b %d %H:%M"</span>, <span class="at">date_breaks =</span> <span class="st">"8 hours"</span>) <span class="sc">+</span>  </span>
+<span id="cb95-20"><a href="#cb95-20" aria-hidden="true" tabindex="-1"></a>  <span class="fu">scale_x_datetime</span>(<span class="at">date_labels =</span> <span class="st">"%b %d %H:%M"</span>, <span class="at">date_breaks =</span> <span class="st">"6 hours"</span>) <span class="sc">+</span>  </span>
 <span id="cb95-21"><a href="#cb95-21" aria-hidden="true" tabindex="-1"></a>  <span class="fu">theme_minimal</span>() <span class="sc">+</span></span>
 <span id="cb95-22"><a href="#cb95-22" aria-hidden="true" tabindex="-1"></a>  <span class="fu">theme</span>(</span>
 <span id="cb95-23"><a href="#cb95-23" aria-hidden="true" tabindex="-1"></a>    <span class="at">strip.text.x =</span> <span class="fu">element_text</span>(<span class="at">size =</span> <span class="dv">14</span>, <span class="at">face =</span> <span class="st">"bold"</span>, <span class="at">color =</span> <span class="st">"white"</span>),</span>
 <span id="cb95-24"><a href="#cb95-24" aria-hidden="true" tabindex="-1"></a>    <span class="at">strip.text.y =</span> <span class="fu">element_text</span>(<span class="at">size =</span> <span class="dv">12</span>, <span class="at">face =</span> <span class="st">"bold"</span>),</span>
-<span id="cb95-25"><a href="#cb95-25" aria-hidden="true" tabindex="-1"></a>    <span class="at">strip.background =</span> <span class="fu">element_rect</span>(<span class="at">fill =</span> <span class="st">"grey50"</span>),</span>
+<span id="cb95-25"><a href="#cb95-25" aria-hidden="true" tabindex="-1"></a>    <span class="at">strip.background =</span> <span class="fu">element_rect</span>(<span class="at">fill =</span> <span class="st">"grey80"</span>),</span>
 <span id="cb95-26"><a href="#cb95-26" aria-hidden="true" tabindex="-1"></a>    <span class="at">panel.grid.major =</span> <span class="fu">element_line</span>(<span class="at">color =</span> <span class="st">"gray80"</span>),</span>
 <span id="cb95-27"><a href="#cb95-27" aria-hidden="true" tabindex="-1"></a>    <span class="at">panel.grid.minor =</span> <span class="fu">element_blank</span>(),</span>
 <span id="cb95-28"><a href="#cb95-28" aria-hidden="true" tabindex="-1"></a>    <span class="at">axis.text.x =</span> <span class="fu">element_text</span>(<span class="at">angle =</span> <span class="dv">45</span>, <span class="at">hjust =</span> <span class="dv">1</span>, <span class="at">size =</span> <span class="dv">10</span>),</span>
 <span id="cb95-29"><a href="#cb95-29" aria-hidden="true" tabindex="-1"></a>    <span class="at">axis.text.y =</span> <span class="fu">element_text</span>(<span class="at">size =</span> <span class="dv">10</span>),</span>
 <span id="cb95-30"><a href="#cb95-30" aria-hidden="true" tabindex="-1"></a>    <span class="at">legend.position =</span> <span class="st">"none"</span>,</span>
-<span id="cb95-31"><a href="#cb95-31" aria-hidden="true" tabindex="-1"></a>    <span class="at">plot.margin =</span> <span class="fu">margin</span>(<span class="dv">10</span>, <span class="dv">10</span>, <span class="dv">10</span>, <span class="dv">10</span>)</span>
-<span id="cb95-32"><a href="#cb95-32" aria-hidden="true" tabindex="-1"></a>  )</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<span id="cb95-31"><a href="#cb95-31" aria-hidden="true" tabindex="-1"></a>    <span class="at">plot.margin =</span> <span class="fu">margin</span>(<span class="dv">10</span>, <span class="dv">10</span>, <span class="dv">10</span>, <span class="dv">10</span>),</span>
+<span id="cb95-32"><a href="#cb95-32" aria-hidden="true" tabindex="-1"></a>    <span class="at">panel.border =</span> <span class="fu">element_rect</span>(<span class="at">color =</span> <span class="st">"grey50"</span>, <span class="at">fill =</span> <span class="cn">NA</span>, <span class="at">linewidth =</span> <span class="fl">1.5</span>)</span>
+<span id="cb95-33"><a href="#cb95-33" aria-hidden="true" tabindex="-1"></a>  )</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
 <div class="cell-output-display">
 <div>
 <figure class="figure">
@@ -1183,6 +1377,309 @@ Defaulting to continuous.</code></pre>
 <p><img src="HW3_files/figure-html/unnamed-chunk-55-1.png" class="img-fluid figure-img" width="672"></p>
 </figure>
 </div>
+</div>
+</div>
+</section>
+<section id="q4.1-ingestion" class="level2">
+<h2 class="anchored" data-anchor-id="q4.1-ingestion">Q4.1 Ingestion</h2>
+<p>Import patients.csv.gz (https://mimic.mit.edu/docs/iv/modules/hosp/patients/) as a tibble patients_tble.</p>
+<div class="cell">
+<div class="sourceCode cell-code" id="cb116"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb116-1"><a href="#cb116-1" aria-hidden="true" tabindex="-1"></a>patients_tble <span class="ot">&lt;-</span> patients <span class="sc">%&gt;%</span></span>
+<span id="cb116-2"><a href="#cb116-2" aria-hidden="true" tabindex="-1"></a>  <span class="fu">collect</span>() <span class="sc">%&gt;%</span>  <span class="co"># Pulls data into memory</span></span>
+<span id="cb116-3"><a href="#cb116-3" aria-hidden="true" tabindex="-1"></a>  <span class="fu">as_tibble</span>()</span>
+<span id="cb116-4"><a href="#cb116-4" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb116-5"><a href="#cb116-5" aria-hidden="true" tabindex="-1"></a><span class="fu">glimpse</span>(patients_tble)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="cell-output cell-output-stdout">
+<pre><code>Rows: 364,627
+Columns: 6
+$ subject_id        &lt;int&gt; 10000032, 10000048, 10000058, 10000068, 10000084, 10…
+$ gender            &lt;chr&gt; "F", "F", "F", "F", "M", "F", "M", "M", "F", "M", "F…
+$ anchor_age        &lt;int&gt; 52, 23, 33, 19, 72, 27, 25, 24, 48, 60, 59, 34, 20, …
+$ anchor_year       &lt;int&gt; 2180, 2126, 2168, 2160, 2160, 2136, 2163, 2154, 2174…
+$ anchor_year_group &lt;chr&gt; "2014 - 2016", "2008 - 2010", "2020 - 2022", "2008 -…
+$ dod               &lt;date&gt; 2180-09-09, NA, NA, NA, 2161-02-13, NA, NA, NA, NA,…</code></pre>
+</div>
+</div>
+</section>
+<section id="q4.2-summary-and-visualization" class="level2">
+<h2 class="anchored" data-anchor-id="q4.2-summary-and-visualization">Q4.2 Summary and visualization</h2>
+<p>Summarize variables gender and anchor_age by graphics, and explain any patterns you see.</p>
+<p><strong>Let us start by making a graph of of the variable gender first</strong></p>
+<p><strong>We have to make gender a factor since I get an error when I read it into ggplot</strong></p>
+<div class="cell">
+<div class="sourceCode cell-code" id="cb118"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb118-1"><a href="#cb118-1" aria-hidden="true" tabindex="-1"></a>patients_tble <span class="ot">&lt;-</span> patients_tble <span class="sc">%&gt;%</span></span>
+<span id="cb118-2"><a href="#cb118-2" aria-hidden="true" tabindex="-1"></a>  <span class="fu">mutate</span>(<span class="at">gender =</span> <span class="fu">as.factor</span>(gender))</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+</div>
+<p><strong>this will be making the graph</strong></p>
+<div class="cell">
+<div class="sourceCode cell-code" id="cb119"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb119-1"><a href="#cb119-1" aria-hidden="true" tabindex="-1"></a><span class="fu">ggplot</span>(patients_tble, <span class="fu">aes</span>(<span class="at">x =</span> gender)) <span class="sc">+</span></span>
+<span id="cb119-2"><a href="#cb119-2" aria-hidden="true" tabindex="-1"></a>  <span class="fu">geom_bar</span>(<span class="at">fill =</span> <span class="st">"steelblue"</span>) <span class="sc">+</span></span>
+<span id="cb119-3"><a href="#cb119-3" aria-hidden="true" tabindex="-1"></a>  <span class="fu">labs</span>(</span>
+<span id="cb119-4"><a href="#cb119-4" aria-hidden="true" tabindex="-1"></a>    <span class="at">title =</span> <span class="st">"Distribution of Patients by Gender"</span>,</span>
+<span id="cb119-5"><a href="#cb119-5" aria-hidden="true" tabindex="-1"></a>    <span class="at">x =</span> <span class="st">"Gender"</span>,</span>
+<span id="cb119-6"><a href="#cb119-6" aria-hidden="true" tabindex="-1"></a>    <span class="at">y =</span> <span class="st">"Number of Patients"</span></span>
+<span id="cb119-7"><a href="#cb119-7" aria-hidden="true" tabindex="-1"></a>  ) <span class="sc">+</span></span>
+<span id="cb119-8"><a href="#cb119-8" aria-hidden="true" tabindex="-1"></a>  <span class="fu">theme_minimal</span>()</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="cell-output-display">
+<div>
+<figure class="figure">
+<p><img src="HW3_files/figure-html/unnamed-chunk-58-1.png" class="img-fluid figure-img" width="672"></p>
+</figure>
+</div>
+</div>
+</div>
+<p><strong>It looks like most of the patients that show up identify as female for their gender. This makes sense considering that women have to go more to the doctors to check up on reproductive health and yearly screenings for cancer depending on their age</strong></p>
+<p><strong>Now we have to do it by age</strong></p>
+<div class="cell">
+<div class="sourceCode cell-code" id="cb120"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb120-1"><a href="#cb120-1" aria-hidden="true" tabindex="-1"></a><span class="fu">ggplot</span>(patients_tble, <span class="fu">aes</span>(<span class="at">x =</span> anchor_age)) <span class="sc">+</span></span>
+<span id="cb120-2"><a href="#cb120-2" aria-hidden="true" tabindex="-1"></a>  <span class="fu">geom_histogram</span>(<span class="at">fill =</span> <span class="st">"steelblue"</span>, <span class="at">bins =</span> <span class="dv">50</span>) <span class="sc">+</span></span>
+<span id="cb120-3"><a href="#cb120-3" aria-hidden="true" tabindex="-1"></a>  <span class="fu">labs</span>(</span>
+<span id="cb120-4"><a href="#cb120-4" aria-hidden="true" tabindex="-1"></a>    <span class="at">title =</span> <span class="st">"Distribution of Patients by Age"</span>,</span>
+<span id="cb120-5"><a href="#cb120-5" aria-hidden="true" tabindex="-1"></a>    <span class="at">x =</span> <span class="st">"Age"</span>,</span>
+<span id="cb120-6"><a href="#cb120-6" aria-hidden="true" tabindex="-1"></a>    <span class="at">y =</span> <span class="st">"Number of Patients"</span></span>
+<span id="cb120-7"><a href="#cb120-7" aria-hidden="true" tabindex="-1"></a>  ) <span class="sc">+</span></span>
+<span id="cb120-8"><a href="#cb120-8" aria-hidden="true" tabindex="-1"></a>  <span class="fu">coord_cartesian</span>(<span class="at">xlim =</span> <span class="fu">c</span>(<span class="dv">0</span>, <span class="dv">100</span>))<span class="sc">+</span></span>
+<span id="cb120-9"><a href="#cb120-9" aria-hidden="true" tabindex="-1"></a>  <span class="fu">theme_minimal</span>()</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="cell-output-display">
+<div>
+<figure class="figure">
+<p><img src="HW3_files/figure-html/unnamed-chunk-59-1.png" class="img-fluid figure-img" width="672"></p>
+</figure>
+</div>
+</div>
+</div>
+<p><strong>This data is indicative age-rounding, where either the patient or the practitioner rounds the age of the patient either up or down. There is also no data before about 20 years of age, and past 87.5 years of age. As we know, these ages or possible so these are not being reported</strong></p>
+</section>
+<section id="q5" class="level2">
+<h2 class="anchored" data-anchor-id="q5">Q5</h2>
+<p>labevents.csv.gz (https://mimic.mit.edu/docs/iv/modules/hosp/labevents/) contains all laboratory measurements for patients. The first 10 lines are</p>
+<div class="cell">
+<div class="sourceCode cell-code" id="cb121"><pre class="sourceCode bash code-with-copy"><code class="sourceCode bash"><span id="cb121-1"><a href="#cb121-1" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb121-2"><a href="#cb121-2" aria-hidden="true" tabindex="-1"></a><span class="fu">zcat</span> <span class="op">&lt;</span> ~/mimic/hosp/labevents.csv.gz <span class="kw">|</span> <span class="fu">head</span></span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="cell-output cell-output-stdout">
+<pre><code>labevent_id,subject_id,hadm_id,specimen_id,itemid,order_provider_id,charttime,storetime,value,valuenum,valueuom,ref_range_lower,ref_range_upper,flag,priority,comments
+1,10000032,,2704548,50931,P69FQC,2180-03-23 11:51:00,2180-03-23 15:56:00,___,95,mg/dL,70,100,,ROUTINE,"IF FASTING, 70-100 NORMAL, &gt;125 PROVISIONAL DIABETES."
+2,10000032,,36092842,51071,P69FQC,2180-03-23 11:51:00,2180-03-23 16:00:00,NEG,,,,,,ROUTINE,
+3,10000032,,36092842,51074,P69FQC,2180-03-23 11:51:00,2180-03-23 16:00:00,NEG,,,,,,ROUTINE,
+4,10000032,,36092842,51075,P69FQC,2180-03-23 11:51:00,2180-03-23 16:00:00,NEG,,,,,,ROUTINE,"BENZODIAZEPINE IMMUNOASSAY SCREEN DOES NOT DETECT SOME DRUGS,;INCLUDING LORAZEPAM, CLONAZEPAM, AND FLUNITRAZEPAM."
+5,10000032,,36092842,51079,P69FQC,2180-03-23 11:51:00,2180-03-23 16:00:00,NEG,,,,,,ROUTINE,
+6,10000032,,36092842,51087,P69FQC,2180-03-23 11:51:00,,,,,,,,ROUTINE,RANDOM.
+7,10000032,,36092842,51089,P69FQC,2180-03-23 11:51:00,2180-03-23 16:15:00,,,,,,,ROUTINE,PRESUMPTIVELY POSITIVE.
+8,10000032,,36092842,51090,P69FQC,2180-03-23 11:51:00,2180-03-23 16:00:00,NEG,,,,,,ROUTINE,METHADONE ASSAY DETECTS ONLY METHADONE (NOT OTHER OPIATES/OPIOIDS).
+9,10000032,,36092842,51092,P69FQC,2180-03-23 11:51:00,2180-03-23 16:00:00,NEG,,,,,,ROUTINE,"OPIATE IMMUNOASSAY SCREEN DOES NOT DETECT SYNTHETIC OPIOIDS;SUCH AS METHADONE, OXYCODONE, FENTANYL, BUPRENORPHINE, TRAMADOL,;NALOXONE, MEPERIDINE.  SEE ONLINE LAB MANUAL FOR DETAILS."</code></pre>
+</div>
+</div>
+<p>d_labitems.csv.gz (https://mimic.mit.edu/docs/iv/modules/hosp/d_labitems/) is the dictionary of lab measurements.</p>
+<div class="cell">
+<div class="sourceCode cell-code" id="cb123"><pre class="sourceCode bash code-with-copy"><code class="sourceCode bash"><span id="cb123-1"><a href="#cb123-1" aria-hidden="true" tabindex="-1"></a><span class="fu">zcat</span> <span class="op">&lt;</span> ~/mimic/hosp/d_labitems.csv.gz <span class="kw">|</span> <span class="fu">head</span></span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="cell-output cell-output-stdout">
+<pre><code>itemid,label,fluid,category
+50801,Alveolar-arterial Gradient,Blood,Blood Gas
+50802,Base Excess,Blood,Blood Gas
+50803,"Calculated Bicarbonate, Whole Blood",Blood,Blood Gas
+50804,Calculated Total CO2,Blood,Blood Gas
+50805,Carboxyhemoglobin,Blood,Blood Gas
+50806,"Chloride, Whole Blood",Blood,Blood Gas
+50808,Free Calcium,Blood,Blood Gas
+50809,Glucose,Blood,Blood Gas
+50810,"Hematocrit, Calculated",Blood,Blood Gas</code></pre>
+</div>
+</div>
+<p>We are interested in the lab measurements of creatinine (50912), potassium (50971), sodium (50983), chloride (50902), bicarbonate (50882), hematocrit (51221), white blood cell count (51301), and glucose (50931). Retrieve a subset of labevents.csv.gz that only containing these items for the patients in icustays_tble. Further restrict to the last available measurement (by storetime) before the ICU stay. The final labevents_tble should have one row per ICU stay and columns for each lab measurement.</p>
+<p><strong>First, let us create the labevents file</strong></p>
+<div class="cell">
+<div class="sourceCode cell-code" id="cb125"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb125-1"><a href="#cb125-1" aria-hidden="true" tabindex="-1"></a>labevents <span class="ot">&lt;-</span> arrow<span class="sc">::</span><span class="fu">open_dataset</span>(<span class="st">"~/mimic/hosp/labevents.csv"</span>, <span class="at">format =</span> <span class="st">"csv"</span>)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+</div>
+<p><strong>Now let us make it a parquet so we can make the directory after</strong></p>
+<div class="cell">
+<div class="sourceCode cell-code" id="cb126"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb126-1"><a href="#cb126-1" aria-hidden="true" tabindex="-1"></a>arrow<span class="sc">::</span><span class="fu">write_dataset</span>(labevents, <span class="at">path =</span> <span class="st">"~/mimic/hosp/labevents_pq"</span>, <span class="at">format =</span> <span class="st">"parquet"</span>)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+</div>
+<p><strong>Now I have to make a symbolic link to the labevents_pq</strong></p>
+<div class="cell">
+<div class="sourceCode cell-code" id="cb127"><pre class="sourceCode bash code-with-copy"><code class="sourceCode bash"><span id="cb127-1"><a href="#cb127-1" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb127-2"><a href="#cb127-2" aria-hidden="true" tabindex="-1"></a><span class="fu">ls</span> <span class="at">-l</span> labevents_pq</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="cell-output cell-output-stdout">
+<pre><code>lrwxr-xr-x@ 1 lukehodges  staff  56 Feb 18 13:44 labevents_pq -&gt; /Users/lukehodges/mimic/hosp/labevents_pq/part-0.parquet</code></pre>
+</div>
+</div>
+<div class="cell">
+<div class="sourceCode cell-code" id="cb129"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb129-1"><a href="#cb129-1" aria-hidden="true" tabindex="-1"></a>labevents_pq <span class="ot">&lt;-</span> arrow<span class="sc">::</span><span class="fu">open_dataset</span>(<span class="st">"~/mimic/hosp/labevents_pq"</span>, <span class="at">format =</span> <span class="st">"parquet"</span>)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+</div>
+<p><strong>Now let us filter for what we need and check to see if we did is correct</strong></p>
+<div class="cell">
+<div class="sourceCode cell-code" id="cb130"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb130-1"><a href="#cb130-1" aria-hidden="true" tabindex="-1"></a>labevents_pq.filtered <span class="ot">&lt;-</span> labevents_pq <span class="sc">%&gt;%</span></span>
+<span id="cb130-2"><a href="#cb130-2" aria-hidden="true" tabindex="-1"></a>  dplyr<span class="sc">::</span><span class="fu">select</span>(subject_id, storetime, itemid, charttime, valuenum) <span class="sc">%&gt;%</span></span>
+<span id="cb130-3"><a href="#cb130-3" aria-hidden="true" tabindex="-1"></a>  dplyr<span class="sc">::</span><span class="fu">filter</span>(itemid <span class="sc">%in%</span> <span class="fu">c</span>(<span class="dv">50912</span>, <span class="dv">50971</span>, <span class="dv">50983</span>, <span class="dv">50902</span>, <span class="dv">50882</span>, <span class="dv">51221</span>, <span class="dv">51301</span>, <span class="dv">50931</span>))</span>
+<span id="cb130-4"><a href="#cb130-4" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb130-5"><a href="#cb130-5" aria-hidden="true" tabindex="-1"></a>labevents_pq.filtered10 <span class="ot">&lt;-</span> labevents_pq.filtered <span class="sc">%&gt;%</span></span>
+<span id="cb130-6"><a href="#cb130-6" aria-hidden="true" tabindex="-1"></a>  <span class="fu">head</span>(<span class="dv">10</span>) <span class="sc">%&gt;%</span></span>
+<span id="cb130-7"><a href="#cb130-7" aria-hidden="true" tabindex="-1"></a>  <span class="fu">collect</span>()</span>
+<span id="cb130-8"><a href="#cb130-8" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb130-9"><a href="#cb130-9" aria-hidden="true" tabindex="-1"></a><span class="fu">print</span>(labevents_pq.filtered10)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="cell-output cell-output-stdout">
+<pre><code># A tibble: 10 × 5
+   subject_id storetime           itemid charttime           valuenum
+        &lt;int&gt; &lt;dttm&gt;               &lt;int&gt; &lt;dttm&gt;                 &lt;dbl&gt;
+ 1   10000032 2180-03-23 08:56:00  50931 2180-03-23 04:51:00     95  
+ 2   10000032 2180-03-23 09:40:00  50882 2180-03-23 04:51:00     27  
+ 3   10000032 2180-03-23 09:40:00  50902 2180-03-23 04:51:00    101  
+ 4   10000032 2180-03-23 09:40:00  50912 2180-03-23 04:51:00      0.4
+ 5   10000032 2180-03-23 09:40:00  50971 2180-03-23 04:51:00      3.7
+ 6   10000032 2180-03-23 09:40:00  50983 2180-03-23 04:51:00    136  
+ 7   10000032 2180-03-23 08:19:00  51221 2180-03-23 04:51:00     45.4
+ 8   10000032 2180-03-23 08:19:00  51301 2180-03-23 04:51:00      3  
+ 9   10000032 2180-05-06 15:42:00  51221 2180-05-06 15:25:00     42.6
+10   10000032 2180-05-06 15:42:00  51301 2180-05-06 15:25:00      5  </code></pre>
+</div>
+</div>
+<p><strong>Now we have to change the subject_id to an integer so that we can join it with the icustays_tble</strong></p>
+<div class="cell">
+<div class="sourceCode cell-code" id="cb132"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb132-1"><a href="#cb132-1" aria-hidden="true" tabindex="-1"></a>icustays_tble <span class="ot">&lt;-</span> icustays_tble <span class="sc">%&gt;%</span></span>
+<span id="cb132-2"><a href="#cb132-2" aria-hidden="true" tabindex="-1"></a>  <span class="fu">mutate</span>(<span class="at">subject_id =</span> <span class="fu">as.integer</span>(subject_id))</span>
+<span id="cb132-3"><a href="#cb132-3" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb132-4"><a href="#cb132-4" aria-hidden="true" tabindex="-1"></a>icustays_tble10 <span class="ot">&lt;-</span> icustays_tble <span class="sc">%&gt;%</span></span>
+<span id="cb132-5"><a href="#cb132-5" aria-hidden="true" tabindex="-1"></a>  <span class="fu">head</span>(<span class="dv">10</span>) <span class="sc">%&gt;%</span></span>
+<span id="cb132-6"><a href="#cb132-6" aria-hidden="true" tabindex="-1"></a>  <span class="fu">collect</span>()</span>
+<span id="cb132-7"><a href="#cb132-7" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb132-8"><a href="#cb132-8" aria-hidden="true" tabindex="-1"></a><span class="fu">print</span>(icustays_tble10)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="cell-output cell-output-stdout">
+<pre><code># A tibble: 10 × 8
+   subject_id  hadm_id  stay_id first_careunit last_careunit intime             
+        &lt;int&gt;    &lt;int&gt;    &lt;int&gt; &lt;chr&gt;          &lt;chr&gt;         &lt;dttm&gt;             
+ 1   10000032 29079034 39553978 Medical Inten… Medical Inte… 2180-07-23 07:00:00
+ 2   10000690 25860671 37081114 Medical Inten… Medical Inte… 2150-11-02 11:37:00
+ 3   10000980 26913865 39765666 Medical Inten… Medical Inte… 2189-06-27 01:42:00
+ 4   10001217 24597018 37067082 Surgical Inte… Surgical Int… 2157-11-20 11:18:02
+ 5   10001217 27703517 34592300 Surgical Inte… Surgical Int… 2157-12-19 07:42:24
+ 6   10001725 25563031 31205490 Medical/Surgi… Medical/Surg… 2110-04-11 08:52:22
+ 7   10001843 26133978 39698942 Medical/Surgi… Medical/Surg… 2134-12-05 10:50:03
+ 8   10001884 26184834 37510196 Medical Inten… Medical Inte… 2131-01-10 20:20:05
+ 9   10002013 23581541 39060235 Cardiac Vascu… Cardiac Vasc… 2160-05-18 03:00:53
+10   10002114 27793700 34672098 Coronary Care… Coronary Car… 2162-02-17 15:30:00
+# ℹ 2 more variables: outtime &lt;dttm&gt;, los &lt;dbl&gt;</code></pre>
+</div>
+</div>
+<p><strong>We now have to load the data into R and the do an inner_join. Note that an inner_join was used because a left_join took about 30 minutes to do</strong></p>
+<div class="cell">
+<div class="sourceCode cell-code" id="cb134"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb134-1"><a href="#cb134-1" aria-hidden="true" tabindex="-1"></a>labevents_pq.filtered.icu <span class="ot">&lt;-</span> labevents_pq.filtered <span class="sc">%&gt;%</span></span>
+<span id="cb134-2"><a href="#cb134-2" aria-hidden="true" tabindex="-1"></a>  <span class="fu">collect</span>() <span class="sc">%&gt;%</span></span>
+<span id="cb134-3"><a href="#cb134-3" aria-hidden="true" tabindex="-1"></a>  <span class="fu">left_join</span>(icustays_tble, <span class="at">by =</span> <span class="fu">c</span>(<span class="st">"subject_id"</span>))</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="cell-output cell-output-stderr">
+<pre><code>Warning in left_join(., icustays_tble, by = c("subject_id")): Detected an unexpected many-to-many relationship between `x` and `y`.
+ℹ Row 3958 of `x` matches multiple rows in `y`.
+ℹ Row 1 of `y` matches multiple rows in `x`.
+ℹ If a many-to-many relationship is expected, set `relationship =
+  "many-to-many"` to silence this warning.</code></pre>
+</div>
+</div>
+<p><strong>Let us view the table to see if we are all set so far</strong></p>
+<div class="cell">
+<div class="sourceCode cell-code" id="cb136"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb136-1"><a href="#cb136-1" aria-hidden="true" tabindex="-1"></a>labevents_pq.filtered.icu10 <span class="ot">&lt;-</span> labevents_pq.filtered.icu <span class="sc">%&gt;%</span></span>
+<span id="cb136-2"><a href="#cb136-2" aria-hidden="true" tabindex="-1"></a>  <span class="fu">head</span>(<span class="dv">10</span>) <span class="sc">%&gt;%</span></span>
+<span id="cb136-3"><a href="#cb136-3" aria-hidden="true" tabindex="-1"></a>  <span class="fu">collect</span>()</span>
+<span id="cb136-4"><a href="#cb136-4" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb136-5"><a href="#cb136-5" aria-hidden="true" tabindex="-1"></a><span class="fu">print</span>(labevents_pq.filtered.icu10)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="cell-output cell-output-stdout">
+<pre><code># A tibble: 10 × 12
+   subject_id storetime           itemid charttime           valuenum  hadm_id
+        &lt;int&gt; &lt;dttm&gt;               &lt;int&gt; &lt;dttm&gt;                 &lt;dbl&gt;    &lt;int&gt;
+ 1   10000032 2180-03-23 08:56:00  50931 2180-03-23 04:51:00     95   29079034
+ 2   10000032 2180-03-23 09:40:00  50882 2180-03-23 04:51:00     27   29079034
+ 3   10000032 2180-03-23 09:40:00  50902 2180-03-23 04:51:00    101   29079034
+ 4   10000032 2180-03-23 09:40:00  50912 2180-03-23 04:51:00      0.4 29079034
+ 5   10000032 2180-03-23 09:40:00  50971 2180-03-23 04:51:00      3.7 29079034
+ 6   10000032 2180-03-23 09:40:00  50983 2180-03-23 04:51:00    136   29079034
+ 7   10000032 2180-03-23 08:19:00  51221 2180-03-23 04:51:00     45.4 29079034
+ 8   10000032 2180-03-23 08:19:00  51301 2180-03-23 04:51:00      3   29079034
+ 9   10000032 2180-05-06 15:42:00  51221 2180-05-06 15:25:00     42.6 29079034
+10   10000032 2180-05-06 15:42:00  51301 2180-05-06 15:25:00      5   29079034
+# ℹ 6 more variables: stay_id &lt;int&gt;, first_careunit &lt;chr&gt;, last_careunit &lt;chr&gt;,
+#   intime &lt;dttm&gt;, outtime &lt;dttm&gt;, los &lt;dbl&gt;</code></pre>
+</div>
+</div>
+<p><strong>We need to filter it for the charttime less than the intime and then group it by the three important variables: subject_id, stay_id, and itemid. We then have to slice it per the instructions of Dr.&nbsp;Zhou in the slack and from what we saw in class, and then ungroup it after</strong></p>
+<div class="cell">
+<div class="sourceCode cell-code" id="cb138"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb138-1"><a href="#cb138-1" aria-hidden="true" tabindex="-1"></a>labevents_pq.filtered.icu <span class="ot">&lt;-</span> labevents_pq.filtered.icu <span class="sc">%&gt;%</span></span>
+<span id="cb138-2"><a href="#cb138-2" aria-hidden="true" tabindex="-1"></a>  <span class="fu">filter</span>(storetime <span class="sc">&lt;</span> intime) <span class="sc">%&gt;%</span></span>
+<span id="cb138-3"><a href="#cb138-3" aria-hidden="true" tabindex="-1"></a>  <span class="fu">group_by</span>(subject_id, stay_id, itemid) <span class="sc">%&gt;%</span></span>
+<span id="cb138-4"><a href="#cb138-4" aria-hidden="true" tabindex="-1"></a>  <span class="fu">slice_max</span>(<span class="at">order_by =</span> storetime, <span class="at">n =</span> <span class="dv">1</span>) <span class="sc">%&gt;%</span> </span>
+<span id="cb138-5"><a href="#cb138-5" aria-hidden="true" tabindex="-1"></a>  <span class="fu">ungroup</span>()</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+</div>
+<p><strong>Making the column names wide version</strong></p>
+<div class="cell">
+<div class="sourceCode cell-code" id="cb139"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb139-1"><a href="#cb139-1" aria-hidden="true" tabindex="-1"></a>labevents_tble <span class="ot">&lt;-</span> labevents_pq.filtered.icu <span class="sc">%&gt;%</span></span>
+<span id="cb139-2"><a href="#cb139-2" aria-hidden="true" tabindex="-1"></a>  <span class="fu">select</span>(subject_id, stay_id, itemid, valuenum) <span class="sc">%&gt;%</span></span>
+<span id="cb139-3"><a href="#cb139-3" aria-hidden="true" tabindex="-1"></a>  <span class="fu">pivot_wider</span>(<span class="at">names_from =</span> itemid, <span class="at">values_from =</span> valuenum)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="cell-output cell-output-stderr">
+<pre><code>Warning: Values from `valuenum` are not uniquely identified; output will contain
+list-cols.
+• Use `values_fn = list` to suppress this warning.
+• Use `values_fn = {summary_fun}` to summarise duplicates.
+• Use the following dplyr code to identify duplicates.
+  {data} |&gt;
+  dplyr::summarise(n = dplyr::n(), .by = c(subject_id, stay_id, itemid)) |&gt;
+  dplyr::filter(n &gt; 1L)</code></pre>
+</div>
+<div class="sourceCode cell-code" id="cb141"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb141-1"><a href="#cb141-1" aria-hidden="true" tabindex="-1"></a>labevents_tble</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="cell-output cell-output-stdout">
+<pre><code># A tibble: 88,086 × 10
+   subject_id  stay_id `50882`   `50902` `50912` `50931` `50971` `50983` `51221`
+        &lt;int&gt;    &lt;int&gt; &lt;list&gt;    &lt;list&gt;  &lt;list&gt;  &lt;list&gt;  &lt;list&gt;  &lt;list&gt;  &lt;list&gt; 
+ 1   10000032 39553978 &lt;dbl [1]&gt; &lt;dbl&gt;   &lt;dbl&gt;   &lt;dbl&gt;   &lt;dbl&gt;   &lt;dbl&gt;   &lt;dbl&gt;  
+ 2   10000690 37081114 &lt;dbl [1]&gt; &lt;dbl&gt;   &lt;dbl&gt;   &lt;dbl&gt;   &lt;dbl&gt;   &lt;dbl&gt;   &lt;dbl&gt;  
+ 3   10000980 39765666 &lt;dbl [1]&gt; &lt;dbl&gt;   &lt;dbl&gt;   &lt;dbl&gt;   &lt;dbl&gt;   &lt;dbl&gt;   &lt;dbl&gt;  
+ 4   10001217 34592300 &lt;dbl [1]&gt; &lt;dbl&gt;   &lt;dbl&gt;   &lt;dbl&gt;   &lt;dbl&gt;   &lt;dbl&gt;   &lt;dbl&gt;  
+ 5   10001217 37067082 &lt;dbl [1]&gt; &lt;dbl&gt;   &lt;dbl&gt;   &lt;dbl&gt;   &lt;dbl&gt;   &lt;dbl&gt;   &lt;dbl&gt;  
+ 6   10001725 31205490 &lt;NULL&gt;    &lt;dbl&gt;   &lt;NULL&gt;  &lt;NULL&gt;  &lt;dbl&gt;   &lt;dbl&gt;   &lt;NULL&gt; 
+ 7   10001843 39698942 &lt;dbl [1]&gt; &lt;dbl&gt;   &lt;dbl&gt;   &lt;dbl&gt;   &lt;dbl&gt;   &lt;dbl&gt;   &lt;dbl&gt;  
+ 8   10001884 37510196 &lt;dbl [1]&gt; &lt;dbl&gt;   &lt;dbl&gt;   &lt;dbl&gt;   &lt;dbl&gt;   &lt;dbl&gt;   &lt;dbl&gt;  
+ 9   10002013 39060235 &lt;dbl [1]&gt; &lt;dbl&gt;   &lt;dbl&gt;   &lt;dbl&gt;   &lt;dbl&gt;   &lt;dbl&gt;   &lt;dbl&gt;  
+10   10002114 34672098 &lt;dbl [1]&gt; &lt;dbl&gt;   &lt;dbl&gt;   &lt;dbl&gt;   &lt;dbl&gt;   &lt;dbl&gt;   &lt;dbl&gt;  
+# ℹ 88,076 more rows
+# ℹ 1 more variable: `51301` &lt;list&gt;</code></pre>
+</div>
+</div>
+<p><strong>Turn the data into the correct format</strong></p>
+<div class="cell">
+<div class="sourceCode cell-code" id="cb143"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb143-1"><a href="#cb143-1" aria-hidden="true" tabindex="-1"></a>labevents_tble <span class="ot">&lt;-</span> labevents_tble <span class="sc">%&gt;%</span></span>
+<span id="cb143-2"><a href="#cb143-2" aria-hidden="true" tabindex="-1"></a>  <span class="fu">mutate</span>(<span class="fu">across</span>(<span class="fu">where</span>(is.list), <span class="sc">~</span> <span class="fu">map_dbl</span>(.x, <span class="sc">~</span> <span class="fu">ifelse</span>(<span class="fu">is.null</span>(.x), <span class="cn">NA</span>, .x))))</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+</div>
+<p><strong>renaming the variables</strong></p>
+<div class="cell">
+<div class="sourceCode cell-code" id="cb144"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb144-1"><a href="#cb144-1" aria-hidden="true" tabindex="-1"></a>column_names <span class="ot">&lt;-</span> <span class="fu">c</span>(</span>
+<span id="cb144-2"><a href="#cb144-2" aria-hidden="true" tabindex="-1"></a>  <span class="st">"50882"</span> <span class="ot">=</span> <span class="st">"Bicarbonate"</span>,</span>
+<span id="cb144-3"><a href="#cb144-3" aria-hidden="true" tabindex="-1"></a>  <span class="st">"50902"</span> <span class="ot">=</span> <span class="st">"Chloride"</span>,</span>
+<span id="cb144-4"><a href="#cb144-4" aria-hidden="true" tabindex="-1"></a>  <span class="st">"50912"</span> <span class="ot">=</span> <span class="st">"Creatinine"</span>,</span>
+<span id="cb144-5"><a href="#cb144-5" aria-hidden="true" tabindex="-1"></a>  <span class="st">"50931"</span> <span class="ot">=</span> <span class="st">"Glucose"</span>,</span>
+<span id="cb144-6"><a href="#cb144-6" aria-hidden="true" tabindex="-1"></a>  <span class="st">"50971"</span> <span class="ot">=</span> <span class="st">"Potassium"</span>,</span>
+<span id="cb144-7"><a href="#cb144-7" aria-hidden="true" tabindex="-1"></a>  <span class="st">"50983"</span> <span class="ot">=</span> <span class="st">"Sodium"</span>,</span>
+<span id="cb144-8"><a href="#cb144-8" aria-hidden="true" tabindex="-1"></a>  <span class="st">"51221"</span> <span class="ot">=</span> <span class="st">"Hematocrit"</span>,</span>
+<span id="cb144-9"><a href="#cb144-9" aria-hidden="true" tabindex="-1"></a>  <span class="st">"51301"</span> <span class="ot">=</span> <span class="st">"WBC"</span></span>
+<span id="cb144-10"><a href="#cb144-10" aria-hidden="true" tabindex="-1"></a>)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+</div>
+<div class="cell">
+<div class="sourceCode cell-code" id="cb145"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb145-1"><a href="#cb145-1" aria-hidden="true" tabindex="-1"></a>labevents_tble <span class="ot">&lt;-</span> labevents_tble <span class="sc">%&gt;%</span></span>
+<span id="cb145-2"><a href="#cb145-2" aria-hidden="true" tabindex="-1"></a>  <span class="fu">rename_with</span>(<span class="sc">~</span> column_names[.x], <span class="at">.cols =</span> <span class="fu">names</span>(column_names))</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+</div>
+<p><strong>Viewing the table</strong></p>
+<div class="cell">
+<div class="sourceCode cell-code" id="cb146"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb146-1"><a href="#cb146-1" aria-hidden="true" tabindex="-1"></a>labevents_tble</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="cell-output cell-output-stdout">
+<pre><code># A tibble: 88,086 × 10
+   subject_id  stay_id Bicarbonate Chloride Creatinine Glucose Potassium Sodium
+        &lt;int&gt;    &lt;int&gt;       &lt;dbl&gt;    &lt;dbl&gt;      &lt;dbl&gt;   &lt;dbl&gt;     &lt;dbl&gt;  &lt;dbl&gt;
+ 1   10000032 39553978          25       95        0.7     102       6.7    126
+ 2   10000690 37081114          26      100        1        85       4.8    137
+ 3   10000980 39765666          21      109        2.3      89       3.9    144
+ 4   10001217 34592300          30      104        0.5      87       4.1    142
+ 5   10001217 37067082          22      108        0.6     112       4.2    142
+ 6   10001725 31205490          NA       98       NA        NA       4.1    139
+ 7   10001843 39698942          28       97        1.3     131       3.9    138
+ 8   10001884 37510196          30       88        1.1     141       4.5    130
+ 9   10002013 39060235          24      102        0.9     288       3.5    137
+10   10002114 34672098          18       NA        3.1      95       6.5    125
+# ℹ 88,076 more rows
+# ℹ 2 more variables: Hematocrit &lt;dbl&gt;, WBC &lt;dbl&gt;</code></pre>
 </div>
 </div>
 </section>
