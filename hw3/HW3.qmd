@@ -509,7 +509,7 @@ chartevents.filtered.arrow10 <- chartevents.filtered.arrow %>%
   head(10) %>%
   collect()
 
-print(chartevents.filtered.arrow)
+print(chartevents.filtered.arrow10)
 ```
 ```{r}
 stay_ranges <- chartevents.filtered.arrow %>%
@@ -927,3 +927,200 @@ labevents_tble <- labevents_tble %>%
 labevents_tble
 ```
 
+
+## Q6
+
+chartevents.csv.gz (https://mimic.mit.edu/docs/iv/modules/icu/chartevents/) contains all the charted data available for a patient. During their ICU stay, the primary repository of a patient’s information is their electronic chart. The itemid variable indicates a single measurement type in the database. The value variable is the value measured for itemid. The first 10 lines of chartevents.csv.gz are
+
+**Looking at the first few lines of the chartevents.csv.gz**
+
+```{bash}
+
+zcat < ~/mimic/icu/chartevents.csv.gz | head
+
+```
+d_items.csv.gz (https://mimic.mit.edu/docs/iv/modules/icu/d_items/) is the dictionary for the itemid in chartevents.csv.gz.
+
+**Looking into the first few lines of the d_items.csv.gz file**
+
+```{bash}
+
+zcat < ~/mimic/icu/d_items.csv.gz | head
+
+```
+
+We are interested in the vitals for ICU patients: heart rate (220045), systolic non-invasive blood pressure (220179), diastolic non-invasive blood pressure (220180), body temperature in Fahrenheit (223761), and respiratory rate (220210). Retrieve a subset of chartevents.csv.gz only containing these items for the patients in icustays_tble. Further restrict to the first vital measurement within the ICU stay. The final chartevents_tble should have one row per ICU stay and columns for each vital measurement.
+
+**Let us create the chartevents file, write it as a parquet, and then create a symbolic link to it**
+
+```{r}
+
+chartevents6 <- arrow::open_dataset("~/mimic/icu/chartevents.csv", format = "csv")
+
+```
+
+```{r}
+#| eval: false
+
+arrow::write_dataset(chartevents6, path = "~/mimic/hosp/chartevents_pq", format = "parquet")
+
+```
+
+**Now I have to make a symbolic link to the chartevents_pq**
+
+```{bash}
+#| eval: false
+
+ln -s ~/mimic/hosp/chartevents_pq/part-0.parquet chartevents_pq
+
+```
+
+**Now I have to make sure that it exists**
+
+```{bash}
+
+ls -l chartevents_pq
+
+```
+
+**Turning chartevents into a parquet**
+
+```{r}
+
+chartevents6 <- arrow::open_dataset("~/mimic/hosp/chartevents_pq", format = "parquet")
+
+```
+
+**Now, let us filter for the required itemid values and then display the first ten lines of the needed tables**
+
+```{r}
+chartevents_filtered <- chartevents6 %>%
+  dplyr::select(subject_id, itemid, charttime, valuenum, stay_id, storetime) %>%
+  dplyr::filter(itemid %in% c(220045, 220179, 220180, 223761, 220210))
+
+chartevents_filtered10 <- chartevents_filtered %>%
+  head(10) %>%
+  collect()
+
+print(chartevents_filtered10)
+
+icustays_tble10 <- icustays_tble %>%
+  head(10) %>%
+  collect()
+
+print(icustays_tble10)
+
+```
+**Make the subject_ids in the icustays_tble into an integer as I did in Q5 and then make sure it worked**
+
+```{r}
+icustays_tble <- icustays_tble %>%
+  mutate(subject_id = as.integer(subject_id))
+
+icustays_tble10 <- icustays_tble %>%
+  head(10) %>%
+  collect()
+
+print(icustays_tble10)
+```
+**Conduct an inner_join of the values from the "subject_id", "stay_id", and the "hadm_id". Hadm_id was used to avoid two **
+
+```{r}
+chartevents_icu <- chartevents_filtered %>%
+  collect() %>%
+  left_join(icustays_tble, by = c("subject_id", "stay_id"))
+```
+
+**View the data table created**
+
+```{r}
+chartevents_icu
+
+```
+
+**We need to arrange the values, then group them, and then get the first vital measurement (by storetime) within the ICU stay.**
+```{r}
+chartevents_icu_first <- chartevents_icu %>%
+  arrange(subject_id, stay_id, itemid, storetime) 
+
+chartevents_icu_second <- chartevents_icu_first %>%
+  group_by(subject_id, stay_id, itemid, storetime) %>%
+  summarise(valuenum = mean(valuenum, na.rm = TRUE), .groups = "drop") %>%  
+  group_by(subject_id, stay_id, itemid) %>% 
+  slice(1) %>%  
+  ungroup()
+
+chartevents_icu_second
+  
+```
+
+```{r}
+chartevents_pivot <- chartevents_icu_second %>%
+  select(subject_id, stay_id, itemid, valuenum) %>%
+  pivot_wider(names_from = itemid, values_from = valuenum)
+
+chartevents_pivot
+
+```
+**Changing the column names to be more exact**
+
+```{r}
+chartevents_pivot <- chartevents_pivot %>%
+  rename(
+    Heart_Rate = "220045",
+    SysBP = "220179",
+    DiaBP = "220180",
+    Temp = "223761",
+    Respiratory_Rate = "220210"
+  )
+
+chartevents_pivot
+```
+
+##Q7
+
+**Everything is read in. We now have to make the table**
+
+```{r}
+
+icu_adults <- icustays_tble %>%
+  inner_join(admissions_tble, by = c("subject_id", "hadm_id")) %>%
+  inner_join(patients_tble, by = "subject_id") %>%
+  filter(anchor_age >= 18)  # Use anchor_age instead of calculating from dob
+
+names(icu_adults)
+
+```
+
+**We have successfully merge it with admissions_tble, patients_tble, but now we need to do so by labevents_tble and chartevents_pivot**
+
+```{r}
+
+labevents_tble <- labevents_tble %>%
+  select(subject_id, stay_id, Creatinine, Potassium, Sodium, Chloride, Bicarbonate, Hematocrit, WBC, Glucose)
+
+glimpse(labevents_tble)
+
+```
+
+```{r}
+  
+chartevents_pivot <- chartevents_pivot %>%
+  select(subject_id, stay_id, Heart_Rate, SysBP, DiaBP, Respiratory_Rate, Temp)
+
+glimpse(chartevents_pivot)
+
+```
+
+**Now that we have modified the tables, we need to merge them**
+
+```{r}
+
+mimic_icu_cohort <- icu_adults %>%
+  left_join(labevents_tble, by = c("subject_id", "stay_id")) %>%
+  left_join(chartevents_pivot, by = c("subject_id", "stay_id"))
+
+print(mimic_icu_cohort)
+
+```
+**This is the table as seen in the diagram**
