@@ -217,7 +217,7 @@ Attaching package: 'R.utils'</code></pre>
 <div class="sourceCode cell-code" id="cb23"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb23-1"><a href="#cb23-1" aria-hidden="true" tabindex="-1"></a>memuse<span class="sc">::</span><span class="fu">Sys.meminfo</span>()</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
 <div class="cell-output cell-output-stdout">
 <pre><code>Totalram:  32.000 GiB 
-Freeram:   16.922 GiB </code></pre>
+Freeram:   25.430 MiB </code></pre>
 </div>
 </div>
 <p>In this exercise, we use tidyverse (ggplot2, dplyr, etc) to explore the MIMIC-IV data introduced in homework 1 and to build a cohort of ICU stays.</p>
@@ -715,7 +715,7 @@ Freeram:   16.922 GiB </code></pre>
 <div class="sourceCode cell-code" id="cb68"><pre class="sourceCode bash code-with-copy"><code class="sourceCode bash"><span id="cb68-1"><a href="#cb68-1" aria-hidden="true" tabindex="-1"></a></span>
 <span id="cb68-2"><a href="#cb68-2" aria-hidden="true" tabindex="-1"></a><span class="fu">ls</span> <span class="at">-l</span> ~/mimic/icu/chartevents.csv</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
 <div class="cell-output cell-output-stdout">
-<pre><code>-rw-r--r--@ 1 lukehodges  staff  41935806083 Feb 18 21:49 /Users/lukehodges/mimic/icu/chartevents.csv</code></pre>
+<pre><code>-rw-r--r--@ 1 lukehodges  staff  41935806083 Feb 18 23:38 /Users/lukehodges/mimic/icu/chartevents.csv</code></pre>
 </div>
 </div>
 <p><strong>We can now open the data set</strong></p>
@@ -1312,16 +1312,16 @@ $ dod               &lt;date&gt; 2180-09-09, NA, NA, NA, 2161-02-13, NA, NA, NA,
 <pre><code># A tibble: 10 × 5
    subject_id storetime           itemid charttime           valuenum
         &lt;int&gt; &lt;dttm&gt;               &lt;int&gt; &lt;dttm&gt;                 &lt;dbl&gt;
- 1   10000980 2191-05-23 03:53:00  51301 2191-05-23 03:20:00      4.6
- 2   10000980 2191-05-24 01:27:00  50882 2191-05-23 22:45:00     25  
- 3   10000980 2191-05-24 01:27:00  50902 2191-05-23 22:45:00    108  
- 4   10000980 2191-05-24 01:27:00  50912 2191-05-23 22:45:00      2.1
- 5   10000980 2191-05-24 01:27:00  50931 2191-05-23 22:45:00    116  
- 6   10000980 2191-05-24 01:27:00  50971 2191-05-23 22:45:00      4  
- 7   10000980 2191-05-24 01:27:00  50983 2191-05-23 22:45:00    144  
- 8   10000980 2191-05-24 01:12:00  51221 2191-05-23 22:45:00     28  
- 9   10000980 2191-05-24 01:12:00  51301 2191-05-23 22:45:00      3.4
-10   10000980 2191-05-30 06:19:00  51221 2191-05-30 05:40:00     28.8</code></pre>
+ 1   10000032 2180-03-23 08:56:00  50931 2180-03-23 04:51:00     95  
+ 2   10000032 2180-03-23 09:40:00  50882 2180-03-23 04:51:00     27  
+ 3   10000032 2180-03-23 09:40:00  50902 2180-03-23 04:51:00    101  
+ 4   10000032 2180-03-23 09:40:00  50912 2180-03-23 04:51:00      0.4
+ 5   10000032 2180-03-23 09:40:00  50971 2180-03-23 04:51:00      3.7
+ 6   10000032 2180-03-23 09:40:00  50983 2180-03-23 04:51:00    136  
+ 7   10000032 2180-03-23 08:19:00  51221 2180-03-23 04:51:00     45.4
+ 8   10000032 2180-03-23 08:19:00  51301 2180-03-23 04:51:00      3  
+ 9   10000032 2180-05-06 15:42:00  51221 2180-05-06 15:25:00     42.6
+10   10000032 2180-05-06 15:42:00  51301 2180-05-06 15:25:00      5  </code></pre>
 </div>
 </div>
 <p><strong>Now we have to change the subject_id to an integer so that we can join it with the icustays_tble</strong></p>
@@ -1552,16 +1552,16 @@ list-cols.
 <pre><code># A tibble: 10 × 6
    subject_id itemid charttime           valuenum  stay_id storetime          
         &lt;int&gt;  &lt;int&gt; &lt;dttm&gt;                 &lt;dbl&gt;    &lt;int&gt; &lt;dttm&gt;             
- 1   10000032 223761 2180-07-23 07:00:00     98.7 39553978 2180-07-23 07:20:00
- 2   10000032 220179 2180-07-23 07:11:00     84   39553978 2180-07-23 07:17:00
- 3   10000032 220180 2180-07-23 07:11:00     48   39553978 2180-07-23 07:17:00
- 4   10000032 220045 2180-07-23 07:12:00     91   39553978 2180-07-23 07:17:00
- 5   10000032 220210 2180-07-23 07:12:00     24   39553978 2180-07-23 07:17:00
- 6   10000032 220045 2180-07-23 07:30:00     93   39553978 2180-07-23 07:43:00
- 7   10000032 220179 2180-07-23 07:30:00     95   39553978 2180-07-23 07:43:00
- 8   10000032 220180 2180-07-23 07:30:00     59   39553978 2180-07-23 07:43:00
- 9   10000032 220210 2180-07-23 07:30:00     21   39553978 2180-07-23 07:43:00
-10   10000032 220045 2180-07-23 08:00:00     94   39553978 2180-07-23 08:34:00</code></pre>
+ 1   10001884 220045 2131-01-14 23:00:00     74   37510196 2131-01-15 00:32:00
+ 2   10001884 220210 2131-01-14 23:00:00     26   37510196 2131-01-15 00:32:00
+ 3   10001884 220179 2131-01-14 23:01:00    122   37510196 2131-01-15 00:32:00
+ 4   10001884 220180 2131-01-14 23:01:00     79   37510196 2131-01-15 00:32:00
+ 5   10001884 220045 2131-01-15 00:00:00     74   37510196 2131-01-15 00:32:00
+ 6   10001884 220210 2131-01-15 00:00:00     25   37510196 2131-01-15 00:32:00
+ 7   10001884 223761 2131-01-15 00:00:00     99.5 37510196 2131-01-15 00:32:00
+ 8   10001884 220179 2131-01-15 00:01:00    121   37510196 2131-01-15 00:32:00
+ 9   10001884 220180 2131-01-15 00:01:00     74   37510196 2131-01-15 00:32:00
+10   10001884 220045 2131-01-15 01:00:00     70   37510196 2131-01-15 01:10:00</code></pre>
 </div>
 <div class="sourceCode cell-code" id="cb160"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb160-1"><a href="#cb160-1" aria-hidden="true" tabindex="-1"></a>icustays_tble10 <span class="ot">&lt;-</span> icustays_tble <span class="sc">%&gt;%</span></span>
 <span id="cb160-2"><a href="#cb160-2" aria-hidden="true" tabindex="-1"></a>  <span class="fu">head</span>(<span class="dv">10</span>) <span class="sc">%&gt;%</span></span>
@@ -1616,13 +1616,14 @@ list-cols.
 <div class="cell">
 <div class="sourceCode cell-code" id="cb164"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb164-1"><a href="#cb164-1" aria-hidden="true" tabindex="-1"></a>chartevents_icu <span class="ot">&lt;-</span> chartevents_filtered <span class="sc">%&gt;%</span></span>
 <span id="cb164-2"><a href="#cb164-2" aria-hidden="true" tabindex="-1"></a>  <span class="fu">collect</span>() <span class="sc">%&gt;%</span></span>
-<span id="cb164-3"><a href="#cb164-3" aria-hidden="true" tabindex="-1"></a>  <span class="fu">left_join</span>(icustays_tble, <span class="at">by =</span> <span class="fu">c</span>(<span class="st">"subject_id"</span>, <span class="st">"stay_id"</span>))</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<span id="cb164-3"><a href="#cb164-3" aria-hidden="true" tabindex="-1"></a>  <span class="fu">left_join</span>(icustays_tble, <span class="at">by =</span> <span class="fu">c</span>(<span class="st">"subject_id"</span>, <span class="st">"stay_id"</span>)) <span class="sc">%&gt;%</span></span>
+<span id="cb164-4"><a href="#cb164-4" aria-hidden="true" tabindex="-1"></a>  <span class="fu">filter</span>(storetime <span class="sc">&gt;=</span> intime <span class="sc">&amp;</span> storetime <span class="sc">&lt;=</span> outtime)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
 </div>
 <p><strong>View the data table created</strong></p>
 <div class="cell">
 <div class="sourceCode cell-code" id="cb165"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb165-1"><a href="#cb165-1" aria-hidden="true" tabindex="-1"></a>chartevents_icu</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
 <div class="cell-output cell-output-stdout">
-<pre><code># A tibble: 30,200,193 × 12
+<pre><code># A tibble: 30,118,451 × 12
    subject_id itemid charttime           valuenum  stay_id storetime          
         &lt;int&gt;  &lt;int&gt; &lt;dttm&gt;                 &lt;dbl&gt;    &lt;int&gt; &lt;dttm&gt;             
  1   10000032 223761 2180-07-23 07:00:00     98.7 39553978 2180-07-23 07:20:00
@@ -1635,7 +1636,7 @@ list-cols.
  8   10000032 220180 2180-07-23 07:30:00     59   39553978 2180-07-23 07:43:00
  9   10000032 220210 2180-07-23 07:30:00     21   39553978 2180-07-23 07:43:00
 10   10000032 220045 2180-07-23 08:00:00     94   39553978 2180-07-23 08:34:00
-# ℹ 30,200,183 more rows
+# ℹ 30,118,441 more rows
 # ℹ 6 more variables: hadm_id &lt;int&gt;, first_careunit &lt;chr&gt;, last_careunit &lt;chr&gt;,
 #   intime &lt;dttm&gt;, outtime &lt;dttm&gt;, los &lt;dbl&gt;</code></pre>
 </div>
@@ -1654,7 +1655,7 @@ list-cols.
 <span id="cb167-10"><a href="#cb167-10" aria-hidden="true" tabindex="-1"></a></span>
 <span id="cb167-11"><a href="#cb167-11" aria-hidden="true" tabindex="-1"></a>chartevents_icu_second</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
 <div class="cell-output cell-output-stdout">
-<pre><code># A tibble: 467,893 × 5
+<pre><code># A tibble: 467,516 × 5
    subject_id  stay_id itemid storetime           valuenum
         &lt;int&gt;    &lt;int&gt;  &lt;int&gt; &lt;dttm&gt;                 &lt;dbl&gt;
  1   10000032 39553978 220045 2180-07-23 07:17:00     91  
@@ -1667,7 +1668,7 @@ list-cols.
  8   10000690 37081114 220180 2150-11-02 12:12:00     56.5
  9   10000690 37081114 220210 2150-11-02 12:12:00     24.3
 10   10000690 37081114 223761 2150-11-02 12:12:00     97.7
-# ℹ 467,883 more rows</code></pre>
+# ℹ 467,506 more rows</code></pre>
 </div>
 </div>
 <div class="cell">
@@ -1677,7 +1678,7 @@ list-cols.
 <span id="cb169-4"><a href="#cb169-4" aria-hidden="true" tabindex="-1"></a></span>
 <span id="cb169-5"><a href="#cb169-5" aria-hidden="true" tabindex="-1"></a>chartevents_pivot</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
 <div class="cell-output cell-output-stdout">
-<pre><code># A tibble: 94,438 × 7
+<pre><code># A tibble: 94,363 × 7
    subject_id  stay_id `220045` `220179` `220180` `220210` `223761`
         &lt;int&gt;    &lt;int&gt;    &lt;dbl&gt;    &lt;dbl&gt;    &lt;dbl&gt;    &lt;dbl&gt;    &lt;dbl&gt;
  1   10000032 39553978     91       84       48       24       98.7
@@ -1690,7 +1691,7 @@ list-cols.
  8   10001884 37510196     49      174.      30.5     13       98.1
  9   10002013 39060235     80       98.5     62       14       97.2
 10   10002114 34672098    110.     112       80       21       97.9
-# ℹ 94,428 more rows</code></pre>
+# ℹ 94,353 more rows</code></pre>
 </div>
 </div>
 <p><strong>Changing the column names to be more exact</strong></p>
@@ -1706,7 +1707,7 @@ list-cols.
 <span id="cb171-9"><a href="#cb171-9" aria-hidden="true" tabindex="-1"></a></span>
 <span id="cb171-10"><a href="#cb171-10" aria-hidden="true" tabindex="-1"></a>chartevents_pivot</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
 <div class="cell-output cell-output-stdout">
-<pre><code># A tibble: 94,438 × 7
+<pre><code># A tibble: 94,363 × 7
    subject_id  stay_id Heart_Rate SysBP DiaBP Respiratory_Rate  Temp
         &lt;int&gt;    &lt;int&gt;      &lt;dbl&gt; &lt;dbl&gt; &lt;dbl&gt;            &lt;dbl&gt; &lt;dbl&gt;
  1   10000032 39553978       91    84    48               24    98.7
@@ -1719,7 +1720,7 @@ list-cols.
  8   10001884 37510196       49   174.   30.5             13    98.1
  9   10002013 39060235       80    98.5  62               14    97.2
 10   10002114 34672098      110.  112    80               21    97.9
-# ℹ 94,428 more rows</code></pre>
+# ℹ 94,353 more rows</code></pre>
 </div>
 </div>
 <p>##Q7</p>
@@ -1771,7 +1772,7 @@ $ Glucose     &lt;dbl&gt; 102, 85, 89, 87, 112, NA, 131, 141, 288, 95, 117, 133,
 <span id="cb177-3"><a href="#cb177-3" aria-hidden="true" tabindex="-1"></a></span>
 <span id="cb177-4"><a href="#cb177-4" aria-hidden="true" tabindex="-1"></a><span class="fu">glimpse</span>(chartevents_pivot)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
 <div class="cell-output cell-output-stdout">
-<pre><code>Rows: 94,438
+<pre><code>Rows: 94,363
 Columns: 7
 $ subject_id       &lt;int&gt; 10000032, 10000690, 10000980, 10001217, 10001217, 100…
 $ stay_id          &lt;int&gt; 39553978, 37081114, 39765666, 34592300, 37067082, 312…

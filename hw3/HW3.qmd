@@ -1028,7 +1028,8 @@ print(icustays_tble10)
 ```{r}
 chartevents_icu <- chartevents_filtered %>%
   collect() %>%
-  left_join(icustays_tble, by = c("subject_id", "stay_id"))
+  left_join(icustays_tble, by = c("subject_id", "stay_id")) %>%
+  filter(storetime >= intime & storetime <= outtime)
 ```
 
 **View the data table created**
