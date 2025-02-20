@@ -217,7 +217,7 @@ Attaching package: 'R.utils'</code></pre>
 <div class="sourceCode cell-code" id="cb23"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb23-1"><a href="#cb23-1" aria-hidden="true" tabindex="-1"></a>memuse<span class="sc">::</span><span class="fu">Sys.meminfo</span>()</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
 <div class="cell-output cell-output-stdout">
 <pre><code>Totalram:  32.000 GiB 
-Freeram:   38.711 MiB </code></pre>
+Freeram:   20.046 GiB </code></pre>
 </div>
 </div>
 <p>In this exercise, we use tidyverse (ggplot2, dplyr, etc) to explore the MIMIC-IV data introduced in homework 1 and to build a cohort of ICU stays.</p>
@@ -715,7 +715,7 @@ Freeram:   38.711 MiB </code></pre>
 <div class="sourceCode cell-code" id="cb68"><pre class="sourceCode bash code-with-copy"><code class="sourceCode bash"><span id="cb68-1"><a href="#cb68-1" aria-hidden="true" tabindex="-1"></a></span>
 <span id="cb68-2"><a href="#cb68-2" aria-hidden="true" tabindex="-1"></a><span class="fu">ls</span> <span class="at">-l</span> ~/mimic/icu/chartevents.csv</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
 <div class="cell-output cell-output-stdout">
-<pre><code>-rw-r--r--@ 1 lukehodges  staff  41935806083 Feb 19 23:02 /Users/lukehodges/mimic/icu/chartevents.csv</code></pre>
+<pre><code>-rw-r--r--@ 1 lukehodges  staff  41935806083 Feb 20 07:41 /Users/lukehodges/mimic/icu/chartevents.csv</code></pre>
 </div>
 </div>
 <p><strong>We can now open the data set</strong></p>
@@ -1357,7 +1357,7 @@ $ dod               &lt;date&gt; 2180-09-09, NA, NA, NA, 2161-02-13, NA, NA, NA,
 <span id="cb134-3"><a href="#cb134-3" aria-hidden="true" tabindex="-1"></a>  <span class="fu">left_join</span>(icustays_tble, <span class="at">by =</span> <span class="fu">c</span>(<span class="st">"subject_id"</span>))</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
 <div class="cell-output cell-output-stderr">
 <pre><code>Warning in left_join(., icustays_tble, by = c("subject_id")): Detected an unexpected many-to-many relationship between `x` and `y`.
-ℹ Row 2341 of `x` matches multiple rows in `y`.
+ℹ Row 4161 of `x` matches multiple rows in `y`.
 ℹ Row 1 of `y` matches multiple rows in `x`.
 ℹ If a many-to-many relationship is expected, set `relationship =
   "many-to-many"` to silence this warning.</code></pre>
@@ -2165,7 +2165,8 @@ $ Temp             &lt;dbl&gt; 98.7, 97.7, 98.0, 97.6, 98.5, 97.7, 97.9, 98.1, 9
 <div class="sourceCode cell-code" id="cb218"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb218-1"><a href="#cb218-1" aria-hidden="true" tabindex="-1"></a><span class="fu">ggplot</span>(mimic_icu_cohort, <span class="fu">aes</span>(<span class="at">x =</span> first_careunit, <span class="at">y =</span> los )) <span class="sc">+</span></span>
 <span id="cb218-2"><a href="#cb218-2" aria-hidden="true" tabindex="-1"></a>  <span class="fu">geom_point</span>(<span class="at">alpha =</span> <span class="fl">0.5</span>, <span class="at">color =</span> <span class="st">"red"</span>) <span class="sc">+</span></span>
 <span id="cb218-3"><a href="#cb218-3" aria-hidden="true" tabindex="-1"></a>  <span class="fu">labs</span>(<span class="at">title =</span> <span class="st">"Length of ICU Stay vs first_careunit"</span>, <span class="at">x =</span> <span class="st">"first_careunit"</span>, <span class="at">y =</span> <span class="st">"LOS (days)"</span>) <span class="sc">+</span></span>
-<span id="cb218-4"><a href="#cb218-4" aria-hidden="true" tabindex="-1"></a>  <span class="fu">theme_minimal</span>()</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<span id="cb218-4"><a href="#cb218-4" aria-hidden="true" tabindex="-1"></a>  <span class="fu">theme_minimal</span>()<span class="sc">+</span></span>
+<span id="cb218-5"><a href="#cb218-5" aria-hidden="true" tabindex="-1"></a>  <span class="fu">theme</span>(<span class="at">axis.text.x =</span> <span class="fu">element_text</span>(<span class="at">angle =</span> <span class="dv">45</span>, <span class="at">hjust =</span> <span class="dv">1</span>))</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
 <div class="cell-output cell-output-stderr">
 <pre><code>Warning: Removed 14 rows containing missing values or values outside the scale range
 (`geom_point()`).</code></pre>
