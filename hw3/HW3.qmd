@@ -32,19 +32,26 @@ Visualizing a patient’s encounters in a health care system is a common task in
 **Reading in the files for Q1**
 
 ```{r}
-patients <- arrow::open_dataset("~/mimic/hosp/patients.csv.gz", format = "csv")
+patients <- arrow::open_dataset("~/mimic/hosp/patients.csv.gz", 
+                                format = "csv")
 
-admissions <- arrow::open_dataset("~/mimic/hosp/admissions.csv.gz", format = "csv")
+admissions <- arrow::open_dataset("~/mimic/hosp/admissions.csv.gz", 
+                                  format = "csv")
 
-transfers <- arrow::open_dataset("~/mimic/hosp/transfers.csv.gz", format = "csv")
+transfers <- arrow::open_dataset("~/mimic/hosp/transfers.csv.gz", 
+                                 format = "csv")
 
-procedures_icd <- arrow::open_dataset("~/mimic/hosp/procedures_icd.csv.gz", format = "csv")
+procedures_icd <- arrow::open_dataset("~/mimic/hosp/procedures_icd.csv.gz", 
+                                      format = "csv")
 
-diagnoses_icd <- arrow::open_dataset("~/mimic/hosp/diagnoses_icd.csv.gz", format = "csv")
+diagnoses_icd <- arrow::open_dataset("~/mimic/hosp/diagnoses_icd.csv.gz", 
+                                     format = "csv")
 
-d_icd_procedures <- arrow::open_dataset("~/mimic/hosp/d_icd_procedures.csv.gz", format = "csv")
+d_icd_procedures <- arrow::open_dataset("~/mimic/hosp/d_icd_procedures.csv.gz", 
+                                        format = "csv")
 
-d_icd_diagnoses <- arrow::open_dataset("~/mimic/hosp/d_icd_diagnoses.csv.gz", format = "csv")
+d_icd_diagnoses <- arrow::open_dataset("~/mimic/hosp/d_icd_diagnoses.csv.gz", 
+                                       format = "csv")
 
 ```
 
@@ -52,7 +59,7 @@ d_icd_diagnoses <- arrow::open_dataset("~/mimic/hosp/d_icd_diagnoses.csv.gz", fo
 **First, I am going to designate the patient ID so that the TA can change it later and it can be easily filtered. Afterwards, I will then use the subject_id to filter the data sets**
 
 ```{r}
-subject_id <- 10001217
+subject_id <- 10063848
 
 patients.filter <- patients %>%
   collect() %>%
@@ -125,7 +132,6 @@ diagnoses_icd10 <- diagnoses_icd.filter %>%
   collect()
 
 print(diagnoses_icd10)
-
 ```
 
 **For d_icd_procedures**
@@ -198,8 +204,21 @@ With this in mind, we now want to create a symbolic link to the parquet we creat
 
 **When I do this command, it says that the symbolic link file already exists. SO let us check to see if one already exists**
 
+**Create a symbolic Link**
+
 ```{bash}
-ls -l ~/mimic/hosp/part-0.parquet
+
+#| eval: false
+
+ln -sf ~/mimic/hosp/part-0.parquet part-0.parquet
+
+```
+
+```{bash}
+
+#| eval: false
+
+ls -l part-0.parquet
 ```
 **as we can see here, it does**
 
@@ -218,14 +237,23 @@ LJDiagnoses10 <- LJDiagnoses %>%
 print(LJDiagnoses10)
 
 ```
-**The top diagnoses were intestinal adhesions with obstruction, acurate respiratory failure with hypoxia, and von willebrand disease. We have to make sure we count each of the different long_titles and ensure they are able to put into the ggplot. I received an error regarding an as_vector, so let us set this to true to prevent this happening as well.**
+**The top diagnoses were intestinal adhesions with obstruction, acurate respiratory failure with hypoxia, and von willebrand disease for the patient of interest. We have to make sure we count each of the different long_titles and ensure they are able to put into the ggplot and are correct. I received an error regarding an as_vector, so let us set this to true to prevent this happening as well.**
 
 ```{r}
+
 LJDiagnosesT3 <- LJDiagnoses %>%
-  count(long_title, sort=TRUE) %>%
-  head(3) %>%
-  pull(long_title, as_vector = TRUE)
+  group_by(long_title) %>%
+  summarise(n = n()) %>%
+  arrange(desc(n), long_title) %>%
+  slice_head(n = 3) %>%
+  collect() %>% 
+  pull(long_title)
+
+LJDiagnosesT3
+
 ```
+
+**this code now displays the three most common diagnoses, which are Von Willebrand Disease, other secondary pulmonary hypertension and E. Coli**
 
 **Let us now left join the procedures based on the ICD_Code and ICD_version**
 
@@ -270,7 +298,7 @@ labevents.filter <- labevents_pq.filter %>%
 ```{r}
 patient_info <- paste0(
   "Patient ", subject_id, ", ", 
-  patients.filter$gender, ",", 
+  patients.filter$gender, ", ", 
   patients.filter$anchor_age, " years old"
 )
 
@@ -292,16 +320,15 @@ LJProcedures$long_title_wrapped <- str_wrap(LJProcedures$long_title,
 print(LJProcedures)
 
 ```
-**Now let us make each procedure a unique factor so that it can be recognized in ggplot**
+**Now let us make each procedure a unique factor so that it can be recognized in ggplot. By setting the names we are making sure that each of them are made into different shapes and colors**
 
 ```{r}
 ProceduresUnique <- unique(LJProcedures$long_title_wrapped)
-Shapemanual <- setNames(seq_along(ProceduresUnique) %% 
-                          5 +20, ProceduresUnique)
+Shapemanual <- setNames((seq_along(ProceduresUnique) %% 
+                          5) + 16, ProceduresUnique)
 Colormanual <- setNames(seq_along(transfer.filter2$careunit) %% 
-                          25 +1, transfer.filter2$careunit)
+                          25 + 1, transfer.filter2$careunit)
 ```
-
 
 **Now, let us make the ggplot**
 
@@ -313,60 +340,53 @@ ggplot() +
 long_title_wrapped),  
              color = "black",   
              size = 4,  
-             alpha = 0.7) +  
+             alpha = 0.7, 
+position = position_jitter(width = 0, height = -0.5)) + 
   
   # ADT Events (Colored by Care Unit)
   geom_segment(data = transfer.filter2, 
                aes(x = intime, xend = outtime, y = "ADT",  
                    color = careunit), 
-               size = 4)  +
+               size = 2)  +
 
   # Lab Events (Black crosses `+`)
   geom_point(data = labevents.filter, 
              aes(x = charttime, y = "Lab"),
              shape = 3, size = 3, color = "black") +
-
-
-
-  # Labels (Fixed title variable)
   labs(
     y = "", 
     x = "Calendar Time", 
-    title = patient_info,  # Corrected variable usage
+    title = patient_info,  
     subtitle = paste0("Top 3 Diagnoses:\n", 
                       paste(LJDiagnosesT3, collapse = "\n")),
     color = "Care Unit",
     shape = "Procedure"
-  ) +  # Guides for Legend Formatting
+  ) +  
 guides(
     color = guide_legend(title = "Care Unit", nrow = 2, 
-                         title.position = "top"),  
+                         title.position = "left"),  
     shape = guide_legend(title = "Procedure", nrow = 1, 
                          title.position = "top"),
     override.aes = list(size=3))+
-  
-   # Care Unit Colors
  scale_color_manual(values = Colormanual) +
-  # Procedure Shapes
   scale_shape_manual(values = Shapemanual) +
+  scale_fill_manual(values = Shapemanual) +
   scale_y_discrete(limits = rev) +
 
-  # Theme Fixes to Ensure Plot is Visible
   theme_minimal() +
   theme(
     plot.title = element_text(size = 16, face = "bold"),
     plot.subtitle = element_text(size = 12),
     axis.text.x = element_text(angle = 0, hjust = 1),
-    legend.position = "bottom",  # Ensures legend is below
-    legend.box = "vertical",  # Places legends in a single row
-    legend.key.size = unit(1, "cm"),  # Adjusts legend item size
+    legend.position = "bottom",  
+    legend.box = "vertical", 
+    legend.key.size = unit(1, "cm"),
     legend.text = element_text(size = 7.5),
     plot.margin = margin(5, 5, 5, 5),
     legend.spacing.y = unit(0.01, "cm"),
     legend.box.spacing = unit(0.01, "cm")
   )
 ```
-
 
 ## 1.2 Question 
 
@@ -502,7 +522,7 @@ chartevents.filtered.arrow <- chartevents.filtered.arrow %>%
       charttime <= max_datetime1 ~ icustays.filtered$stay_id[1],
     charttime >= min_datetime2 & 
       charttime <= max_datetime2 ~ icustays.filtered$stay_id[2],
-    TRUE ~ NA_real_  # Assign NA if charttime does not fit either stay
+    TRUE ~ NA_real_  
   ))
 
 chartevents.filtered.arrow10 <- chartevents.filtered.arrow %>%
@@ -517,7 +537,6 @@ stay_ranges <- chartevents.filtered.arrow %>%
   summarise(min_time = min(charttime), max_time = max(charttime)) %>%
   ungroup()
 
-# Use `scale_x_datetime()` but set the full range to include all timepoints
 full_min_time <- min(stay_ranges$min_time)
 full_max_time <- max(stay_ranges$max_time)
 ```
@@ -548,7 +567,7 @@ ggplot(chartevents.filtered.arrow,
   theme_minimal() +
   theme(
     strip.text.x = element_text(size = 14, face = "bold", color = "white"),
-    strip.text.y = element_text(size = 12, face = "bold"),
+    strip.text.y = element_text(size = 12, face = "bold", color = "white"),
     strip.background = element_rect(fill = "grey80"),
     panel.grid.major = element_line(color = "gray80"),
     panel.grid.minor = element_blank(),
@@ -585,7 +604,7 @@ glimpse(icustays_tble)
 ## Q2.2 Summary and visualization
 How many unique subject_id? Can a subject_id have multiple ICU stays? Summarize the number of ICU stays per subject_id by graphs.
 
-**first let us find out how many unique subject_id there are**
+**First let us find out how many unique subject_id there are**
 
 ```{r}
 
@@ -598,7 +617,7 @@ print(uniqueicu)
 
 **So there are 65366 unique subject_ids** 
 
-**Now let us check to see if a subject_id have multile stays in the intensive care unit**
+**Now let us check to see if a subject_id have multiple stays in the intensive care unit**
 
 ```{r}
 icustayscount <- icustays_tble %>%
@@ -610,29 +629,26 @@ maxstays <- max(icustayscount$n)
 print(maxstays)
 ```
 
-**the answer is 41, so some subjects DO have multiple stays in the intensive care unit**
+**The answer is 41, so some subjects DO have multiple stays in the intensive care unit**
 
-**We can make a histogram to illustrate the amount of icu stays per subject**
+**We can make a bar chart to illustrate the amount of icu stays per subject. I chose to do a log-scale because the bart chart makes the data hard to see since it is highly skewed**
 
 ```{r}
 
-ggplot(icustayscount, aes(x = icustayscount$n)) +
-  geom_bar(fill = "steelblue") +
+ggplot(icustayscount, aes(x = n)) +
+  geom_bar(fill = "pink") +
+  scale_y_log10() + 
   labs(
     title = "Distribution of ICU Stays per Subject",
     x = "Number of ICU Stays",
-    y = "Number of Patients"
+    y = "Number of Patients (Log Scale)"
   ) +
-  coord_cartesian(xlim = c(1, 10)) +  # Adjust range as needed
   theme_minimal()
 
 ```
-**This shows that the frequency of subjects only have one stay in the intensive care unit**
+**This shows that the main frequency of subjects only have one stay in the intensive care unit**
 
-
-## Q3
-
-Q3. admissions data
+## Q3 Admissions Data
 
 Information of the patients admitted into hospital is available in admissions.csv.gz. See https://mimic.mit.edu/docs/iv/modules/hosp/admissions/ for details of each field in this file. The first 10 lines are
 
@@ -646,7 +662,7 @@ Import admissions.csv.gz as a tibble admissions_tble.
 
 ```{r}
 admissions_tble <- admissions %>%
-  collect() %>%  # Pulls data into memory
+  collect() %>% 
   as_tibble()
 
 glimpse(admissions_tble)
@@ -663,28 +679,38 @@ length of hospital stay (from admission to discharge) (anything unusual?)
 
 **let us start by making a graph of the number of admissions per patient**
 
+**Before we make the graph, we need to summarize the data for the subject_ids and group them**
+
 ```{r}
 admissionscount <- admissions_tble %>%
   group_by(subject_id) %>%
   summarise(n = n()) %>%
   ungroup()
 
-ggplot(admissionscount, aes(x = admissionscount$n)) +
-  geom_bar(fill = "steelblue") +
+```
+
+**Now we can make the graph**
+
+```{r}
+
+ggplot(admissionscount, aes(x = n)) +
+  geom_bar(fill = "pink", color = "black") +
   labs(
     title = "Distribution of Admissions per Subject",
     x = "Number of Admissions",
     y = "Number of Patients"
   ) +
-  coord_cartesian(xlim = c(1, 25)) +  # Adjust range as needed
+  coord_cartesian(xlim = c(1, 25)) +
   theme_minimal()
 
 ```
+**I do not see any patterns that occur. If anything, the only pattern here is that many of the subjects only are admitted once, while some of admitted more than once, however, this becomes increasingly rare. The reason why this may occur is because the subjects are coming in for more curable/fixable issues and are leaving with a solution. Unless the patient has an ongoing disease that requires consistent maintenence into the hospital, this would be why most of them are admitted once.**
+
 **Now let us make a graph summarizing the admission hour (anything unusual?)**
 
 ```{r}
 ggplot(admissions_tble, aes(x = hour(admittime))) +
-  geom_bar(fill = "steelblue") +
+  geom_bar(fill = "pink", color = "black") +
   labs(
     title = "Distribution of Admission Hour",
     x = "Hour",
@@ -692,13 +718,13 @@ ggplot(admissions_tble, aes(x = hour(admittime))) +
   ) +
   theme_minimal()
 ```
-**What is interesting about this graph is that most of the admissions occur at the 12th hour, which is noon. This is interesting as most people would think that admissions would occur in the morning, but this is not the case. On top of this, the admissions in the 23rd and 0th hour are pretty high compared to their neighboring hours. This would make sense since some illnesses, like asthma, a disease that I suffer from, are more likely to get worse at night. Individuals may also try and manage their symptoms throughout the day, until they realize they actually cannot, which they would make this decision before going to bed (11 pm to 12 am)**
+**This graph looks at specifically the hour at which the admissions occur. What is interesting about this graph is that most of the admissions occur at the 12th hour, which is noon. This is interesting as most people would think that admissions would occur in the morning, but this is not the case. On top of this, the admissions in the 23rd and 0th hour are pretty high compared to their neighboring hours. This would make sense since some illnesses, like asthma, a disease that I suffer from, are more likely to get worse at night. Individuals may also try and manage their symptoms throughout the day, until they realize they actually cannot, which they would make this decision before going to bed (11 pm to 12 am)**
 
 **Now let us make a graph summarizing the admission minute (anything unusual?)**
 
 ```{r}
 ggplot(admissions_tble, aes(x = minute(admittime))) +
-  geom_bar(fill = "steelblue") +
+  geom_bar(fill = "pink", color = "black") +
   labs(
     title = "Distribution of Admission Minute",
     x = "Minute",
@@ -706,20 +732,31 @@ ggplot(admissions_tble, aes(x = minute(admittime))) +
   ) +
   theme_minimal()
 ```
-**What is unusual about this is that most of the admissions occurred at each quarter of an hour (0 minutes, 15 minutes, 30 minutes, and 45 minutes). On top of this minute 60 has no admissions in them, which would make sense as when minute sixty hits, it is minute zero of the new hour.**
+**What is unusual about this is that most of the admissions occurred at each quarter of an hour (0 minutes, 15 minutes, 30 minutes, and 45 minutes). On top of this minute 60 has no admissions in them, which would make sense as when minute sixty hits, it is minute zero of the new hour. The reason why this occurs is because nurses or doctors may be rounding their admission minute to the nearest quarter hour to make it easier to keep track of the patients and because of convenience**
 
 **Now let us make a graph summarizing the length of hospital stay (from admission to discharge) (anything unusual?)**
+
+**Making sure the admittime can be read in correct format**
 
 ```{r}
 admissions_tble <- admissions_tble %>%
   mutate(admittime = as.POSIXct(admittime, format="%Y-%m-%d %H:%M:%S"),
          dischtime = as.POSIXct(dischtime, format="%Y-%m-%d %H:%M:%S"))
 
+```
+
+**Mutating the data information so that length_of_stay is in the units of days for both the admittime and the discharge time**
+
+```{r}
 admissions_tble <- admissions_tble %>%
   mutate(length_of_stay = difftime(dischtime, admittime, units = "days"))
+```
 
+**Graphing the data now**
+
+```{r}
 ggplot(admissions_tble, aes(x = length_of_stay)) +
-  geom_histogram(fill = "steelblue", bins = 50) +
+  geom_histogram(fill = "pink", color = "black", bins = 200) +
   labs(
     title = "Distribution of Length of Stay",
     x = "Length of Stay (Days)",
@@ -728,6 +765,7 @@ ggplot(admissions_tble, aes(x = length_of_stay)) +
   coord_cartesian(xlim = c(1, 100))+
   theme_minimal()
 ```
+**Looking at this chart, there really is nothing unusual that happens. I think the one thing here that stands out is the fact that individuals admitted usually spend more than one day rather than being discharged same day. However, this does make sense as many hospitals want to make sure that you are okay and healthy before you are discharged. In other words, staying over night for observation and to make sure there are no complications would explain why individuals stay for longer days rather than being discharged same day**
 
 ## Q4.1 Ingestion
 Import patients.csv.gz (https://mimic.mit.edu/docs/iv/modules/hosp/patients/) as a tibble patients_tble.
@@ -754,7 +792,7 @@ patients_tble <- patients_tble %>%
 **this will be making the graph**
 ```{r}
 ggplot(patients_tble, aes(x = gender)) +
-  geom_bar(fill = "steelblue") +
+  geom_bar(fill = "pink", color = "black") +
   labs(
     title = "Distribution of Patients by Gender",
     x = "Gender",
@@ -768,7 +806,7 @@ ggplot(patients_tble, aes(x = gender)) +
 
 ```{r}
 ggplot(patients_tble, aes(x = anchor_age)) +
-  geom_histogram(fill = "steelblue", bins = 50) +
+  geom_histogram(fill = "pink", color = "black", bins = 75) +
   labs(
     title = "Distribution of Patients by Age",
     x = "Age",
@@ -777,9 +815,9 @@ ggplot(patients_tble, aes(x = anchor_age)) +
   coord_cartesian(xlim = c(0, 100))+
   theme_minimal()
 ```
-**This data is indicative age-rounding, where either the patient or the practitioner rounds the age of the patient either up or down. There is also no data before about 20 years of age, and past 87.5 years of age. As we know, these ages or possible so these are not being reported**
+**This data is indicative of age-rounding, where either the patient or the practitioner rounds the age of the patient either up or down. There is also no data before about 20 years of age, and past 87.5 years of age. As we know, these ages or possible so these are not being reported. We also see that at one point there is data missing completely, which could be more indicative of age rounding as well or not taking into consideration age for the patient when examining them. The large amount of young adult admissions could be because of the onset of diseases that do not show up until young adulthood, like diabetes, MS, or schizophrenia. Individuals of this age are also still on their parent's health insurance, so they may be more likely to go visit the hospital since it would not be on their dime. This then explains the dip in the 30s: individuals are on their own health insurance now and have to be more financially conscientious since their insurance is likely expensive. These adults are also more likely to be healthy compared to other age ranges. The last peak is quiet indicative of a cutoff or even an issue with data entry.**
 
-## Q5
+## Q5 Lab results
 
 labevents.csv.gz (https://mimic.mit.edu/docs/iv/modules/hosp/labevents/) contains all laboratory measurements for patients. The first 10 lines are
 
@@ -924,9 +962,9 @@ labevents_tble <- labevents_tble %>%
 ```{r}
 labevents_tble
 ```
+**This is the exact table as seen in Question 5!**
 
-
-## Q6
+## Q6 Vitals from charted events
 
 chartevents.csv.gz (https://mimic.mit.edu/docs/iv/modules/icu/chartevents/) contains all the charted data available for a patient. During their ICU stay, the primary repository of a patient’s information is their electronic chart. The itemid variable indicates a single measurement type in the database. The value variable is the value measured for itemid. The first 10 lines of chartevents.csv.gz are
 
@@ -1052,7 +1090,7 @@ chartevents_icu_second <- chartevents_icu_first %>%
 chartevents_icu_second
   
 ```
-
+**This is changing the format to be more representative of what is seen in Q6**
 ```{r}
 chartevents_pivot <- chartevents_icu_second %>%
   select(subject_id, stay_id, itemid, valuenum) %>%
@@ -1075,8 +1113,9 @@ chartevents_pivot <- chartevents_pivot %>%
 
 chartevents_pivot
 ```
+**This is the exact chart seen in Q6**
 
-##Q7
+## Q7 Putting things together
 
 **Everything is read in. We now have to make the table**
 
@@ -1124,7 +1163,7 @@ print(mimic_icu_cohort)
 ```
 **This is the table as seen in the diagram**
 
-#Q8
+#Q8 Exploratory data analysis (EDA)
 
 Summarize the following information about the ICU stay cohort mimic_icu_cohort using appropriate numerics or graphs:
 
@@ -1137,6 +1176,12 @@ Length of ICU stay los vs demographic variables (race, insurance, marital_status
 mimic_icu_cohort <- mimic_icu_cohort %>%
   mutate(los = as.numeric(los))
 
+mimic_icu_cohort
+
+mimic_icu_summary <- mimic_icu_cohort %>%
+  group_by(race) %>%
+  summarise(mean_los = mean(los, na.rm = TRUE))
+
 ```
 
 **Now let us make the graph**
@@ -1145,28 +1190,37 @@ mimic_icu_cohort <- mimic_icu_cohort %>%
 
 ```{r}
 ggplot(mimic_icu_cohort, aes(x = fct_infreq(race), y = los)) +
-  geom_boxplot() +
+  geom_col(fill = "pink") +
   labs(title = "Length of ICU Stay vs Race", x = "Race", y = "LOS (days)") +
   theme_minimal() +
   theme(axis.text.x = element_text(angle = 45, hjust = 1))
 ```
+**Although this is a nice graph, I would much rather have it be average length of stay**
 
+```{r}
+ggplot(mimic_icu_summary, aes(x = fct_infreq(race), y = mean_los)) +
+  geom_col(fill = "pink", color = "black") +
+  labs(title = "Average Length of ICU Stay vs Race", x = "Race", y = "LOS (days)") +
+  theme_minimal() +
+  theme(axis.text.x = element_text(angle = 45, hjust = 1))
+```
 **LOS vs. Insurance**
 
 ```{r}
 ggplot(mimic_icu_cohort, aes(x = fct_infreq(insurance), y = los)) +
-  geom_boxplot() +
+  geom_col(fill = "pink") +
   labs(title = "Length of ICU Stay vs Insurance Type", x = "Insurance", y = "LOS (days)") +
   theme_minimal() +
   theme(axis.text.x = element_text(angle = 45, hjust = 1))
 ```
+**When I do unique(mimic_icu_cohort$insurance), there is an insurance that is "" or in other words, blank**
 
 **LOS vs. Marital Status**
 
 ```{r}
 
 ggplot(mimic_icu_cohort, aes(x = fct_infreq(marital_status), y = los)) +
-  geom_boxplot() +
+  geom_col(fill = "pink") +
   labs(title = "Length of ICU Stay vs Marital Status", x = "Marital Status", y = "LOS (days)") +
   theme_minimal() +
   theme(axis.text.x = element_text(angle = 45, hjust = 1))
@@ -1178,18 +1232,17 @@ ggplot(mimic_icu_cohort, aes(x = fct_infreq(marital_status), y = los)) +
 ```{r}
 
 ggplot(mimic_icu_cohort, aes(x = gender, y = los)) +
-  geom_boxplot(fill = "steelblue", alpha = 0.7) +
+  geom_col(fill = "pink", alpha = 0.7) +
   labs(title = "Length of ICU Stay vs Gender", x = "Gender", y = "LOS (days)") +
   theme_minimal()
 
 ```
-   
 **LOS vs. Anchor_age**
                              
 ```{r}
 
 ggplot(mimic_icu_cohort, aes(x = anchor_age, y = los)) +
-  geom_point(alpha = 0.5, color = "darkred") +
+  geom_col(fill = "pink") +
   labs(title = "Length of ICU Stay vs Age", x = "Age at Admission", y = "LOS (days)") +
   theme_minimal()
 
@@ -1200,18 +1253,23 @@ ggplot(mimic_icu_cohort, aes(x = anchor_age, y = los)) +
 **LOS vs. Lab Creatinine**
 
 ```{r}
-ggplot(mimic_icu_cohort, aes(x = Creatinine, y = los )) +
-  geom_point(alpha = 0.5, color = "red") +
-  labs(title = "Length of ICU Stay vs Creatinine", x = "Creatinine (mg/dL)", y = "LOS (days)") +
-  theme_minimal()
+
+ggplot(mimic_icu_cohort, aes(x = Creatinine, y = los)) +
+  geom_col(color = "pink", alpha = 0.5) + 
+  labs(title = "Length of ICU Stay vs Creatinine", 
+       x = "Creatinine (mg/dL)", 
+       y = "LOS (days)") +
+  theme_minimal() + 
+  coord_cartesian(xlim = c(0, 75))
+
 ```
 
 **LOS vs. Lab Potassium**
 
 ```{r}
 ggplot(mimic_icu_cohort, aes(x = Potassium, y = los )) +
-  geom_point(alpha = 0.5, color = "red") +
-  labs(title = "Length of ICU Stay vs Creatinine", x = "Potassium (mg/dL)", y = "LOS (days)") +
+  geom_col(color = "pink") +
+  labs(title = "Length of ICU Stay vs Potassium", x = "Potassium (mg/dL)", y = "LOS (days)") +
   theme_minimal()
 ```
 
@@ -1219,8 +1277,8 @@ ggplot(mimic_icu_cohort, aes(x = Potassium, y = los )) +
 
 ```{r}
 ggplot(mimic_icu_cohort, aes(x = Sodium, y = los )) +
-  geom_point(alpha = 0.5, color = "red") +
-  labs(title = "Length of ICU Stay vs Creatinine", x = "Sodium (mg/dL)", y = "LOS (days)") +
+  geom_col(color = "pink") +
+  labs(title = "Length of ICU Stay vs Sodium", x = "Sodium (mg/dL)", y = "LOS (days)") +
   theme_minimal()
 ```
 
@@ -1228,8 +1286,8 @@ ggplot(mimic_icu_cohort, aes(x = Sodium, y = los )) +
 
 ```{r}
 ggplot(mimic_icu_cohort, aes(x = Chloride, y = los )) +
-  geom_point(alpha = 0.5, color = "red") +
-  labs(title = "Length of ICU Stay vs Creatinine", x = "Chloride (mg/dL)", y = "LOS (days)") +
+   geom_col(color = "pink") +
+  labs(title = "Length of ICU Stay vs Chloride", x = "Chloride (mg/dL)", y = "LOS (days)") +
   theme_minimal()
 ```
 
@@ -1237,8 +1295,8 @@ ggplot(mimic_icu_cohort, aes(x = Chloride, y = los )) +
 
 ```{r}
 ggplot(mimic_icu_cohort, aes(x = Bicarbonate, y = los )) +
-  geom_point(alpha = 0.5, color = "red") +
-  labs(title = "Length of ICU Stay vs Creatinine", x = "Bicarbonate (mg/dL)", y = "LOS (days)") +
+   geom_col(color = "pink") +
+  labs(title = "Length of ICU Stay vs Bicarbonate", x = "Bicarbonate (mg/dL)", y = "LOS (days)") +
   theme_minimal()
 ```
 
@@ -1246,8 +1304,8 @@ ggplot(mimic_icu_cohort, aes(x = Bicarbonate, y = los )) +
 
 ```{r}
 ggplot(mimic_icu_cohort, aes(x = Hematocrit, y = los )) +
-  geom_point(alpha = 0.5, color = "red") +
-  labs(title = "Length of ICU Stay vs Creatinine", x = "Hematrocrit (mg/dL)", y = "LOS (days)") +
+   geom_col(color = "pink") +
+  labs(title = "Length of ICU Stay vs Hematocrit", x = "Hematrocrit (mg/dL)", y = "LOS (days)") +
   theme_minimal()
 ```
 
@@ -1255,8 +1313,8 @@ ggplot(mimic_icu_cohort, aes(x = Hematocrit, y = los )) +
 
 ```{r}
 ggplot(mimic_icu_cohort, aes(x = Glucose, y = los )) +
-  geom_point(alpha = 0.5, color = "red") +
-  labs(title = "Length of ICU Stay vs Creatinine", x = "Glucose (mg/dL)", y = "LOS (days)") +
+   geom_col(color = "pink") +
+  labs(title = "Length of ICU Stay vs Glucose", x = "Glucose (mg/dL)", y = "LOS (days)") +
   theme_minimal()
 ```
 
@@ -1264,8 +1322,8 @@ ggplot(mimic_icu_cohort, aes(x = Glucose, y = los )) +
 
 ```{r}
 ggplot(mimic_icu_cohort, aes(x = WBC, y = los )) +
-  geom_point(alpha = 0.5, color = "red") +
-  labs(title = "Length of ICU Stay vs Creatinine", x = "WBC (mg/dL)", y = "LOS (days)") +
+   geom_col(color = "pink") +
+  labs(title = "Length of ICU Stay vs White Blood Cell", x = "WBC (mg/dL)", y = "LOS (days)") +
   theme_minimal()
 ```
 
@@ -1273,7 +1331,7 @@ ggplot(mimic_icu_cohort, aes(x = WBC, y = los )) +
 
 ```{r}
 ggplot(mimic_icu_cohort, aes(x = Heart_Rate, y = los )) +
-  geom_point(alpha = 0.5, color = "red") +
+   geom_col(color = "pink") +
   labs(title = "Length of ICU Stay vs Heart_Rate", x = "Heart_Rate", y = "LOS (days)") +
   theme_minimal() +
   coord_cartesian(xlim = c(0, 250)
@@ -1284,7 +1342,7 @@ ggplot(mimic_icu_cohort, aes(x = Heart_Rate, y = los )) +
 
 ```{r}
 ggplot(mimic_icu_cohort, aes(x = SysBP, y = los )) +
-  geom_point(alpha = 0.5, color = "red") +
+   geom_col(color = "pink") +
   labs(title = "Length of ICU Stay vs SysBP", x = "SysBP", y = "LOS (days)") +
   theme_minimal() +
   coord_cartesian(xlim = c(0, 500)
@@ -1295,7 +1353,7 @@ ggplot(mimic_icu_cohort, aes(x = SysBP, y = los )) +
 
 ```{r}
 ggplot(mimic_icu_cohort, aes(x = DiaBP, y = los )) +
-  geom_point(alpha = 0.5, color = "red") +
+   geom_col(color = "pink") +
   labs(title = "Length of ICU Stay vs DiaBP", x = "DiaBP", y = "LOS (days)") +
   theme_minimal() +
   coord_cartesian(xlim = c(0, 250)
@@ -1306,7 +1364,7 @@ ggplot(mimic_icu_cohort, aes(x = DiaBP, y = los )) +
 
 ```{r}
 ggplot(mimic_icu_cohort, aes(x = Temp, y = los )) +
-  geom_point(alpha = 0.5, color = "red") +
+   geom_col(color = "pink") +
   labs(title = "Length of ICU Stay vs Temp", x = "Temp", y = "LOS (days)") +
   theme_minimal() +
   coord_cartesian(xlim = c(0, 200)
@@ -1317,7 +1375,7 @@ ggplot(mimic_icu_cohort, aes(x = Temp, y = los )) +
 
 ```{r}
 ggplot(mimic_icu_cohort, aes(x = Respiratory_Rate, y = los )) +
-  geom_point(alpha = 0.5, color = "red") +
+   geom_col(color = "pink") +
   labs(title = "Length of ICU Stay vs Respiratory_Rate", x = "Respiratory_Rate", y = "LOS (days)") +
   theme_minimal() +
   coord_cartesian(xlim = c(0, 200)
@@ -1327,9 +1385,9 @@ ggplot(mimic_icu_cohort, aes(x = Respiratory_Rate, y = los )) +
 **LOS vs. First ICU_Unit**
 
 ```{r}
-ggplot(mimic_icu_cohort, aes(x = first_careunit, y = los )) +
-  geom_point(alpha = 0.5, color = "red") +
+ggplot(mimic_icu_cohort, aes(x = fct_infreq(first_careunit), y = los )) +
+   geom_col(color = "pink") +
   labs(title = "Length of ICU Stay vs first_careunit", x = "first_careunit", y = "LOS (days)") +
   theme_minimal()+
-  theme(axis.text.x = element_text(angle = 45, hjust = 1))
+  theme(axis.text.x = element_text(angle = 67.5, hjust = 1))
 ```
