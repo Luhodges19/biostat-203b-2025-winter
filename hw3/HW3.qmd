@@ -1,6 +1,19 @@
 ---
-title: "Feb9HW3"
-format: html
+title: "Biostat 203B Homework 2"
+subtitle: Due Jan 24, 2025 @ 11:59PM
+author: Luke Hodges 906182810
+format:
+  html: 
+    theme: cosmo
+    embed-resources: true
+    number-sections: false
+    toc: true
+    toc-depth: 4
+    toc-location: left
+    code-fold: false
+    link-external-icon: true
+    link-external-newwindow: true
+
 ---
 
 ```{r}
@@ -27,7 +40,7 @@ In this exercise, we use tidyverse (ggplot2, dplyr, etc) to explore the MIMIC-IV
 Q1. Visualizing patient trajectory
 Visualizing a patient’s encounters in a health care system is a common task in clinical data analysis. In this question, we will visualize a patient’s ADT (admission-discharge-transfer) history and ICU vitals in the MIMIC-IV data.
 
-## Question 1.1:
+## Question 1.1: Graph Duplication
 
 **Reading in the files for Q1**
 
@@ -204,23 +217,19 @@ With this in mind, we now want to create a symbolic link to the parquet we creat
 
 **When I do this command, it says that the symbolic link file already exists. SO let us check to see if one already exists**
 
-**Create a symbolic Link**
+**Create a symbolic Link for labevents_pq**
+
+cd ~/Desktop/203b-hw/hw3
+
+ln -s ~/mimic/hosp/labevents_pq labevents_pq
+
+ls -l labevents_pq
 
 ```{bash}
 
-#| eval: false
-
-ln -sf ~/mimic/hosp/part-0.parquet part-0.parquet
+ls -l ~/Desktop/203b-hw/hw3
 
 ```
-
-```{bash}
-
-#| eval: false
-
-ls -l part-0.parquet
-```
-**as we can see here, it does**
 
 **Now, we have to conjoin the necessary tables for the data**
 
@@ -388,7 +397,7 @@ guides(
   )
 ```
 
-## 1.2 Question 
+## 1.2 Question Graph Duplication 
 
 **First, let us make sure that the chartevents.csv is read into the system and confirm that we have the right directory for it**
 
@@ -563,7 +572,7 @@ ggplot(chartevents.filtered.arrow,
     y = "",
     color = "Vital Type"
   ) +
-  scale_x_datetime(date_labels = "%b %d %H:%M", date_breaks = "6 hours") +  
+  scale_x_datetime(date_labels = "%b %d %H:%M") +  
   theme_minimal() +
   theme(
     strip.text.x = element_text(size = 14, face = "bold", color = "white"),
@@ -1002,22 +1011,22 @@ arrow::write_dataset(chartevents6, path = "~/mimic/hosp/chartevents_pq", format 
 
 ```
 
-**Now I have to make a symbolic link to the chartevents_pq**
+**Now I have to make a symbolic link to the chartevents_pq by running the following commands in the terminal**
+
+cd  ~/Desktop/203b-hw/hw3
+
+and then 
+
+ln -s /Users/lukehodges/Desktop/203b-hw/hw3/chartevents_pq chartevents_pq
+
+and then 
 
 ```{bash}
-#| eval: false
 
-ln -s ~/mimic/hosp/chartevents_pq/part-0.parquet chartevents_pq
+ls -l ~/Desktop/203b-hw/hw3
 
 ```
 
-**Now I have to make sure that it exists**
-
-```{bash}
-
-ls -l chartevents_pq
-
-```
 
 **Turning chartevents into a parquet**
 
