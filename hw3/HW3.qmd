@@ -784,9 +784,7 @@ ggplot(patients_tble, aes(x = anchor_age)) +
 labevents.csv.gz (https://mimic.mit.edu/docs/iv/modules/hosp/labevents/) contains all laboratory measurements for patients. The first 10 lines are
 
 ```{bash}
-
 zcat < ~/mimic/hosp/labevents.csv.gz | head
-
 
 ```
 
@@ -1125,3 +1123,212 @@ print(mimic_icu_cohort)
 
 ```
 **This is the table as seen in the diagram**
+
+#Q8
+
+Summarize the following information about the ICU stay cohort mimic_icu_cohort using appropriate numerics or graphs:
+
+Length of ICU stay los vs demographic variables (race, insurance, marital_status, gender, age at intime)
+
+**First, let us make the length of stay a numeric value**
+
+```{r}
+
+mimic_icu_cohort <- mimic_icu_cohort %>%
+  mutate(los = as.numeric(los))
+
+```
+
+**Now let us make the graph**
+
+**LOS vs. Race**
+
+```{r}
+ggplot(mimic_icu_cohort, aes(x = fct_infreq(race), y = los)) +
+  geom_boxplot() +
+  labs(title = "Length of ICU Stay vs Race", x = "Race", y = "LOS (days)") +
+  theme_minimal() +
+  theme(axis.text.x = element_text(angle = 45, hjust = 1))
+```
+
+**LOS vs. Insurance**
+
+```{r}
+ggplot(mimic_icu_cohort, aes(x = fct_infreq(insurance), y = los)) +
+  geom_boxplot() +
+  labs(title = "Length of ICU Stay vs Insurance Type", x = "Insurance", y = "LOS (days)") +
+  theme_minimal() +
+  theme(axis.text.x = element_text(angle = 45, hjust = 1))
+```
+
+**LOS vs. Marital Status**
+
+```{r}
+
+ggplot(mimic_icu_cohort, aes(x = fct_infreq(marital_status), y = los)) +
+  geom_boxplot() +
+  labs(title = "Length of ICU Stay vs Marital Status", x = "Marital Status", y = "LOS (days)") +
+  theme_minimal() +
+  theme(axis.text.x = element_text(angle = 45, hjust = 1))
+
+```
+
+**LOS vs. Gender**
+
+```{r}
+
+ggplot(mimic_icu_cohort, aes(x = gender, y = los)) +
+  geom_boxplot(fill = "steelblue", alpha = 0.7) +
+  labs(title = "Length of ICU Stay vs Gender", x = "Gender", y = "LOS (days)") +
+  theme_minimal()
+
+```
+   
+**LOS vs. Anchor_age**
+                             
+```{r}
+
+ggplot(mimic_icu_cohort, aes(x = anchor_age, y = los)) +
+  geom_point(alpha = 0.5, color = "darkred") +
+  labs(title = "Length of ICU Stay vs Age", x = "Age at Admission", y = "LOS (days)") +
+  theme_minimal()
+
+```
+
+**LOS vs. Last Available Lab Measurements Before ICU Stay**
+
+**LOS vs. Lab Creatinine**
+
+```{r}
+ggplot(mimic_icu_cohort, aes(x = Creatinine, y = los )) +
+  geom_point(alpha = 0.5, color = "red") +
+  labs(title = "Length of ICU Stay vs Creatinine", x = "Creatinine (mg/dL)", y = "LOS (days)") +
+  theme_minimal()
+```
+
+**LOS vs. Lab Potassium**
+
+```{r}
+ggplot(mimic_icu_cohort, aes(x = Potassium, y = los )) +
+  geom_point(alpha = 0.5, color = "red") +
+  labs(title = "Length of ICU Stay vs Creatinine", x = "Potassium (mg/dL)", y = "LOS (days)") +
+  theme_minimal()
+```
+
+**LOS vs. Lab Sodium**
+
+```{r}
+ggplot(mimic_icu_cohort, aes(x = Sodium, y = los )) +
+  geom_point(alpha = 0.5, color = "red") +
+  labs(title = "Length of ICU Stay vs Creatinine", x = "Sodium (mg/dL)", y = "LOS (days)") +
+  theme_minimal()
+```
+
+**LOS vs. Lab Chloride**
+
+```{r}
+ggplot(mimic_icu_cohort, aes(x = Chloride, y = los )) +
+  geom_point(alpha = 0.5, color = "red") +
+  labs(title = "Length of ICU Stay vs Creatinine", x = "Chloride (mg/dL)", y = "LOS (days)") +
+  theme_minimal()
+```
+
+**LOS vs. Lab Bicarbonate**
+
+```{r}
+ggplot(mimic_icu_cohort, aes(x = Bicarbonate, y = los )) +
+  geom_point(alpha = 0.5, color = "red") +
+  labs(title = "Length of ICU Stay vs Creatinine", x = "Bicarbonate (mg/dL)", y = "LOS (days)") +
+  theme_minimal()
+```
+
+**LOS vs. Lab Hematocrit**
+
+```{r}
+ggplot(mimic_icu_cohort, aes(x = Hematocrit, y = los )) +
+  geom_point(alpha = 0.5, color = "red") +
+  labs(title = "Length of ICU Stay vs Creatinine", x = "Hematrocrit (mg/dL)", y = "LOS (days)") +
+  theme_minimal()
+```
+
+**LOS vs. Lab Glucose**
+
+```{r}
+ggplot(mimic_icu_cohort, aes(x = Glucose, y = los )) +
+  geom_point(alpha = 0.5, color = "red") +
+  labs(title = "Length of ICU Stay vs Creatinine", x = "Glucose (mg/dL)", y = "LOS (days)") +
+  theme_minimal()
+```
+
+**LOS vs. Lab WBC**
+
+```{r}
+ggplot(mimic_icu_cohort, aes(x = WBC, y = los )) +
+  geom_point(alpha = 0.5, color = "red") +
+  labs(title = "Length of ICU Stay vs Creatinine", x = "WBC (mg/dL)", y = "LOS (days)") +
+  theme_minimal()
+```
+
+**LOS vs. Vital Heart Rate**
+
+```{r}
+ggplot(mimic_icu_cohort, aes(x = Heart_Rate, y = los )) +
+  geom_point(alpha = 0.5, color = "red") +
+  labs(title = "Length of ICU Stay vs Heart_Rate", x = "Heart_Rate", y = "LOS (days)") +
+  theme_minimal() +
+  coord_cartesian(xlim = c(0, 250)
+  )
+```
+
+**LOS vs. Vital SysBP**
+
+```{r}
+ggplot(mimic_icu_cohort, aes(x = SysBP, y = los )) +
+  geom_point(alpha = 0.5, color = "red") +
+  labs(title = "Length of ICU Stay vs SysBP", x = "SysBP", y = "LOS (days)") +
+  theme_minimal() +
+  coord_cartesian(xlim = c(0, 500)
+  )
+```
+
+**LOS vs. Vital DiaBP**
+
+```{r}
+ggplot(mimic_icu_cohort, aes(x = DiaBP, y = los )) +
+  geom_point(alpha = 0.5, color = "red") +
+  labs(title = "Length of ICU Stay vs DiaBP", x = "DiaBP", y = "LOS (days)") +
+  theme_minimal() +
+  coord_cartesian(xlim = c(0, 250)
+  )
+```
+
+**LOS vs. Vital Temp**
+
+```{r}
+ggplot(mimic_icu_cohort, aes(x = Temp, y = los )) +
+  geom_point(alpha = 0.5, color = "red") +
+  labs(title = "Length of ICU Stay vs Temp", x = "Temp", y = "LOS (days)") +
+  theme_minimal() +
+  coord_cartesian(xlim = c(0, 200)
+  )
+```
+
+**LOS vs. Vital Respiratory_Rate**
+
+```{r}
+ggplot(mimic_icu_cohort, aes(x = Respiratory_Rate, y = los )) +
+  geom_point(alpha = 0.5, color = "red") +
+  labs(title = "Length of ICU Stay vs Respiratory_Rate", x = "Respiratory_Rate", y = "LOS (days)") +
+  theme_minimal() +
+  coord_cartesian(xlim = c(0, 200)
+  )
+```
+
+**LOS vs. First ICU_Unit**
+
+```{r}
+ggplot(mimic_icu_cohort, aes(x = first_careunit, y = los )) +
+  geom_point(alpha = 0.5, color = "red") +
+  labs(title = "Length of ICU Stay vs first_careunit", x = "first_careunit", y = "LOS (days)") +
+  theme_minimal()
+```
