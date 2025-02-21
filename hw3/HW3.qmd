@@ -370,13 +370,13 @@ ggplot() +
     color = "Care Unit",
     shape = "Procedure"
   ) +  
-guides(
+  guides(
     color = guide_legend(title = "Care Unit", nrow = 2, 
                          title.position = "left"),  
     shape = guide_legend(title = "Procedure", nrow = 1, 
                          title.position = "top"),
-    override.aes = list(size=3))+
- scale_color_manual(values = Colormanual) +
+    override.aes = list(size=3)) +
+  scale_color_manual(values = Colormanual) +
   scale_shape_manual(values = Shapemanual) +
   scale_fill_manual(values = Shapemanual) +
   scale_y_discrete(limits = rev) +
@@ -822,7 +822,7 @@ ggplot(patients_tble, aes(x = anchor_age)) +
     x = "Age",
     y = "Number of Patients"
   ) +
-  coord_cartesian(xlim = c(0, 100))+
+  coord_cartesian(xlim = c(0, 100)) +
   theme_minimal()
 ```
 **This data is indicative of age-rounding, where either the patient or the practitioner rounds the age of the patient either up or down. There is also no data before about 20 years of age, and past 87.5 years of age. As we know, these ages or possible so these are not being reported. We also see that at one point there is data missing completely, which could be more indicative of age rounding as well or not taking into consideration age for the patient when examining them. The large amount of young adult admissions could be because of the onset of diseases that do not show up until young adulthood, like diabetes, MS, or schizophrenia. Individuals of this age are also still on their parent's health insurance, so they may be more likely to go visit the hospital since it would not be on their dime. This then explains the dip in the 30s: individuals are on their own health insurance now and have to be more financially conscientious since their insurance is likely expensive. These adults are also more likely to be healthy compared to other age ranges. The last peak is quiet indicative of a cutoff or even an issue with data entry.**
@@ -854,7 +854,6 @@ labevents <- arrow::open_dataset("~/mimic/hosp/labevents.csv", format = "csv")
 
 ```{r}
 #| eval: false
-#| 
 arrow::write_dataset(labevents, path = "~/mimic/hosp/labevents_pq", format = "parquet")
 ```
 
