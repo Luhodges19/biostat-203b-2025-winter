@@ -1,6 +1,6 @@
 ---
-title: "Biostat 203B Homework 2"
-subtitle: Due Jan 24, 2025 @ 11:59PM
+title: "Biostat 203B Homework 3"
+subtitle: Due February 21st, 2025 @ 11:59PM
 author: Luke Hodges 906182810
 format:
   html: 
@@ -215,15 +215,13 @@ print(labevents_pq10.filter)
 
 With this in mind, we now want to create a symbolic link to the parquet we created in HW2, part.0.parquet, so that we can use it in this homework.
 
-**When I do this command, it says that the symbolic link file already exists. SO let us check to see if one already exists**
-
 **Create a symbolic Link for labevents_pq**
 
 cd ~/Desktop/203b-hw/hw3
 
 ln -s ~/mimic/hosp/labevents_pq labevents_pq
 
-ls -l labevents_pq
+ls -l labevents_pq**
 
 ```{bash}
 
@@ -1172,7 +1170,7 @@ print(mimic_icu_cohort)
 ```
 **This is the table as seen in the diagram**
 
-#Q8 Exploratory data analysis (EDA)
+## Q8 Exploratory data analysis (EDA)
 
 Summarize the following information about the ICU stay cohort mimic_icu_cohort using appropriate numerics or graphs:
 
@@ -1209,28 +1207,38 @@ ggplot(mimic_icu_cohort, aes(x = fct_infreq(race), y = los)) +
 ```{r}
 ggplot(mimic_icu_summary, aes(x = fct_infreq(race), y = mean_los)) +
   geom_col(fill = "pink", color = "black") +
-  labs(title = "Average Length of ICU Stay vs Race", x = "Race", y = "LOS (days)") +
+  labs(title = "Average Length of ICU Stay vs Race", x = "Race", y = "Average LOS (days)") +
   theme_minimal() +
   theme(axis.text.x = element_text(angle = 45, hjust = 1))
 ```
 **LOS vs. Insurance**
 
 ```{r}
-ggplot(mimic_icu_cohort, aes(x = fct_infreq(insurance), y = los)) +
-  geom_col(fill = "pink") +
-  labs(title = "Length of ICU Stay vs Insurance Type", x = "Insurance", y = "LOS (days)") +
+
+mimic_icu_summary <- mimic_icu_cohort %>%
+  group_by(insurance) %>%
+  summarise(mean_los = mean(los, na.rm = TRUE))
+
+ggplot(mimic_icu_summary, aes(x = fct_infreq(insurance), y = mean_los)) +
+  geom_col(fill = "pink", color = "black") +
+  labs(title = "Average Length of ICU Stay vs Insurance Type", x = "Insurance", y = "Average LOS (days)") +
   theme_minimal() +
   theme(axis.text.x = element_text(angle = 45, hjust = 1))
 ```
+
 **When I do unique(mimic_icu_cohort$insurance), there is an insurance that is "" or in other words, blank**
 
 **LOS vs. Marital Status**
 
 ```{r}
 
-ggplot(mimic_icu_cohort, aes(x = fct_infreq(marital_status), y = los)) +
-  geom_col(fill = "pink") +
-  labs(title = "Length of ICU Stay vs Marital Status", x = "Marital Status", y = "LOS (days)") +
+mimic_icu_summary <- mimic_icu_cohort %>%
+  group_by(marital_status) %>%
+  summarise(mean_los = mean(los, na.rm = TRUE))
+
+ggplot(mimic_icu_summary, aes(x = fct_infreq(marital_status), y = mean_los)) +
+  geom_col(fill = "pink", color = "black") +
+  labs(title = "Average Length of ICU Stay vs Marital Status", x = "Marital Status", y = "Average LOS (days)") +
   theme_minimal() +
   theme(axis.text.x = element_text(angle = 45, hjust = 1))
 
@@ -1240,9 +1248,13 @@ ggplot(mimic_icu_cohort, aes(x = fct_infreq(marital_status), y = los)) +
 
 ```{r}
 
-ggplot(mimic_icu_cohort, aes(x = gender, y = los)) +
-  geom_col(fill = "pink", alpha = 0.7) +
-  labs(title = "Length of ICU Stay vs Gender", x = "Gender", y = "LOS (days)") +
+mimic_icu_summary <- mimic_icu_cohort %>%
+  group_by(gender) %>%
+  summarise(mean_los = mean(los, na.rm = TRUE))
+
+ggplot(mimic_icu_summary, aes(x = gender, y = mean_los)) +
+  geom_col(fill = "pink", color = "black") +
+  labs(title = "Average Length of ICU Stay vs Gender", x = "Gender", y = "Average LOS (days)") +
   theme_minimal()
 
 ```
@@ -1250,9 +1262,13 @@ ggplot(mimic_icu_cohort, aes(x = gender, y = los)) +
                              
 ```{r}
 
-ggplot(mimic_icu_cohort, aes(x = anchor_age, y = los)) +
-  geom_col(fill = "pink") +
-  labs(title = "Length of ICU Stay vs Age", x = "Age at Admission", y = "LOS (days)") +
+mimic_icu_summary <- mimic_icu_cohort %>%
+  group_by(anchor_age) %>%
+  summarise(mean_los = mean(los, na.rm = TRUE))
+
+ggplot(mimic_icu_summary, aes(x = anchor_age, y = mean_los)) +
+  geom_col(fill = "pink", color = "black") +
+  labs(title = "Average Length of ICU Stay vs Age", x = "Age at Admission", y = "Average LOS (days)") +
   theme_minimal()
 
 ```
@@ -1263,11 +1279,15 @@ ggplot(mimic_icu_cohort, aes(x = anchor_age, y = los)) +
 
 ```{r}
 
-ggplot(mimic_icu_cohort, aes(x = Creatinine, y = los)) +
-  geom_col(color = "pink", alpha = 0.5) + 
-  labs(title = "Length of ICU Stay vs Creatinine", 
+mimic_icu_summary <- mimic_icu_cohort %>%
+  group_by(Creatinine) %>%
+  summarise(mean_los = mean(los, na.rm = TRUE))
+
+ggplot(mimic_icu_summary, aes(x = Creatinine, y = mean_los)) +
+  geom_col(color = "pink", color = "black") + 
+  labs(title = "Average Length of ICU Stay vs Creatinine", 
        x = "Creatinine (mg/dL)", 
-       y = "LOS (days)") +
+       y = "Average LOS (days)") +
   theme_minimal() + 
   coord_cartesian(xlim = c(0, 75))
 
@@ -1276,72 +1296,111 @@ ggplot(mimic_icu_cohort, aes(x = Creatinine, y = los)) +
 **LOS vs. Lab Potassium**
 
 ```{r}
-ggplot(mimic_icu_cohort, aes(x = Potassium, y = los )) +
-  geom_col(color = "pink") +
-  labs(title = "Length of ICU Stay vs Potassium", x = "Potassium (mg/dL)", y = "LOS (days)") +
+
+mimic_icu_summary <- mimic_icu_cohort %>%
+  group_by(Potassium) %>%
+  summarise(mean_los = mean(los, na.rm = TRUE))
+
+ggplot(mimic_icu_summary, aes(x = Potassium, y = mean_los)) +
+  geom_col(fill = "pink", color = "black") +
+  labs(title = "Average Length of ICU Stay vs Potassium", x = "Potassium (mg/dL)", y = "Average LOS (days)") +
   theme_minimal()
 ```
 
 **LOS vs. Lab Sodium**
 
 ```{r}
-ggplot(mimic_icu_cohort, aes(x = Sodium, y = los )) +
-  geom_col(color = "pink") +
-  labs(title = "Length of ICU Stay vs Sodium", x = "Sodium (mg/dL)", y = "LOS (days)") +
+mimic_icu_summary <- mimic_icu_cohort %>%
+  group_by(Sodium) %>%
+  summarise(mean_los = mean(los, na.rm = TRUE))
+
+ggplot(mimic_icu_summary, aes(x = Sodium, y = mean_los )) +
+  geom_col(fill = "pink", color = "black") +
+  labs(title = "Average Length of ICU Stay vs Sodium", x = "Sodium (mg/dL)", y = "Average LOS (days)") +
   theme_minimal()
 ```
 
 **LOS vs. Lab Chloride**
 
 ```{r}
-ggplot(mimic_icu_cohort, aes(x = Chloride, y = los )) +
-   geom_col(color = "pink") +
-  labs(title = "Length of ICU Stay vs Chloride", x = "Chloride (mg/dL)", y = "LOS (days)") +
+
+mimic_icu_summary <- mimic_icu_cohort %>%
+  group_by(Chloride) %>%
+  summarise(mean_los = mean(los, na.rm = TRUE))
+
+ggplot(mimic_icu_summary, aes(x = Chloride, y = mean_los )) +
+   geom_col(fill = "pink", color = "black") +
+  labs(title = "Average Length of ICU Stay vs Chloride", x = "Chloride (mg/dL)", y = "Average LOS (days)") +
   theme_minimal()
 ```
 
 **LOS vs. Lab Bicarbonate**
 
 ```{r}
-ggplot(mimic_icu_cohort, aes(x = Bicarbonate, y = los )) +
-   geom_col(color = "pink") +
-  labs(title = "Length of ICU Stay vs Bicarbonate", x = "Bicarbonate (mg/dL)", y = "LOS (days)") +
+
+mimic_icu_summary <- mimic_icu_cohort %>%
+  group_by(Bicarbonate) %>%
+  summarise(mean_los = mean(los, na.rm = TRUE))
+
+ggplot(mimic_icu_summary, aes(x = Bicarbonate, y = mean_los )) +
+   geom_col(color = "black") +
+  labs(title = "Average Length of ICU Stay vs Bicarbonate", x = "Bicarbonate (mg/dL)", y = "Average LOS (days)") +
   theme_minimal()
 ```
 
 **LOS vs. Lab Hematocrit**
 
 ```{r}
-ggplot(mimic_icu_cohort, aes(x = Hematocrit, y = los )) +
+
+mimic_icu_summary <- mimic_icu_cohort %>%
+  group_by(Hematocrit) %>%
+  summarise(mean_los = mean(los, na.rm = TRUE))
+
+ggplot(mimic_icu_summary, aes(x = Hematocrit, y = mean_los )) +
    geom_col(color = "pink") +
-  labs(title = "Length of ICU Stay vs Hematocrit", x = "Hematrocrit (mg/dL)", y = "LOS (days)") +
+  labs(title = "Average Length of ICU Stay vs Hematocrit", x = "Hematrocrit (mg/dL)", y = "Average LOS (days)") +
   theme_minimal()
 ```
 
 **LOS vs. Lab Glucose**
 
 ```{r}
-ggplot(mimic_icu_cohort, aes(x = Glucose, y = los )) +
+
+mimic_icu_summary <- mimic_icu_cohort %>%
+  group_by(Glucose) %>%
+  summarise(mean_los = mean(los, na.rm = TRUE))
+
+ggplot(mimic_icu_summary, aes(x = Glucose, y = mean_los )) +
    geom_col(color = "pink") +
-  labs(title = "Length of ICU Stay vs Glucose", x = "Glucose (mg/dL)", y = "LOS (days)") +
+  labs(title = "Average Length of ICU Stay vs Glucose", x = "Glucose (mg/dL)", y = "Average LOS (days)") +
   theme_minimal()
 ```
 
 **LOS vs. Lab WBC**
 
 ```{r}
-ggplot(mimic_icu_cohort, aes(x = WBC, y = los )) +
+
+mimic_icu_summary <- mimic_icu_cohort %>%
+  group_by(WBC) %>%
+  summarise(mean_los = mean(los, na.rm = TRUE))
+
+ggplot(mimic_icu_summary, aes(x = WBC, y = mean_los )) +
    geom_col(color = "pink") +
-  labs(title = "Length of ICU Stay vs White Blood Cell", x = "WBC (mg/dL)", y = "LOS (days)") +
+  labs(title = "Average Length of ICU Stay vs White Blood Cell", x = "WBC (mg/dL)", y = "Average LOS (days)") +
   theme_minimal()
 ```
 
 **LOS vs. Vital Heart Rate**
 
 ```{r}
-ggplot(mimic_icu_cohort, aes(x = Heart_Rate, y = los )) +
+
+mimic_icu_summary <- mimic_icu_cohort %>%
+  group_by(Heart_Rate) %>%
+  summarise(mean_los = mean(los, na.rm = TRUE))
+
+ggplot(mimic_icu_summary, aes(x = Heart_Rate, y = mean_los )) +
    geom_col(color = "pink") +
-  labs(title = "Length of ICU Stay vs Heart_Rate", x = "Heart_Rate", y = "LOS (days)") +
+  labs(title = "Average Length of ICU Stay vs Heart_Rate", x = "Heart_Rate", y = "Average LOS (days)") +
   theme_minimal() +
   coord_cartesian(xlim = c(0, 250)
   )
@@ -1350,20 +1409,30 @@ ggplot(mimic_icu_cohort, aes(x = Heart_Rate, y = los )) +
 **LOS vs. Vital SysBP**
 
 ```{r}
-ggplot(mimic_icu_cohort, aes(x = SysBP, y = los )) +
+
+mimic_icu_summary <- mimic_icu_cohort %>%
+  group_by(SysBP) %>%
+  summarise(mean_los = mean(los, na.rm = TRUE))
+
+ggplot(mimic_icu_summary, aes(x = SysBP, y = mean_los )) +
    geom_col(color = "pink") +
-  labs(title = "Length of ICU Stay vs SysBP", x = "SysBP", y = "LOS (days)") +
+  labs(title = "Average Length of ICU Stay vs SysBP", x = "SysBP", y = "Average LOS (days)") +
   theme_minimal() +
-  coord_cartesian(xlim = c(0, 500)
+  coord_cartesian(xlim = c(0, 300)
   )
 ```
 
 **LOS vs. Vital DiaBP**
 
 ```{r}
-ggplot(mimic_icu_cohort, aes(x = DiaBP, y = los )) +
+
+mimic_icu_summary <- mimic_icu_cohort %>%
+  group_by(DiaBP) %>%
+  summarise(mean_los = mean(los, na.rm = TRUE))
+
+ggplot(mimic_icu_summary, aes(x = DiaBP, y = mean_los )) +
    geom_col(color = "pink") +
-  labs(title = "Length of ICU Stay vs DiaBP", x = "DiaBP", y = "LOS (days)") +
+  labs(title = "Average Length of ICU Stay vs DiaBP", x = "DiaBP", y = "Average LOS (days)") +
   theme_minimal() +
   coord_cartesian(xlim = c(0, 250)
   )
@@ -1372,20 +1441,30 @@ ggplot(mimic_icu_cohort, aes(x = DiaBP, y = los )) +
 **LOS vs. Vital Temp**
 
 ```{r}
-ggplot(mimic_icu_cohort, aes(x = Temp, y = los )) +
+
+mimic_icu_summary <- mimic_icu_cohort %>%
+  group_by(Temp) %>%
+  summarise(mean_los = mean(los, na.rm = TRUE))
+
+ggplot(mimic_icu_summary, aes(x = Temp, y = mean_los )) +
    geom_col(color = "pink") +
-  labs(title = "Length of ICU Stay vs Temp", x = "Temp", y = "LOS (days)") +
+  labs(title = "Average Length of ICU Stay vs Temp", x = "Temp", y = "Average LOS (days)") +
   theme_minimal() +
-  coord_cartesian(xlim = c(0, 200)
+  coord_cartesian(xlim = c(0, 150)
   )
 ```
 
 **LOS vs. Vital Respiratory_Rate**
 
 ```{r}
-ggplot(mimic_icu_cohort, aes(x = Respiratory_Rate, y = los )) +
+
+mimic_icu_summary <- mimic_icu_cohort %>%
+  group_by(Respiratory_Rate) %>%
+  summarise(mean_los = mean(los, na.rm = TRUE))
+
+ggplot(mimic_icu_summary, aes(x = Respiratory_Rate, y = mean_los)) +
    geom_col(color = "pink") +
-  labs(title = "Length of ICU Stay vs Respiratory_Rate", x = "Respiratory_Rate", y = "LOS (days)") +
+  labs(title = "Average Length of ICU Stay vs Respiratory_Rate", x = "Respiratory_Rate", y = "Average LOS (days)") +
   theme_minimal() +
   coord_cartesian(xlim = c(0, 200)
   )
@@ -1394,9 +1473,14 @@ ggplot(mimic_icu_cohort, aes(x = Respiratory_Rate, y = los )) +
 **LOS vs. First ICU_Unit**
 
 ```{r}
-ggplot(mimic_icu_cohort, aes(x = fct_infreq(first_careunit), y = los )) +
-   geom_col(color = "pink") +
-  labs(title = "Length of ICU Stay vs first_careunit", x = "first_careunit", y = "LOS (days)") +
+
+mimic_icu_summary <- mimic_icu_cohort %>%
+  group_by(first_careunit) %>%
+  summarise(mean_los = mean(los, na.rm = TRUE))
+
+ggplot(mimic_icu_summary, aes(x = fct_infreq(first_careunit), y = mean_los )) +
+   geom_col(fill = "pink", color = "black") +
+  labs(title = "Average Length of ICU Stay vs first_careunit", x = "first_careunit", y = "Average LOS (days)") +
   theme_minimal()+
-  theme(axis.text.x = element_text(angle = 67.5, hjust = 1))
+  theme(axis.text.x = element_text(angle = 75, hjust = 1))
 ```
