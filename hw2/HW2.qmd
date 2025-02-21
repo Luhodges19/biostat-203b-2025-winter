@@ -3,6 +3,7 @@ title: "Biostat 203B Homework 2"
 subtitle: Due Jan 24, 2025 @ 11:59PM
 author: Luke Hodges 906182810
 format:
+<<<<<<< HEAD
   #typst: default
   pdf: default
   #html: 
@@ -15,6 +16,18 @@ format:
     #code-fold: false
     #link-external-icon: true
     #link-external-newwindow: true
+=======
+  html: 
+    theme: cosmo
+    embed-resources: true
+    number-sections: false
+    toc: true
+    toc-depth: 4
+    toc-location: left
+    code-fold: false
+    link-external-icon: true
+    link-external-newwindow: true
+>>>>>>> develop
 
 ---
 
@@ -377,7 +390,10 @@ Write a few sentences to explain what is the Parquet format. Imagine you want to
 
 ```{r}
 #| eval: false
+<<<<<<< HEAD
 # Code not processed from Co-Pilot, kept here in case error occurs and need reference point to build off from. 
+=======
+>>>>>>> develop
 
 arrow::write_dataset(arrow::open_dataset("labevents.csv", format="csv"), 
                      path = "~/mimic/hosp/labevents", format = "parquet")
@@ -465,6 +481,7 @@ library(dbplyr)
 
 ```
 
+<<<<<<< HEAD
 ```{r}
 if (!exists("labevents.duckdb.table")) {
   labevents.duckdb.table <- arrow::to_duckdb(labevents.duckdb, 
@@ -482,6 +499,9 @@ labevents.filter.duckdb <- labevents.duckdb.table %>%
 ```
 
 **How long does the ingest+convert+select+filter process take?**
+=======
+**Now, let us select columns and filter rows as in Q2.5 and see how long does the ingest+convert+select+filter process take?**
+>>>>>>> develop
 
 ```{r}
 system.time({
@@ -588,4 +608,8 @@ charteventsprint <- chartevents.filtered.arrow %>%
 
 ```{r}
 print(charteventsprint)
+<<<<<<< HEAD
 ```
+=======
+```
+>>>>>>> develop
