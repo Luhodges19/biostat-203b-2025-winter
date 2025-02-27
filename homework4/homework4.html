@@ -131,7 +131,7 @@ loaded via a namespace (and not attached):
 <div class="sourceCode cell-code" id="cb3"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb3-1"><a href="#cb3-1" aria-hidden="true" tabindex="-1"></a>memuse<span class="sc">::</span><span class="fu">Sys.meminfo</span>()</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
 <div class="cell-output cell-output-stdout">
 <pre><code>Totalram:  32.000 GiB 
-Freeram:    7.127 GiB </code></pre>
+Freeram:    6.619 GiB </code></pre>
 </div>
 </div>
 <p>Load database libraries and the tidyverse frontend:</p>
@@ -318,6 +318,107 @@ Freeram:    7.127 GiB </code></pre>
  8 2163-09-28 09:04:00                    0
  9 2181-11-15 09:57:00                    0
 10 2183-09-18 20:20:00                    0
+# ℹ more rows</code></pre>
+</div>
+</div>
+</section>
+<section id="q1.4-retrieve-patients-table" class="level2">
+<h2 class="anchored" data-anchor-id="q1.4-retrieve-patients-table">Q1.4 Retrieve Patients Table</h2>
+<p>Connect to <code>patients</code> table</p>
+<div class="cell">
+<div class="sourceCode cell-code" id="cb16"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb16-1"><a href="#cb16-1" aria-hidden="true" tabindex="-1"></a>patients_tble <span class="ot">&lt;-</span> <span class="fu">tbl</span>(con_bq, <span class="st">"patients"</span>) <span class="sc">|&gt;</span></span>
+<span id="cb16-2"><a href="#cb16-2" aria-hidden="true" tabindex="-1"></a>  <span class="fu">arrange</span>(subject_id) <span class="sc">|&gt;</span></span>
+<span id="cb16-3"><a href="#cb16-3" aria-hidden="true" tabindex="-1"></a>  <span class="fu">print</span>(<span class="at">width =</span> <span class="cn">Inf</span>)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="cell-output cell-output-stdout">
+<pre><code># Source:     SQL [?? x 6]
+# Database:   BigQueryConnection
+# Ordered by: subject_id
+   subject_id gender anchor_age anchor_year anchor_year_group dod       
+        &lt;int&gt; &lt;chr&gt;       &lt;int&gt;       &lt;int&gt; &lt;chr&gt;             &lt;date&gt;    
+ 1   10000032 F              52        2180 2014 - 2016       2180-09-09
+ 2   10000048 F              23        2126 2008 - 2010       NA        
+ 3   10000058 F              33        2168 2020 - 2022       NA        
+ 4   10000068 F              19        2160 2008 - 2010       NA        
+ 5   10000084 M              72        2160 2017 - 2019       2161-02-13
+ 6   10000102 F              27        2136 2008 - 2010       NA        
+ 7   10000108 M              25        2163 2014 - 2016       NA        
+ 8   10000115 M              24        2154 2017 - 2019       NA        
+ 9   10000117 F              48        2174 2008 - 2010       NA        
+10   10000161 M              60        2163 2020 - 2022       NA        
+# ℹ more rows</code></pre>
+</div>
+</div>
+</section>
+<section id="q1.5-labevents-data" class="level2">
+<h2 class="anchored" data-anchor-id="q1.5-labevents-data">Q1.5 labevents data</h2>
+<p>Connect to the labevents table and retrieve a subset that only contain subjects who appear in icustays_tble and the lab items listed in HW3. Only keep the last lab measurements (by storetime) before the ICU stay and pivot lab items to become variables/columns. Write all steps in one chain of pipes.</p>
+<div class="cell">
+<div class="sourceCode cell-code" id="cb18"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb18-1"><a href="#cb18-1" aria-hidden="true" tabindex="-1"></a>lab_items <span class="ot">&lt;-</span> <span class="fu">c</span>(<span class="dv">50912</span>, <span class="dv">50971</span>, <span class="dv">50983</span>, <span class="dv">50902</span>, <span class="dv">50882</span>, <span class="dv">51221</span>, <span class="dv">51301</span>, <span class="dv">50931</span>)</span>
+<span id="cb18-2"><a href="#cb18-2" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb18-3"><a href="#cb18-3" aria-hidden="true" tabindex="-1"></a>labevents_tble <span class="ot">&lt;-</span> <span class="fu">tbl</span>(con_bq, <span class="st">"labevents"</span>) <span class="sc">|&gt;</span> </span>
+<span id="cb18-4"><a href="#cb18-4" aria-hidden="true" tabindex="-1"></a>  <span class="fu">select</span>(subject_id, hadm_id, storetime, itemid, charttime, valuenum) <span class="sc">|&gt;</span>  </span>
+<span id="cb18-5"><a href="#cb18-5" aria-hidden="true" tabindex="-1"></a>  <span class="fu">filter</span>(itemid <span class="sc">%in%</span> lab_items) <span class="sc">|&gt;</span> </span>
+<span id="cb18-6"><a href="#cb18-6" aria-hidden="true" tabindex="-1"></a>  <span class="fu">mutate</span>(<span class="at">subject_id =</span> <span class="fu">as.integer</span>(subject_id)) <span class="sc">|&gt;</span></span>
+<span id="cb18-7"><a href="#cb18-7" aria-hidden="true" tabindex="-1"></a>  <span class="fu">left_join</span>(icustays_tble, <span class="at">by =</span> <span class="fu">c</span>(<span class="st">"subject_id"</span>)) <span class="sc">|&gt;</span> </span>
+<span id="cb18-8"><a href="#cb18-8" aria-hidden="true" tabindex="-1"></a>  <span class="fu">filter</span>(storetime <span class="sc">&lt;</span> intime) <span class="sc">|&gt;</span> </span>
+<span id="cb18-9"><a href="#cb18-9" aria-hidden="true" tabindex="-1"></a>  <span class="fu">arrange</span>(subject_id, stay_id, itemid, <span class="fu">desc</span>(storetime)) <span class="sc">|&gt;</span>  </span>
+<span id="cb18-10"><a href="#cb18-10" aria-hidden="true" tabindex="-1"></a>  <span class="fu">group_by</span>(subject_id, stay_id, itemid) <span class="sc">|&gt;</span>  </span>
+<span id="cb18-11"><a href="#cb18-11" aria-hidden="true" tabindex="-1"></a>  <span class="fu">filter</span>(<span class="fu">row_number</span>() <span class="sc">==</span> <span class="dv">1</span>) <span class="sc">|&gt;</span>  </span>
+<span id="cb18-12"><a href="#cb18-12" aria-hidden="true" tabindex="-1"></a>  <span class="fu">ungroup</span>() <span class="sc">|&gt;</span>  </span>
+<span id="cb18-13"><a href="#cb18-13" aria-hidden="true" tabindex="-1"></a>  <span class="fu">select</span>(subject_id, stay_id, itemid, valuenum) <span class="sc">|&gt;</span>  </span>
+<span id="cb18-14"><a href="#cb18-14" aria-hidden="true" tabindex="-1"></a>  <span class="fu">pivot_wider</span>(<span class="at">names_from =</span> itemid, <span class="at">values_from =</span> valuenum, </span>
+<span id="cb18-15"><a href="#cb18-15" aria-hidden="true" tabindex="-1"></a>              <span class="at">names_prefix =</span> <span class="st">"lab_"</span>) <span class="sc">|&gt;</span>  </span>
+<span id="cb18-16"><a href="#cb18-16" aria-hidden="true" tabindex="-1"></a>  <span class="fu">rename</span>(</span>
+<span id="cb18-17"><a href="#cb18-17" aria-hidden="true" tabindex="-1"></a>    <span class="at">Creatinine =</span> lab_50912,</span>
+<span id="cb18-18"><a href="#cb18-18" aria-hidden="true" tabindex="-1"></a>    <span class="at">Potassium =</span> lab_50971,</span>
+<span id="cb18-19"><a href="#cb18-19" aria-hidden="true" tabindex="-1"></a>    <span class="at">Sodium =</span> lab_50983,</span>
+<span id="cb18-20"><a href="#cb18-20" aria-hidden="true" tabindex="-1"></a>    <span class="at">Chloride =</span> lab_50902,</span>
+<span id="cb18-21"><a href="#cb18-21" aria-hidden="true" tabindex="-1"></a>    <span class="at">Bicarbonate =</span> lab_50882,</span>
+<span id="cb18-22"><a href="#cb18-22" aria-hidden="true" tabindex="-1"></a>    <span class="at">Hematocrit =</span> lab_51221,</span>
+<span id="cb18-23"><a href="#cb18-23" aria-hidden="true" tabindex="-1"></a>    <span class="at">WBC =</span> lab_51301,</span>
+<span id="cb18-24"><a href="#cb18-24" aria-hidden="true" tabindex="-1"></a>    <span class="at">Glucose =</span> lab_50931) <span class="sc">|&gt;</span>  </span>
+<span id="cb18-25"><a href="#cb18-25" aria-hidden="true" tabindex="-1"></a>  <span class="fu">select</span>(subject_id, stay_id, Bicarbonate, Chloride, Creatinine, Glucose, </span>
+<span id="cb18-26"><a href="#cb18-26" aria-hidden="true" tabindex="-1"></a>         Potassium, Sodium, Hematocrit, WBC) <span class="sc">|&gt;</span>  </span>
+<span id="cb18-27"><a href="#cb18-27" aria-hidden="true" tabindex="-1"></a>  <span class="fu">arrange</span>(subject_id, stay_id) <span class="sc">|&gt;</span>  </span>
+<span id="cb18-28"><a href="#cb18-28" aria-hidden="true" tabindex="-1"></a>  <span class="fu">print</span>(<span class="at">width =</span> <span class="cn">Inf</span>)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="cell-output cell-output-stderr">
+<pre><code>Warning: ORDER BY is ignored in subqueries without LIMIT
+ℹ Do you need to move arrange() later in the pipeline or use window_order() instead?
+ORDER BY is ignored in subqueries without LIMIT
+ℹ Do you need to move arrange() later in the pipeline or use window_order() instead?
+ORDER BY is ignored in subqueries without LIMIT
+ℹ Do you need to move arrange() later in the pipeline or use window_order() instead?
+ORDER BY is ignored in subqueries without LIMIT
+ℹ Do you need to move arrange() later in the pipeline or use window_order() instead?</code></pre>
+</div>
+<div class="cell-output cell-output-stdout">
+<pre><code># Source:     SQL [?? x 10]
+# Database:   BigQueryConnection
+# Ordered by: subject_id, stay_id
+   subject_id  stay_id Bicarbonate Chloride Creatinine Glucose Potassium Sodium
+        &lt;int&gt;    &lt;int&gt;       &lt;dbl&gt;    &lt;dbl&gt;      &lt;dbl&gt;   &lt;dbl&gt;     &lt;dbl&gt;  &lt;dbl&gt;
+ 1   10000032 39553978          25       95        0.7     102       6.7    126
+ 2   10000690 37081114          26      100        1        85       4.8    137
+ 3   10000980 39765666          21      109        2.3      89       3.9    144
+ 4   10001217 34592300          30      104        0.5      87       4.1    142
+ 5   10001217 37067082          22      108        0.6     112       4.2    142
+ 6   10001725 31205490          NA       98       NA        NA       4.1    139
+ 7   10001843 39698942          28       97        1.3     131       3.9    138
+ 8   10001884 37510196          30       88        1.1     141       4.5    130
+ 9   10002013 39060235          24      102        0.9     288       3.5    137
+10   10002114 34672098          18       NA        3.1      95       6.5    125
+   Hematocrit   WBC
+        &lt;dbl&gt; &lt;dbl&gt;
+ 1       41.1   6.9
+ 2       36.1   7.1
+ 3       27.3   5.3
+ 4       37.4   5.4
+ 5       38.1  15.7
+ 6       NA    NA  
+ 7       31.4  10.4
+ 8       39.7  12.2
+ 9       34.9   7.2
+10       34.3  16.8
 # ℹ more rows</code></pre>
 </div>
 </div>

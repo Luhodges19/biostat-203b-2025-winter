@@ -91,3 +91,50 @@ admissions_tble <- tbl(con_bq, "admissions") |>
   print(width = Inf)
 
 ```
+
+## Q1.4 Retrieve Patients Table
+
+Connect to `patients` table
+
+```{r}
+
+patients_tble <- tbl(con_bq, "patients") |>
+  arrange(subject_id) |>
+  print(width = Inf)
+
+```
+## Q1.5 labevents data
+
+Connect to the labevents table and retrieve a subset that only contain subjects who appear in icustays_tble and the lab items listed in HW3. Only keep the last lab measurements (by storetime) before the ICU stay and pivot lab items to become variables/columns. Write all steps in one chain of pipes.
+
+```{r}
+
+lab_items <- c(50912, 50971, 50983, 50902, 50882, 51221, 51301, 50931)
+
+labevents_tble <- tbl(con_bq, "labevents") |> 
+  select(subject_id, hadm_id, storetime, itemid, charttime, valuenum) |>  
+  filter(itemid %in% lab_items) |> 
+  mutate(subject_id = as.integer(subject_id)) |>
+  left_join(icustays_tble, by = c("subject_id")) |> 
+  filter(storetime < intime) |> 
+  arrange(subject_id, stay_id, itemid, desc(storetime)) |>  
+  group_by(subject_id, stay_id, itemid) |>  
+  filter(row_number() == 1) |>  
+  ungroup() |>  
+  select(subject_id, stay_id, itemid, valuenum) |>  
+  pivot_wider(names_from = itemid, values_from = valuenum, 
+              names_prefix = "lab_") |>  
+  rename(
+    Creatinine = lab_50912,
+    Potassium = lab_50971,
+    Sodium = lab_50983,
+    Chloride = lab_50902,
+    Bicarbonate = lab_50882,
+    Hematocrit = lab_51221,
+    WBC = lab_51301,
+    Glucose = lab_50931) |>  
+  select(subject_id, stay_id, Bicarbonate, Chloride, Creatinine, Glucose, 
+         Potassium, Sodium, Hematocrit, WBC) |>  
+  arrange(subject_id, stay_id) |>  
+  print(width = Inf)
+```
