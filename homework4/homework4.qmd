@@ -67,3 +67,27 @@ con_bq
 dbListTables(con_bq)
 
 ```
+
+## Q1.2 icustays data
+
+Connect to the icustays table.
+
+```{r}
+
+icustays_tble <- tbl(con_bq, "icustays") |>
+  arrange(subject_id, hadm_id, stay_id) |>
+  print(width = Inf)
+
+```
+
+## Q1.3 admissions data
+
+Connect to `admissions` table
+
+```{r}
+
+admissions_tble <- tbl(con_bq, "admissions") |>
+  arrange(subject_id, hadm_id) |>
+  print(width = Inf)
+
+```
