@@ -131,7 +131,7 @@ loaded via a namespace (and not attached):
 <div class="sourceCode cell-code" id="cb3"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb3-1"><a href="#cb3-1" aria-hidden="true" tabindex="-1"></a>memuse<span class="sc">::</span><span class="fu">Sys.meminfo</span>()</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
 <div class="cell-output cell-output-stdout">
 <pre><code>Totalram:  32.000 GiB 
-Freeram:    6.619 GiB </code></pre>
+Freeram:    3.953 GiB </code></pre>
 </div>
 </div>
 <p>Load database libraries and the tidyverse frontend:</p>
@@ -420,6 +420,232 @@ ORDER BY is ignored in subqueries without LIMIT
  9       34.9   7.2
 10       34.3  16.8
 # ℹ more rows</code></pre>
+</div>
+</div>
+</section>
+<section id="q1.6-chartevents-data" class="level2">
+<h2 class="anchored" data-anchor-id="q1.6-chartevents-data">Q1.6 chartevents data</h2>
+<div class="cell">
+<div class="sourceCode cell-code" id="cb21"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb21-1"><a href="#cb21-1" aria-hidden="true" tabindex="-1"></a>vital_items <span class="ot">&lt;-</span> <span class="fu">c</span>(<span class="dv">220045</span>, <span class="dv">220179</span>, <span class="dv">220180</span>, <span class="dv">223761</span>, <span class="dv">220210</span>)</span>
+<span id="cb21-2"><a href="#cb21-2" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb21-3"><a href="#cb21-3" aria-hidden="true" tabindex="-1"></a>chartevents_tble <span class="ot">&lt;-</span> <span class="fu">tbl</span>(con_bq, <span class="st">"chartevents"</span>) <span class="sc">|&gt;</span>  </span>
+<span id="cb21-4"><a href="#cb21-4" aria-hidden="true" tabindex="-1"></a>  <span class="fu">select</span>(subject_id, stay_id, charttime, storetime, itemid, valuenum) <span class="sc">|&gt;</span>  </span>
+<span id="cb21-5"><a href="#cb21-5" aria-hidden="true" tabindex="-1"></a>  <span class="fu">filter</span>(itemid <span class="sc">%in%</span> vital_items) <span class="sc">|&gt;</span> </span>
+<span id="cb21-6"><a href="#cb21-6" aria-hidden="true" tabindex="-1"></a>  <span class="fu">left_join</span>(<span class="fu">select</span>(icustays_tble, subject_id, stay_id, intime, outtime), </span>
+<span id="cb21-7"><a href="#cb21-7" aria-hidden="true" tabindex="-1"></a>            <span class="at">by =</span> <span class="fu">c</span>(<span class="st">"subject_id"</span>, <span class="st">"stay_id"</span>)) <span class="sc">|&gt;</span>  </span>
+<span id="cb21-8"><a href="#cb21-8" aria-hidden="true" tabindex="-1"></a>  <span class="fu">filter</span>(storetime <span class="sc">&gt;=</span> intime <span class="sc">&amp;</span> storetime <span class="sc">&lt;=</span> outtime) <span class="sc">|&gt;</span>  </span>
+<span id="cb21-9"><a href="#cb21-9" aria-hidden="true" tabindex="-1"></a>  <span class="fu">arrange</span>(subject_id, stay_id, itemid, storetime) <span class="sc">|&gt;</span>  </span>
+<span id="cb21-10"><a href="#cb21-10" aria-hidden="true" tabindex="-1"></a>  <span class="fu">group_by</span>(subject_id, stay_id, itemid) <span class="sc">|&gt;</span>  </span>
+<span id="cb21-11"><a href="#cb21-11" aria-hidden="true" tabindex="-1"></a>  <span class="fu">filter</span>(storetime <span class="sc">==</span> <span class="fu">min</span>(storetime)) <span class="sc">|&gt;</span>  </span>
+<span id="cb21-12"><a href="#cb21-12" aria-hidden="true" tabindex="-1"></a>  <span class="fu">summarise</span>(<span class="at">valuenum =</span> <span class="fu">mean</span>(valuenum, <span class="at">na.rm =</span> <span class="cn">TRUE</span>), <span class="at">.groups =</span> <span class="st">"drop"</span>) <span class="sc">|&gt;</span>  </span>
+<span id="cb21-13"><a href="#cb21-13" aria-hidden="true" tabindex="-1"></a>  <span class="fu">pivot_wider</span>(<span class="at">names_from =</span> itemid, </span>
+<span id="cb21-14"><a href="#cb21-14" aria-hidden="true" tabindex="-1"></a>              <span class="at">values_from =</span> valuenum, <span class="at">names_prefix =</span> <span class="st">"vital_"</span>) <span class="sc">|&gt;</span> </span>
+<span id="cb21-15"><a href="#cb21-15" aria-hidden="true" tabindex="-1"></a>  <span class="fu">rename</span>(</span>
+<span id="cb21-16"><a href="#cb21-16" aria-hidden="true" tabindex="-1"></a>    <span class="at">Heart_Rate =</span> vital_220045,</span>
+<span id="cb21-17"><a href="#cb21-17" aria-hidden="true" tabindex="-1"></a>    <span class="at">SysBP =</span> vital_220179,</span>
+<span id="cb21-18"><a href="#cb21-18" aria-hidden="true" tabindex="-1"></a>    <span class="at">DiaBP =</span> vital_220180,</span>
+<span id="cb21-19"><a href="#cb21-19" aria-hidden="true" tabindex="-1"></a>    <span class="at">Temp =</span> vital_223761,</span>
+<span id="cb21-20"><a href="#cb21-20" aria-hidden="true" tabindex="-1"></a>    <span class="at">Respiratory_Rate =</span> vital_220210) <span class="sc">|&gt;</span>  </span>
+<span id="cb21-21"><a href="#cb21-21" aria-hidden="true" tabindex="-1"></a>  <span class="fu">select</span>(subject_id, stay_id, Heart_Rate, SysBP, DiaBP, </span>
+<span id="cb21-22"><a href="#cb21-22" aria-hidden="true" tabindex="-1"></a>         Respiratory_Rate, Temp) <span class="sc">|&gt;</span>  </span>
+<span id="cb21-23"><a href="#cb21-23" aria-hidden="true" tabindex="-1"></a>  <span class="fu">arrange</span>(subject_id, stay_id) <span class="sc">|&gt;</span>  </span>
+<span id="cb21-24"><a href="#cb21-24" aria-hidden="true" tabindex="-1"></a>  <span class="fu">print</span>(<span class="at">width =</span> <span class="cn">Inf</span>)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="cell-output cell-output-stderr">
+<pre><code>Warning: Missing values are always removed in SQL aggregation functions.
+Use `na.rm = TRUE` to silence this warning
+This warning is displayed once every 8 hours.</code></pre>
+</div>
+<div class="cell-output cell-output-stderr">
+<pre><code>Warning: ORDER BY is ignored in subqueries without LIMIT
+ℹ Do you need to move arrange() later in the pipeline or use window_order() instead?
+ORDER BY is ignored in subqueries without LIMIT
+ℹ Do you need to move arrange() later in the pipeline or use window_order() instead?
+ORDER BY is ignored in subqueries without LIMIT
+ℹ Do you need to move arrange() later in the pipeline or use window_order() instead?
+ORDER BY is ignored in subqueries without LIMIT
+ℹ Do you need to move arrange() later in the pipeline or use window_order() instead?</code></pre>
+</div>
+<div class="cell-output cell-output-stdout">
+<pre><code># Source:     SQL [?? x 7]
+# Database:   BigQueryConnection
+# Ordered by: subject_id, stay_id
+   subject_id  stay_id Heart_Rate SysBP DiaBP Respiratory_Rate  Temp
+        &lt;int&gt;    &lt;int&gt;      &lt;dbl&gt; &lt;dbl&gt; &lt;dbl&gt;            &lt;dbl&gt; &lt;dbl&gt;
+ 1   10000032 39553978       91    84    48               24    98.7
+ 2   10000690 37081114       78   106    56.5             24.3  97.7
+ 3   10000980 39765666       76   154   102               23.5  98  
+ 4   10001217 34592300       79.3 156    93.3             14    97.6
+ 5   10001217 37067082       86   151    90               18    98.5
+ 6   10001725 31205490       86    73    56               19    97.7
+ 7   10001843 39698942      124.  110    78               16.5  97.9
+ 8   10001884 37510196       49   174.   30.5             13    98.1
+ 9   10002013 39060235       80    98.5  62               14    97.2
+10   10002114 34672098      110.  112    80               21    97.9
+# ℹ more rows</code></pre>
+</div>
+</div>
+</section>
+<section id="q1.7-put-things-together" class="level2">
+<h2 class="anchored" data-anchor-id="q1.7-put-things-together">Q1.7 Put things together</h2>
+<div class="cell">
+<div class="sourceCode cell-code" id="cb25"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb25-1"><a href="#cb25-1" aria-hidden="true" tabindex="-1"></a>mimic_icu_cohort <span class="ot">&lt;-</span> icustays_tble <span class="sc">|&gt;</span> </span>
+<span id="cb25-2"><a href="#cb25-2" aria-hidden="true" tabindex="-1"></a>  <span class="fu">left_join</span>(admissions_tble, <span class="at">by =</span> <span class="fu">c</span>(<span class="st">"subject_id"</span>, <span class="st">"hadm_id"</span>)) <span class="sc">|&gt;</span> </span>
+<span id="cb25-3"><a href="#cb25-3" aria-hidden="true" tabindex="-1"></a>  <span class="fu">left_join</span>(<span class="fu">select</span>(patients_tble, subject_id, gender, dod, anchor_age, </span>
+<span id="cb25-4"><a href="#cb25-4" aria-hidden="true" tabindex="-1"></a>                   anchor_year, anchor_year_group), </span>
+<span id="cb25-5"><a href="#cb25-5" aria-hidden="true" tabindex="-1"></a>            <span class="at">by =</span> <span class="st">"subject_id"</span>) <span class="sc">|&gt;</span> </span>
+<span id="cb25-6"><a href="#cb25-6" aria-hidden="true" tabindex="-1"></a>  <span class="fu">mutate</span>(<span class="at">age_intime =</span> anchor_age <span class="sc">+</span> </span>
+<span id="cb25-7"><a href="#cb25-7" aria-hidden="true" tabindex="-1"></a>           (dbplyr<span class="sc">::</span><span class="fu">sql</span>(<span class="st">"EXTRACT(YEAR FROM intime)"</span>) <span class="sc">-</span> anchor_year)) <span class="sc">|&gt;</span>  </span>
+<span id="cb25-8"><a href="#cb25-8" aria-hidden="true" tabindex="-1"></a>  <span class="fu">filter</span>(age_intime <span class="sc">&gt;=</span> <span class="dv">18</span>) <span class="sc">|&gt;</span> </span>
+<span id="cb25-9"><a href="#cb25-9" aria-hidden="true" tabindex="-1"></a>  <span class="fu">left_join</span>(labevents_tble, <span class="at">by =</span> <span class="fu">c</span>(<span class="st">"subject_id"</span>, <span class="st">"stay_id"</span>)) <span class="sc">|&gt;</span> </span>
+<span id="cb25-10"><a href="#cb25-10" aria-hidden="true" tabindex="-1"></a>  <span class="fu">left_join</span>(chartevents_tble, <span class="at">by =</span> <span class="fu">c</span>(<span class="st">"subject_id"</span>, <span class="st">"stay_id"</span>)) <span class="sc">|&gt;</span> </span>
+<span id="cb25-11"><a href="#cb25-11" aria-hidden="true" tabindex="-1"></a>  <span class="fu">select</span>(subject_id, hadm_id, stay_id, </span>
+<span id="cb25-12"><a href="#cb25-12" aria-hidden="true" tabindex="-1"></a>         first_careunit, last_careunit, <span class="fu">everything</span>()) <span class="sc">|&gt;</span> </span>
+<span id="cb25-13"><a href="#cb25-13" aria-hidden="true" tabindex="-1"></a>  <span class="fu">collect</span>() <span class="sc">|&gt;</span> </span>
+<span id="cb25-14"><a href="#cb25-14" aria-hidden="true" tabindex="-1"></a>  <span class="fu">arrange</span>(subject_id, hadm_id, stay_id) <span class="sc">|&gt;</span></span>
+<span id="cb25-15"><a href="#cb25-15" aria-hidden="true" tabindex="-1"></a>  <span class="fu">print</span>(<span class="at">width =</span> <span class="cn">Inf</span>)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="cell-output cell-output-stderr">
+<pre><code>Warning: ORDER BY is ignored in subqueries without LIMIT
+ℹ Do you need to move arrange() later in the pipeline or use window_order() instead?
+ORDER BY is ignored in subqueries without LIMIT
+ℹ Do you need to move arrange() later in the pipeline or use window_order() instead?
+ORDER BY is ignored in subqueries without LIMIT
+ℹ Do you need to move arrange() later in the pipeline or use window_order() instead?
+ORDER BY is ignored in subqueries without LIMIT
+ℹ Do you need to move arrange() later in the pipeline or use window_order() instead?
+ORDER BY is ignored in subqueries without LIMIT
+ℹ Do you need to move arrange() later in the pipeline or use window_order() instead?
+ORDER BY is ignored in subqueries without LIMIT
+ℹ Do you need to move arrange() later in the pipeline or use window_order() instead?
+ORDER BY is ignored in subqueries without LIMIT
+ℹ Do you need to move arrange() later in the pipeline or use window_order() instead?
+ORDER BY is ignored in subqueries without LIMIT
+ℹ Do you need to move arrange() later in the pipeline or use window_order() instead?
+ORDER BY is ignored in subqueries without LIMIT
+ℹ Do you need to move arrange() later in the pipeline or use window_order() instead?</code></pre>
+</div>
+<div class="cell-output cell-output-stdout">
+<pre><code># A tibble: 94,458 × 41
+   subject_id  hadm_id  stay_id first_careunit                                  
+        &lt;int&gt;    &lt;int&gt;    &lt;int&gt; &lt;chr&gt;                                           
+ 1   10000032 29079034 39553978 Medical Intensive Care Unit (MICU)              
+ 2   10000690 25860671 37081114 Medical Intensive Care Unit (MICU)              
+ 3   10000980 26913865 39765666 Medical Intensive Care Unit (MICU)              
+ 4   10001217 24597018 37067082 Surgical Intensive Care Unit (SICU)             
+ 5   10001217 27703517 34592300 Surgical Intensive Care Unit (SICU)             
+ 6   10001725 25563031 31205490 Medical/Surgical Intensive Care Unit (MICU/SICU)
+ 7   10001843 26133978 39698942 Medical/Surgical Intensive Care Unit (MICU/SICU)
+ 8   10001884 26184834 37510196 Medical Intensive Care Unit (MICU)              
+ 9   10002013 23581541 39060235 Cardiac Vascular Intensive Care Unit (CVICU)    
+10   10002114 27793700 34672098 Coronary Care Unit (CCU)                        
+   last_careunit                                    intime             
+   &lt;chr&gt;                                            &lt;dttm&gt;             
+ 1 Medical Intensive Care Unit (MICU)               2180-07-23 14:00:00
+ 2 Medical Intensive Care Unit (MICU)               2150-11-02 19:37:00
+ 3 Medical Intensive Care Unit (MICU)               2189-06-27 08:42:00
+ 4 Surgical Intensive Care Unit (SICU)              2157-11-20 19:18:02
+ 5 Surgical Intensive Care Unit (SICU)              2157-12-19 15:42:24
+ 6 Medical/Surgical Intensive Care Unit (MICU/SICU) 2110-04-11 15:52:22
+ 7 Medical/Surgical Intensive Care Unit (MICU/SICU) 2134-12-05 18:50:03
+ 8 Medical Intensive Care Unit (MICU)               2131-01-11 04:20:05
+ 9 Cardiac Vascular Intensive Care Unit (CVICU)     2160-05-18 10:00:53
+10 Coronary Care Unit (CCU)                         2162-02-17 23:30:00
+   outtime               los admittime           dischtime          
+   &lt;dttm&gt;              &lt;dbl&gt; &lt;dttm&gt;              &lt;dttm&gt;             
+ 1 2180-07-23 23:50:47 0.410 2180-07-23 12:35:00 2180-07-25 17:55:00
+ 2 2150-11-06 17:03:17 3.89  2150-11-02 18:02:00 2150-11-12 13:45:00
+ 3 2189-06-27 20:38:27 0.498 2189-06-27 07:38:00 2189-07-03 03:00:00
+ 4 2157-11-21 22:08:00 1.12  2157-11-18 22:56:00 2157-11-25 18:00:00
+ 5 2157-12-20 14:27:41 0.948 2157-12-18 16:58:00 2157-12-24 14:55:00
+ 6 2110-04-12 23:59:56 1.34  2110-04-11 15:08:00 2110-04-14 15:00:00
+ 7 2134-12-06 14:38:26 0.825 2134-12-05 00:10:00 2134-12-06 12:54:00
+ 8 2131-01-20 08:27:30 9.17  2131-01-07 20:39:00 2131-01-20 05:15:00
+ 9 2160-05-19 17:33:33 1.31  2160-05-18 07:45:00 2160-05-23 13:30:00
+10 2162-02-20 21:16:27 2.91  2162-02-17 22:32:00 2162-03-04 15:16:00
+   deathtime           admission_type              admit_provider_id
+   &lt;dttm&gt;              &lt;chr&gt;                       &lt;chr&gt;            
+ 1 NA                  EW EMER.                    P06OTX           
+ 2 NA                  EW EMER.                    P26QQ4           
+ 3 NA                  EW EMER.                    P06OTX           
+ 4 NA                  EW EMER.                    P3610N           
+ 5 NA                  DIRECT EMER.                P276OU           
+ 6 NA                  EW EMER.                    P32W56           
+ 7 2134-12-06 12:54:00 URGENT                      P67ATB           
+ 8 2131-01-20 05:15:00 OBSERVATION ADMIT           P49AFC           
+ 9 NA                  SURGICAL SAME DAY ADMISSION P8286C           
+10 NA                  OBSERVATION ADMIT           P46834           
+   admission_location     discharge_location insurance language marital_status
+   &lt;chr&gt;                  &lt;chr&gt;              &lt;chr&gt;     &lt;chr&gt;    &lt;chr&gt;         
+ 1 EMERGENCY ROOM         HOME               Medicaid  English  WIDOWED       
+ 2 EMERGENCY ROOM         REHAB              Medicare  English  WIDOWED       
+ 3 EMERGENCY ROOM         HOME HEALTH CARE   Medicare  English  MARRIED       
+ 4 EMERGENCY ROOM         HOME HEALTH CARE   Private   Other    MARRIED       
+ 5 PHYSICIAN REFERRAL     HOME HEALTH CARE   Private   Other    MARRIED       
+ 6 PACU                   HOME               Private   English  MARRIED       
+ 7 TRANSFER FROM HOSPITAL DIED               Medicare  English  SINGLE        
+ 8 EMERGENCY ROOM         DIED               Medicare  English  MARRIED       
+ 9 PHYSICIAN REFERRAL     HOME HEALTH CARE   Medicare  English  SINGLE        
+10 PHYSICIAN REFERRAL     HOME HEALTH CARE   Medicaid  English  &lt;NA&gt;          
+   race                   edregtime           edouttime          
+   &lt;chr&gt;                  &lt;dttm&gt;              &lt;dttm&gt;             
+ 1 WHITE                  2180-07-23 05:54:00 2180-07-23 14:00:00
+ 2 WHITE                  2150-11-02 11:41:00 2150-11-02 19:37:00
+ 3 BLACK/AFRICAN AMERICAN 2189-06-27 06:25:00 2189-06-27 08:42:00
+ 4 WHITE                  2157-11-18 17:38:00 2157-11-19 01:24:00
+ 5 WHITE                  NA                  NA                 
+ 6 WHITE                  NA                  NA                 
+ 7 WHITE                  NA                  NA                 
+ 8 BLACK/AFRICAN AMERICAN 2131-01-07 13:36:00 2131-01-07 22:13:00
+ 9 OTHER                  NA                  NA                 
+10 UNKNOWN                2162-02-17 19:35:00 2162-02-17 23:30:00
+   hospital_expire_flag gender dod        anchor_age anchor_year
+                  &lt;int&gt; &lt;chr&gt;  &lt;date&gt;          &lt;int&gt;       &lt;int&gt;
+ 1                    0 F      2180-09-09         52        2180
+ 2                    0 F      2152-01-30         86        2150
+ 3                    0 F      2193-08-26         73        2186
+ 4                    0 F      NA                 55        2157
+ 5                    0 F      NA                 55        2157
+ 6                    0 F      NA                 46        2110
+ 7                    1 M      2134-12-06         73        2131
+ 8                    1 F      2131-01-20         68        2122
+ 9                    0 F      NA                 53        2156
+10                    0 M      2162-12-11         56        2162
+   anchor_year_group age_intime Bicarbonate Chloride Creatinine Glucose
+   &lt;chr&gt;                  &lt;int&gt;       &lt;dbl&gt;    &lt;dbl&gt;      &lt;dbl&gt;   &lt;dbl&gt;
+ 1 2014 - 2016               52          25       95        0.7     102
+ 2 2008 - 2010               86          26      100        1        85
+ 3 2008 - 2010               76          21      109        2.3      89
+ 4 2011 - 2013               55          22      108        0.6     112
+ 5 2011 - 2013               55          30      104        0.5      87
+ 6 2011 - 2013               46          NA       98       NA        NA
+ 7 2017 - 2019               76          28       97        1.3     131
+ 8 2008 - 2010               77          30       88        1.1     141
+ 9 2008 - 2010               57          24      102        0.9     288
+10 2020 - 2022               56          18       NA        3.1      95
+   Potassium Sodium Hematocrit   WBC Heart_Rate SysBP DiaBP Respiratory_Rate
+       &lt;dbl&gt;  &lt;dbl&gt;      &lt;dbl&gt; &lt;dbl&gt;      &lt;dbl&gt; &lt;dbl&gt; &lt;dbl&gt;            &lt;dbl&gt;
+ 1       6.7    126       41.1   6.9       91    84    48               24  
+ 2       4.8    137       36.1   7.1       78   106    56.5             24.3
+ 3       3.9    144       27.3   5.3       76   154   102               23.5
+ 4       4.2    142       38.1  15.7       86   151    90               18  
+ 5       4.1    142       37.4   5.4       79.3 156    93.3             14  
+ 6       4.1    139       NA    NA         86    73    56               19  
+ 7       3.9    138       31.4  10.4      124.  110    78               16.5
+ 8       4.5    130       39.7  12.2       49   174.   30.5             13  
+ 9       3.5    137       34.9   7.2       80    98.5  62               14  
+10       6.5    125       34.3  16.8      110.  112    80               21  
+    Temp
+   &lt;dbl&gt;
+ 1  98.7
+ 2  97.7
+ 3  98  
+ 4  98.5
+ 5  97.6
+ 6  97.7
+ 7  97.9
+ 8  98.1
+ 9  97.2
+10  97.9
+# ℹ 94,448 more rows</code></pre>
 </div>
 </div>
 </section>

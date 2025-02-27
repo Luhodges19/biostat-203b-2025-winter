@@ -138,3 +138,52 @@ labevents_tble <- tbl(con_bq, "labevents") |>
   arrange(subject_id, stay_id) |>  
   print(width = Inf)
 ```
+## Q1.6 chartevents data
+
+```{r}
+
+vital_items <- c(220045, 220179, 220180, 223761, 220210)
+
+chartevents_tble <- tbl(con_bq, "chartevents") |>  
+  select(subject_id, stay_id, charttime, storetime, itemid, valuenum) |>  
+  filter(itemid %in% vital_items) |> 
+  left_join(select(icustays_tble, subject_id, stay_id, intime, outtime), 
+            by = c("subject_id", "stay_id")) |>  
+  filter(storetime >= intime & storetime <= outtime) |>  
+  arrange(subject_id, stay_id, itemid, storetime) |>  
+  group_by(subject_id, stay_id, itemid) |>  
+  filter(storetime == min(storetime)) |>  
+  summarise(valuenum = mean(valuenum, na.rm = TRUE), .groups = "drop") |>  
+  pivot_wider(names_from = itemid, 
+              values_from = valuenum, names_prefix = "vital_") |> 
+  rename(
+    Heart_Rate = vital_220045,
+    SysBP = vital_220179,
+    DiaBP = vital_220180,
+    Temp = vital_223761,
+    Respiratory_Rate = vital_220210) |>  
+  select(subject_id, stay_id, Heart_Rate, SysBP, DiaBP, 
+         Respiratory_Rate, Temp) |>  
+  arrange(subject_id, stay_id) |>  
+  print(width = Inf)
+```
+## Q1.7 Put things together
+
+```{r}
+mimic_icu_cohort <- icustays_tble |> 
+  left_join(admissions_tble, by = c("subject_id", "hadm_id")) |> 
+  left_join(select(patients_tble, subject_id, gender, dod, anchor_age, 
+                   anchor_year, anchor_year_group), 
+            by = "subject_id") |> 
+  mutate(age_intime = anchor_age + 
+           (dbplyr::sql("EXTRACT(YEAR FROM intime)") - anchor_year)) |>  
+  filter(age_intime >= 18) |> 
+  left_join(labevents_tble, by = c("subject_id", "stay_id")) |> 
+  left_join(chartevents_tble, by = c("subject_id", "stay_id")) |> 
+  select(subject_id, hadm_id, stay_id, 
+         first_careunit, last_careunit, everything()) |> 
+  collect() |> 
+  arrange(subject_id, hadm_id, stay_id) |>
+  print(width = Inf)
+
+```
