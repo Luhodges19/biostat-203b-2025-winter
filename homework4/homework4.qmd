@@ -27,6 +27,9 @@ library(DBI)
 library(gt)
 library(gtsummary)
 library(tidyverse)
+library(forcats)
+library(shiny)
+library(stringr)
 ```
 
 ## Q1. Compile the ICU cohort in HW3 from the Google BigQuery database
@@ -187,11 +190,25 @@ mimic_icu_cohort <- icustays_tble |>
   print(width = Inf)
 
 ```
+```{r}
+
+# Ensure 'dod' is in Date format
+mimic_icu_cohort$dod <- as.Date(mimic_icu_cohort$dod, format="%Y-%m-%d")
+
+# Compute the median date
+median_date <- min(mimic_icu_cohort$dod, na.rm = TRUE)
+
+# Print the result
+print(median_date)
+
+```
 
 ## Q1.8 Preprocessing
 ```{r}
-# Preprocessing
-mimic_icu_cohort <- mimic_icu_cohort |> 
+#For the dod, we need to do it in two separate parts to show the median and the range. Here is the first part. 
+#This is going to be getting what we need for the beginning part. The latter half will be done by the code itself. 
+
+mimic_icu_cohort2 <- mimic_icu_cohort |> 
   filter(!is.na(los)) |>  
   mutate(
     los_long = los >= 2,
@@ -224,33 +241,33 @@ mimic_icu_cohort <- mimic_icu_cohort |>
       TRUE ~ "Other"),
     race = factor(race, levels = c("ASIAN", "BLACK", "HISPANIC", "WHITE", "Other")),
     
-    #DOD Categories
-    dod = ifelse(is.na(dod), "Unknown", "dod")
+    # Convert dod to Date format
+    dod = as.Date(dod, format = "%Y-%m-%d")
   )
 
-# Create Summary Table
-summary_table <- mimic_icu_cohort |> 
+#Now we have to take everything above and then appky it to a summar_table. 
+summary_table <- mimic_icu_cohort2 |> 
   select(
     first_careunit, last_careunit, los, admission_type, admission_location, 
     discharge_location, insurance, language, marital_status, race, 
     hospital_expire_flag, gender, dod, Bicarbonate, Chloride, Creatinine, 
     Glucose, Potassium, Sodium, Hematocrit, WBC, SysBP, DiaBP,
-    Respiratory_Rate, Temp, Heart_Rate, age_intime, los_long) |>
+    Respiratory_Rate, Temp, Heart_Rate, age_intime, los_long) |> 
   tbl_summary(
     by = los_long,
     statistic = list(
-      all_continuous() ~ "{median} ({p25}, {p75})",
-      all_categorical() ~ "{n} ({p}%)"),
-    missing = "ifany") |> 
+      dod ~ "{median} ({p25}, {p75})",
+      all_categorical() ~ "{n} ({p}%)"
+    ),
+    missing = "ifany"
+  ) |> 
   modify_header(label = "**Characteristic**") |>  
   modify_spanning_header(c("stat_1", "stat_2") ~ "**N = {n}**") |>  
   bold_labels()
 
-# Display Summary Table
 summary_table
 
 ```
-
 ## 1.9 Save the final tibble
 
 Save the final tibble to an R data file mimic_icu_cohort.rds in the mimiciv_shiny folder.
