@@ -1,10 +1,21 @@
 ---
 title: "Biostat 203B Homework 4"
-format: html
+subtitle: Due March 9th, 2025 @ 11:59PM
+author: Luke Hodges 906182810
+format:
+  # typst: default
+  # pdf: default
+  html: default
+    #theme: cosmo
+    #embed-resources: true
+    #number-sections: false
+    #toc: true
+    #toc-depth: 4
+    #toc-location: left
+    #code-fold: false
+    #link-external-icon: true
+    #link-external-newwindow: true
 ---
-Due Mar 9 @ 11:59PM
-
-Author: Luke Hodges and 906182810
 
 Display machine information:
 
@@ -205,6 +216,7 @@ print(median_date)
 
 ## Q1.8 Preprocessing
 ```{r}
+
 #For the dod, we need to do it in two separate parts to show the median and the range. Here is the first part. 
 #This is going to be getting what we need for the beginning part. The latter half will be done by the code itself. 
 
@@ -214,13 +226,18 @@ mimic_icu_cohort2 <- mimic_icu_cohort |>
     los_long = los >= 2,
     
     # Lump infrequent levels
-    first_careunit = fct_lump_n(factor(first_careunit), n = 4, other_level = "Other"),
-    last_careunit = fct_lump_n(factor(last_careunit), n = 4, other_level = "Other"),
-    admission_type = fct_lump_n(factor(admission_type), n = 4, other_level = "Other"),
-    admission_location = fct_lump_n(factor(admission_location), n = 4, other_level = "Other"),
-    discharge_location = fct_lump_n(factor(discharge_location), n = 4, other_level = "Other"),
+    first_careunit = fct_lump_n(factor(first_careunit), n = 4, 
+                                other_level = "Other"),
+    last_careunit = fct_lump_n(factor(last_careunit), n = 4, 
+                               other_level = "Other"),
+    admission_type = fct_lump_n(factor(admission_type), n = 4, 
+                                other_level = "Other"),
+    admission_location = fct_lump_n(factor(admission_location), n = 4, 
+                                    other_level = "Other"),
+    discharge_location = fct_lump_n(factor(discharge_location), n = 4, 
+                                    other_level = "Other"),
 
-    # Collapse race levels
+    #Race
     race = as.character(race),
     race = case_when(
       race %in% c("ASIAN", "ASIAN - CHINESE", "ASIAN - KOREAN", 
@@ -239,13 +256,14 @@ mimic_icu_cohort2 <- mimic_icu_cohort |>
         c("WHITE", "WHITE - RUSSIAN", "WHITE - OTHER EUROPEAN", 
           "WHITE - EASTERN EUROPEAN", "WHITE - BRAZILIAN") ~ "WHITE",
       TRUE ~ "Other"),
-    race = factor(race, levels = c("ASIAN", "BLACK", "HISPANIC", "WHITE", "Other")),
+    race = factor(race, levels = c("ASIAN", "BLACK", 
+                                   "HISPANIC", "WHITE", "Other")),
     
     # Convert dod to Date format
-    dod = as.Date(dod, format = "%Y-%m-%d")
-  )
+    dod = as.Date(dod, format = "%Y-%m-%d"))
 
-#Now we have to take everything above and then appky it to a summar_table. 
+#Now we have to take everything above and then apply it to a summary_table. 
+
 summary_table <- mimic_icu_cohort2 |> 
   select(
     first_careunit, last_careunit, los, admission_type, admission_location, 
@@ -257,10 +275,8 @@ summary_table <- mimic_icu_cohort2 |>
     by = los_long,
     statistic = list(
       dod ~ "{median} ({p25}, {p75})",
-      all_categorical() ~ "{n} ({p}%)"
-    ),
-    missing = "ifany"
-  ) |> 
+      all_categorical() ~ "{n} ({p}%)"),
+    missing = "ifany") |>
   modify_header(label = "**Characteristic**") |>  
   modify_spanning_header(c("stat_1", "stat_2") ~ "**N = {n}**") |>  
   bold_labels()
@@ -291,5 +307,3 @@ if (exists("con_bq")) {
 }
 rm(list = ls())
 ```
-
-Although it is not a good practice to add big data files to Git, for grading purpose, please add mimic_icu_cohort.rds to your Git repository.
