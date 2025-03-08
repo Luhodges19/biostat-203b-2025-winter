@@ -1,6 +1,8 @@
 ## Q2. Build a Shiny app to explore the ICU cohort
 
 ## The Necessary plugins to run this app. I found a package called scales that helps with coloring data so let us try it out
+## The first six are what is required for the library. The last four are the ones that I thought was necessary or was recommended, like forcats
+
 library(bigrquery)
 library(dbplyr)
 library(DBI)
@@ -13,10 +15,10 @@ library(shiny)
 library(stringr)
 
 ##Connecting it to the necessary document
+
 satoken <- paste0(
   "~/Desktop/203b-HW/homework4/",
-  "biostat-203b-2025-winter-4e58ec6e5579.json"
-)
+  "biostat-203b-2025-winter-4e58ec6e5579.json")
 
 if (file.exists(satoken)) {
   bq_auth(path = satoken)
@@ -39,7 +41,11 @@ mimic_icu_cohort <- readRDS(file.path(
 
 ##User Interface Tabs
 
-#Tab 1
+##Tab 1. This needs to include an option for demographics, labs, and vitals. 
+
+##Within the demographics, we need the gender, age_intime, race, insurance, and marital status
+##The labs and vitals are going to be the same as what we are looking for from the last few homeworks
+##There should be a drop down selection where they can select from demographics, labs and vitals
 
 ui <- fluidPage(
   titlePanel("ICU Cohort Analysis"),
@@ -62,6 +68,7 @@ ui <- fluidPage(
                  verbatimTextOutput("patient_info"),
                  plotOutput("patient_adt_plot"))))))
 
+##Inputting the choices for the drop down
 server <- function(input, output, session) {
   observeEvent(input$variable_group, {
     variable_choices <- switch(input$variable_group,
@@ -115,6 +122,8 @@ server <- function(input, output, session) {
         labs(title = "Race Distribution in ICU Cohort",
              x = "Race Category", y = "Number of Patients") +
         theme(legend.position = "none")} 
+    
+    ##We need to make sure we set a range for the values since there are outliers. 
     else {
       data <- mimic_icu_cohort[[input$variable]]
       if (is.numeric(data)) {
@@ -135,8 +144,8 @@ server <- function(input, output, session) {
           theme_minimal() +
           labs(title = paste("Distribution of", input$variable),
                x = input$variable, y = "Count")} 
+      
       else {
-        
         ggplot(mimic_icu_cohort, aes(x = as.factor(data), 
                                      fill = as.factor(data))) +
           geom_bar() +
@@ -147,18 +156,20 @@ server <- function(input, output, session) {
   
   #Rendering the summary table using what I learned from other biostat classes for what is expected in a summary table
   #Received a prior error about NA data so make sure we set that to TRUE
+  
   output$summary_table <- renderTable({
     req(input$variable)
     data <- mimic_icu_cohort[[input$variable]]
+    
     if (is.numeric(data)) 
       {summary_df <- data.frame(Statistic = c("Mean", "Median", "Min", "Max", 
                                               "Standard Deviation"),
         Value = c(mean(data, na.rm = TRUE), median(data, na.rm = TRUE),
                   min(data, na.rm = TRUE), max(data, na.rm = TRUE),
                   sd(data, na.rm = TRUE)))} 
-    else {
-      summary_df <- as.data.frame(table(data))
-      colnames(summary_df) <- c("Category", "Count")}
+    
+    else {summary_df <- as.data.frame(table(data))
+    colnames(summary_df) <- c("Category", "Count")}
     return(summary_df)})
   
   #Tab 2 Code is the same with what we did in Q1.1
@@ -218,6 +229,8 @@ server <- function(input, output, session) {
     LJProcedures <- as.data.frame(LJProcedures) %>%
       mutate(chartdate = as.POSIXct(chartdate, format = "%Y-%m-%d"))
     
+    ##Let us set it to unknown as well in case the value is not recorded
+    
     patient_race <- ifelse(nrow(admissions.filter) > 0, 
                            admissions.filter$race[1], "Unknown")
     patient_gender <- ifelse(nrow(patients.filter) > 0, 
@@ -225,6 +238,7 @@ server <- function(input, output, session) {
     patient_age <- ifelse(nrow(patients.filter) > 0, 
                           patients.filter$anchor_age[1], "Unknown")
     
+    ##Make sure to add in the patients race as well since last time we did not
     patient_info <- paste0(
       "Patient ", subject_id, ", ", 
       patients.filter$gender, ", ", 
@@ -241,6 +255,7 @@ server <- function(input, output, session) {
     
     output$patient_adt_plot <- renderPlot({
       ggplot() +
+        
         geom_point(data = LJProcedures,  
                    aes(x = chartdate, y = "Procedure", 
                        shape = long_title_wrapped),  
@@ -248,10 +263,12 @@ server <- function(input, output, session) {
                    size = 4,  
                    alpha = 0.7, 
                    position = position_jitter(width = 0, height = -0.5)) + 
+        
         geom_segment(data = transfer.filter2, 
                      aes(x = intime, xend = outtime, y = "ADT",  
                          color = careunit, size = size), 
                      alpha = 0.8)  +
+        
         geom_point(data = labevents.filter2, 
                    aes(x = charttime, y = "Lab"),
                    shape = 3, size = 3, color = "black") +
@@ -264,6 +281,7 @@ server <- function(input, output, session) {
           color = "Care Unit",
           shape = "Procedure",
           size = "ICU Stay Type") +  
+        
         guides(
           color = guide_legend(title = "Care Unit", 
                                nrow = 6, title.position = "top"),  
@@ -271,6 +289,7 @@ server <- function(input, output, session) {
                                nrow = 2, title.position = "top"),
           size = guide_legend(title = "ICU Stay Type", 
                               override.aes = list(linetype = 1))) +
+        
         scale_color_manual(values = RainbowColors) +
         scale_size_identity() +
         scale_y_discrete(limits = rev) +
