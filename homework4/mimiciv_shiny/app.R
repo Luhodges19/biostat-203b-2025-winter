@@ -1,5 +1,6 @@
 ## Q2. Build a Shiny app to explore the ICU cohort
 
+## The Necessary plugins to run this app. I found a package called scales that helps with coloring data so let us try it out
 library(bigrquery)
 library(dbplyr)
 library(DBI)
@@ -7,9 +8,11 @@ library(gt)
 library(gtsummary)
 library(tidyverse)
 library(forcats)
+library(scales)
 library(shiny)
 library(stringr)
 
+##Connecting it to the necessary document
 satoken <- paste0(
   "~/Desktop/203b-HW/homework4/",
   "biostat-203b-2025-winter-4e58ec6e5579.json"
@@ -33,6 +36,10 @@ dbListTables(con_bq)
 mimic_icu_cohort <- readRDS(file.path(
   "~/Desktop/203b-hw/homework4/mimiciv_shiny",
   "mimic_icu_cohort.rds"))
+
+##User Interface Tabs
+
+#Tab 1
 
 ui <- fluidPage(
   titlePanel("ICU Cohort Analysis"),
@@ -70,6 +77,7 @@ server <- function(input, output, session) {
   
   output$summary_plot <- renderPlot({
     req(input$variable)
+    
     if (input$variable == "race") {
       race_data <- mimic_icu_cohort %>%
         mutate(
@@ -112,22 +120,23 @@ server <- function(input, output, session) {
       if (is.numeric(data)) {
         filtered_data <- mimic_icu_cohort
         if (input$variable == "SysBP") {
-          filtered_data <- filtered_data %>% filter(SysBP < 300)  
-        } else if (input$variable == "DiaBP") {
-          filtered_data <- filtered_data %>% filter(DiaBP < 200)  
-        } else if (input$variable == "Heart_Rate") {
-          filtered_data <- filtered_data %>% filter(Heart_Rate < 250)  
-        } else if (input$variable == "Respiratory_Rate") {
-          filtered_data <- filtered_data %>% filter(Respiratory_Rate < 80)  
-        } else if (input$variable == "Temp") {
-          filtered_data <- filtered_data %>% filter(Temp < 110)  
-        }
+          filtered_data <- filtered_data %>% filter(SysBP < 300)} 
+        else if (input$variable == "DiaBP") {
+          filtered_data <- filtered_data %>% filter(DiaBP < 200)} 
+        else if (input$variable == "Heart_Rate") {
+          filtered_data <- filtered_data %>% filter(Heart_Rate < 250)} 
+        else if (input$variable == "Respiratory_Rate") {
+          filtered_data <- filtered_data %>% filter(Respiratory_Rate < 80)} 
+        else if (input$variable == "Temp") {
+          filtered_data <- filtered_data %>% filter(Temp < 110)}
+        
         ggplot(filtered_data, aes(x = .data[[input$variable]])) +
           geom_histogram(fill = "pink", color = "black", bins = 30) +
           theme_minimal() +
           labs(title = paste("Distribution of", input$variable),
-               x = input$variable, y = "Count")
-      } else {
+               x = input$variable, y = "Count")} 
+      else {
+        
         ggplot(mimic_icu_cohort, aes(x = as.factor(data), 
                                      fill = as.factor(data))) +
           geom_bar() +
@@ -136,7 +145,8 @@ server <- function(input, output, session) {
           labs(title = paste("Distribution of", input$variable),
                x = input$variable, y = "Count", fill = "Category")}}})
   
-  #Rendering the summary table
+  #Rendering the summary table using what I learned from other biostat classes for what is expected in a summary table
+  #Received a prior error about NA data so make sure we set that to TRUE
   output$summary_table <- renderTable({
     req(input$variable)
     data <- mimic_icu_cohort[[input$variable]]
@@ -151,10 +161,11 @@ server <- function(input, output, session) {
       colnames(summary_df) <- c("Category", "Count")}
     return(summary_df)})
   
-  #Tab 2 Code
+  #Tab 2 Code is the same with what we did in Q1.1
   observeEvent(input$fetch_patient, {
     req(input$patient_id)
     subject_id <- as.numeric(input$patient_id)
+    
     patients.filter <- tbl(con_bq, "patients") %>%
       filter(subject_id == !!subject_id) %>%
       collect()
@@ -180,15 +191,18 @@ server <- function(input, output, session) {
     
     d_icd_diagnoses.filter <- tbl(con_bq, "d_icd_diagnoses") %>%
       collect()
+    
     labevents.filter2 <- tbl(con_bq, "labevents") %>%
       filter(subject_id == !!subject_id) %>%
       collect() %>%
       mutate(charttime = as.POSIXct(charttime, format = "%Y-%m-%d %H:%M:%S"))
+    
     LJDiagnoses <- diagnoses_icd.filter %>%
       left_join(d_icd_diagnoses.filter, by = c("icd_code", "icd_version"))
     
     LJProcedures <- procedures_icd.filter %>%
       left_join(d_icd_procedures.filter, by = c("icd_code", "icd_version"))
+    
     LJDiagnosesT3 <- LJDiagnoses %>%
       group_by(long_title) %>%
       summarise(n = n()) %>%
@@ -196,18 +210,21 @@ server <- function(input, output, session) {
       slice_head(n = 3) %>%
       collect() %>% 
       pull(long_title)
+    
     transfer.filter2 <- as.data.frame(transfers.filter) %>%
       mutate(intime = as.POSIXct(intime, format = "%Y-%m-%d %H:%M:%S"),
              outtime = as.POSIXct(outtime, format = "%Y-%m-%d %H:%M:%S"))
     
     LJProcedures <- as.data.frame(LJProcedures) %>%
       mutate(chartdate = as.POSIXct(chartdate, format = "%Y-%m-%d"))
+    
     patient_race <- ifelse(nrow(admissions.filter) > 0, 
                            admissions.filter$race[1], "Unknown")
     patient_gender <- ifelse(nrow(patients.filter) > 0, 
                              patients.filter$gender[1], "Unknown")
     patient_age <- ifelse(nrow(patients.filter) > 0, 
                           patients.filter$anchor_age[1], "Unknown")
+    
     patient_info <- paste0(
       "Patient ", subject_id, ", ", 
       patients.filter$gender, ", ", 
