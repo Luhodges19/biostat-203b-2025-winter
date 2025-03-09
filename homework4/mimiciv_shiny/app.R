@@ -22,9 +22,9 @@ satoken <- paste0(
 
 if (file.exists(satoken)) {
   bq_auth(path = satoken)
-  message("✅ BigQuery authentication successful!")
+  message("BigQuery authentication successful")
 } else {
-  stop("🚨 Service account token not found! Check the file path.")
+  stop("Service account token not found, please check the path")
 }
 
 con_bq <- dbConnect(
@@ -62,7 +62,7 @@ ui <- fluidPage(
     tabPanel("Patient Lookup",
              sidebarLayout(
                sidebarPanel(
-                 textInput("patient_id", "Enter Subject ID:", value = ""),
+                 textInput("patient_id", "Enter Subject ID", value = ""),
                  actionButton("fetch_patient", "Submit")),
                mainPanel(
                  verbatimTextOutput("patient_info"),
