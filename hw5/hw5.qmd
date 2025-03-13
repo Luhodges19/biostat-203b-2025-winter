@@ -1,6 +1,6 @@
 ---
 title: "Biostat 203B Homework 5"
-subtitle: "Due March 22nd, 2025 @ 11:59PM"
+subtitle: "Due March 20nd, 2025 @ 11:59PM"
 author: Luke Hodges 906182810
 format:
   html: 
@@ -23,6 +23,8 @@ library(glmnet)
 library(GGally)
 library(ranger)
 library(gtsummary)
+library(stacks)
+library(keras)
 library(pROC)
 library(xgboost)
 library(caret)
@@ -153,7 +155,8 @@ logit_tune <- tune_grid(
   object = logit_wf, 
   resamples = cv_folds, 
   grid = param_grid, 
-  metrics = metric_set(roc_auc, accuracy)
+  metrics = metric_set(roc_auc, accuracy),
+  control = control_stack_grid()
 )
 
 ```
@@ -211,6 +214,7 @@ conf_mat(predictions, truth = los_long, estimate = .pred_class)
 
 final_model <- extract_fit_parsnip(final_logit_fit$.workflow[[1]])
 tidy(final_model) %>%
+  arrange(desc(estimate)) %>%
   print(n = Inf)
 ```
 
@@ -220,10 +224,60 @@ tidy(final_model) %>%
 
 **The Brier score being low is good -- however, there is room for improvement as it can be lower**
 
-**The Top Five Most Important Features Are: Heart Rate (+0.174), Respiratory Rate (+0.128), Age (+0.124), Creatinine (+0.0576), and SysBP (-2.38). In other words, those with a higher heart and respiratory rate, those who are older, and have more craetinine, and lower SysBP are more likely to have a longer ICU stay.**
+**The Top Five Most Important Features Are: Heart Rate (+0.174), Respiratory Rate (+0.128), Age (+0.124), Neuro Intermediate Care Service (+0.164). In other words, those with a higher heart_rate, respiratory rate, age, and also placed into the neuro intermediate care service had a higher chance of having a longer ICU stay. This makes sense considering that higher_heart rate and respiratory rates are a sign of distress, while older age is linked to frailty and needs more attention than individuals that are younger**
 
 
 ## Random Forest
+
+**Data Preprocessing and engineering**
+
+```{r}
+
+#Remove ID Columns and then Select the Predictors
+icu_data <- mimic_icu_cohort %>%
+  select(subject_id, hadm_id, stay_id, los_long, first_careunit, gender, 
+         age_intime, marital_status, race, Heart_Rate, DiaBP, SysBP, 
+         Respiratory_Rate, Temp, Creatinine, Potassium, Chloride, Bicarbonate, 
+         Hematocrit, WBC, Sodium)
+    
+icu_data <- icu_data %>%
+  arrange(subject_id, hadm_id, stay_id)
+
+
+##We need to make sure that los_long is a factor as we got this as an error
+icu_data$los_long <- as.factor(icu_data$los_long)
+
+##Now we need to remove all the NA values
+icu_data <- icu_data %>%
+  drop_na(first_careunit, gender, age_intime, marital_status, race, Heart_Rate, 
+          DiaBP, SysBP, Respiratory_Rate, Temp, Creatinine, Potassium, 
+          Chloride, Bicarbonate, Hematocrit, WBC, Sodium)
+
+##We can check to see if there are any NAs here
+colSums(is.na(icu_data))
+```
+
+**Partition data into 50% training set and 50% test set. Stratify partitioning according to los_long. For grading purpose, sort the data by subject_id, hadm_id, and stay_id and use the seed 203 for the initial data split.**
+
+```{r}
+set.seed(203)
+
+# Stratified split by los_long
+icu_split <- initial_split(
+  icu_data,
+  strata = los_long,
+  prop = 0.5
+)
+
+icu_train <- training(icu_split)
+icu_test <- testing(icu_split)
+
+head(icu_train)
+head(icu_test)
+
+```
+
+**Train and tune the models using the training set.**
 
 ```{r}
 rf_recipe <- recipe(
@@ -232,32 +286,26 @@ rf_recipe <- recipe(
     Creatinine + Potassium + Chloride + Bicarbonate + Hematocrit + WBC + Sodium,
   data = icu_train
 ) %>%
-  # Impute missing numeric values with median
   step_impute_median(all_numeric_predictors()) %>%
-  # Impute categorical (nominal) with mode
   step_impute_mode(all_nominal_predictors()) %>%
-  # Dummy encoding for categorical variables
   step_novel(all_nominal_predictors()) %>%
   step_dummy(all_nominal_predictors()) %>%
-  # Remove zero variance predictors
   step_zv(all_predictors())
-  # Normalize numeric predictors
 ```
 
 ```{r}
-
 rf_mod <- rand_forest(
   mode = "classification",
-  mtry = tune(),           # number of predictors at each split (tuned)
-  trees = tune()              # fewer trees for speed
-) %>%
-  set_engine("ranger") %>%
+  mtry = tune(),
+  trees = tune()) %>%
+  set_engine("ranger", importance = "impurity") %>%
+  set_mode("classification") %>%
   print()
 ```
 
 ```{r}
 rf_wf <- workflow() %>%
-  add_recipe(logit_recipe) %>%   # reuse the recipe from logistic regression
+  add_recipe(rf_recipe) %>% 
   add_model(rf_mod)
 ```
 
@@ -266,24 +314,28 @@ rf_wf <- workflow() %>%
 rf_params <- hardhat::extract_parameter_set_dials(rf_mod)
 
 # Define a smaller tuning grid for faster search
+
 rf_grid <- grid_regular(
   trees(range = c(100L, 300L)),
-  mtry(range = c(3, 10)),      # adjust based on # of predictors (we have ~18)
-  levels = c(5, 5)                   # keeps grid small for speed
+  mtry(range = c(3, 10)),
+  levels = c(5, 5)
 )
 
 ```
 
 ```{r}
-
 set.seed(203)
-cv_folds <- vfold_cv(icu_train, v = 5)
+
+##we are going to keep at it 3 for consistency
+
+cv_folds <- vfold_cv(icu_train, v = 3)
 
 rf_tune <- tune_grid(
   rf_wf,
   resamples = cv_folds,
   grid = rf_grid,
   metrics = metric_set(roc_auc, accuracy),
+  control = control_stack_grid()
 )
 ```
 
@@ -291,12 +343,13 @@ rf_tune <- tune_grid(
 collect_metrics(rf_tune)
 
 # Plot ROC AUC vs mtry and min_n
+
 rf_tune %>%
-  collect_metrics() %>%
-  filter(.metric == "roc_auc") %>%
-  ggplot(aes(x = mtry, y = mean, color = factor(min_n))) +
+  collect_metrics() |>
+  print(width = Inf) |>
+  filter(.metric == "roc_auc") |>
+  ggplot(mapping = aes(x = trees, y = mean, color = factor(mtry))) +
   geom_point() +
-  geom_line() +
   labs(
     title = "Random Forest ROC AUC",
     x = "mtry",
@@ -330,10 +383,72 @@ collect_metrics(final_rf_fit)
 
 # Generate predictions on the test set
 predictions_rf <- collect_predictions(final_rf_fit)
+conf_mat(predictions_rf, truth = los_long, estimate = .pred_class)
+```
+
+```{r}
+final_modelrf <- extract_fit_parsnip(final_rf_fit$.workflow[[1]])
+# View variable importance in a table
+importance_df <- final_modelrf$fit$variable.importance %>%
+  enframe(name = "feature", value = "importance") %>%
+  arrange(desc(importance))
+
+# Show all features and their importance
+print(importance_df, n = Inf)
 
 ```
 
 ## XGBoost
+
+**Data Preprocessing and engineering**
+
+```{r}
+
+#Remove ID Columns and then Select the Predictors
+icu_data <- mimic_icu_cohort %>%
+  select(subject_id, hadm_id, stay_id, los_long, first_careunit, gender, 
+         age_intime, marital_status, race, Heart_Rate, DiaBP, SysBP, 
+         Respiratory_Rate, Temp, Creatinine, Potassium, Chloride, Bicarbonate, 
+         Hematocrit, WBC, Sodium)
+    
+icu_data <- icu_data %>%
+  arrange(subject_id, hadm_id, stay_id)
+
+
+##We need to make sure that los_long is a factor as we got this as an error
+icu_data$los_long <- as.factor(icu_data$los_long)
+
+##Now we need to remove all the NA values
+icu_data <- icu_data %>%
+  drop_na(first_careunit, gender, age_intime, marital_status, race, Heart_Rate, 
+          DiaBP, SysBP, Respiratory_Rate, Temp, Creatinine, Potassium, 
+          Chloride, Bicarbonate, Hematocrit, WBC, Sodium)
+
+##We can check to see if there are any NAs here
+colSums(is.na(icu_data))
+```
+
+**Partition data into 50% training set and 50% test set. Stratify partitioning according to los_long. For grading purpose, sort the data by subject_id, hadm_id, and stay_id and use the seed 203 for the initial data split.**
+
+```{r}
+set.seed(203)
+
+# Stratified split by los_long
+icu_split <- initial_split(
+  icu_data,
+  strata = los_long,
+  prop = 0.5
+)
+
+icu_train <- training(icu_split)
+icu_test <- testing(icu_split)
+
+head(icu_train)
+head(icu_test)
+
+```
+
+**Train and Tune the Models Using the Training Set**
 
 ```{r}
 XGBoostRecipe <- recipe(
@@ -342,28 +457,23 @@ XGBoostRecipe <- recipe(
     Creatinine + Potassium + Chloride + Bicarbonate + Hematocrit + WBC + Sodium,
   data = icu_train
 ) %>%
-  # Impute missing numeric values with median
   step_impute_mean(all_numeric_predictors()) %>%
-  # Impute categorical (nominal) with mode
   step_impute_mode(all_nominal_predictors()) %>%
-  # Dummy encoding for categorical variables
   step_novel(all_nominal_predictors()) %>%
   step_dummy(all_nominal_predictors()) %>%
-  # Remove zero variance predictors
   step_zv(all_predictors())
-  # Normalize numeric predictors
 ```
 
-**MOdel specificaiton process with tuning paramters**
+**Model specificaiton process with tuning paramters**
 
 ```{r}
 xgb_mod <- boost_tree(
   mode = "classification",
-  trees = 1000,
+  trees = tune(),
   tree_depth = tune(),
-  learn_rate = tune()
-) |>
-  set_engine("xgboost")
+  learn_rate = tune()) %>%
+  set_engine("xgboost") %>%
+  set_mode("classification")
 ```
 
 **Now let us bundle the recipe we did wih our model into a workflow**
@@ -377,10 +487,14 @@ xgb_wf <- workflow() |>
 **Now we will define the grid for tuning**
 
 ```{r}
-param_grid <- grid_regular(
-  tree_depth(range = c(2L, 4L)),
-  learn_rate(range = c(-5, 0), trans = log10_trans()),
-  levels = c(3,5)
+
+xgb_params <- hardhat::extract_parameter_set_dials(xgb_mod)
+
+xgb_grid <- grid_regular(
+  trees(range = c(100L, 300L)),
+  tree_depth(range = c(3L, 10L)),
+  learn_rate(range = c(-3,-1)),
+  levels = c(5, 5, 3)
 )
 ```
 
@@ -389,13 +503,184 @@ param_grid <- grid_regular(
 ```{r}
 set.seed(203)
 
-icu_folds <- vfold_cv(icu_train, v = 5)
+xgbcv_folds <- vfold_cv(icu_train, v = 3)
 
 xgb_fit <- tune_grid(
   xgb_wf,
-  resamples = icu_folds,
-  grid = param_grid,
-  metrics = metric_set(roc_auc, accuracy)
+  resamples = xgbcv_folds,
+  grid = xgb_grid,
+  metrics = metric_set(roc_auc, accuracy),
+  control = control_stack_grid()
 )
 ```
 
+```{r}
+best_xgb <- xgb_fit |>
+  select_best(metric = "roc_auc")
+```
+
+```{r}
+final_xgb_wf <- xgb_wf |>
+  finalize_workflow(best_xgb)
+
+final_xgb_fit <- final_xgb_wf |>
+  last_fit(icu_split)
+
+final_xgb_fit |>
+  collect_metrics()
+
+```
+
+```{r}
+
+predictions_xgb <- collect_predictions(final_xgb_fit)
+conf_mat(predictions_xgb, truth = los_long, estimate = .pred_class)
+
+final_modelxgb <- extract_fit_parsnip(final_xgb_fit$.workflow[[1]])
+
+importance_df_xgb <- xgb.importance(model = final_modelxgb$fit) %>%
+  as_tibble() %>%
+  arrange(desc(Gain))
+
+# Show all features and their importance (by Gain)
+print(importance_df_xgb, n = Inf)
+
+```
+
+## Model Stacking Log. Regression, Random Forest, and XGBoost
+
+**Data Preprocessing and engineering**
+
+```{r}
+set.seed(203)
+
+# Stratified split by los_long
+icu_split <- initial_split(
+  icu_data,
+  strata = los_long,
+  prop = 0.5
+)
+
+icu_train <- training(icu_split)
+icu_test <- testing(icu_split)
+
+head(icu_train)
+head(icu_test)
+
+##Now, let us make the logit_recipe for the logistic regression model
+
+modelstacking <- recipe(
+  los_long ~ first_careunit + gender + age_intime + marital_status + race +
+    Heart_Rate + DiaBP + SysBP + Respiratory_Rate + Temp +
+    Creatinine + Potassium + Chloride + Bicarbonate + Hematocrit + WBC + Sodium,
+  data = icu_train
+) %>%
+  step_impute_median(all_numeric_predictors()) %>%
+  step_impute_mode(all_nominal_predictors()) %>%
+  step_novel(all_nominal_predictors()) %>%
+  step_dummy(all_nominal_predictors()) %>%
+  step_zv(all_predictors()) %>%
+  step_normalize(all_numeric_predictors())
+```
+
+```{r}
+set.seed(203)
+foldsSTACK <- vfold_cv(icu_train, v = 3)
+```
+
+## Final Model Stacking: 
+
+```{r}
+icu_stack <- 
+  stacks() %>%
+  add_candidates(logit_tune) %>%
+  add_candidates(rf_tune) %>%
+  add_candidates(xgb_fit) %>%
+  blend_predictions(
+    penalty = 10^(-2:0),
+    metrics = c("roc_auc", "accuracy")
+  ) |>
+  fit_members()
+
+icu_stack
+
+```
+
+```{r}
+
+autoplot(icu_stack)
+
+```
+
+```{r}
+
+autoplot(icu_stack, type = "members")
+
+```
+
+```{r}
+
+autoplot(icu_stack, type = "weights")
+
+```
+
+```{r}
+
+collect_parameters(icu_stack, "rf_tune") |>
+  print(n = Inf)
+```
+
+```{r}
+collect_parameters(icu_stack, "logit_tuneSTACK") |>
+  print(n = Inf)
+```
+
+```{r}
+collect_parameters(icu_stack, "xgb_tuneSTACK") |>
+  print(n = Inf)
+```
+
+```{r}
+icu_stack_pred <- icu_test %>%
+  bind_cols(predict(icu_stack, ., type = "prob")) %>%
+  print(width = Inf)
+```
+
+```{r}
+yardstick::roc_auc(
+  icu_stack_pred,
+  truth = los_long,
+  .pred_TRUE
+)
+```
+
+```{r}
+icu_pred <- 
+  icu_test |>
+  select(los_long) |>
+  bind_cols(
+    predict(
+      icu_stack,
+      icu_test,
+      type = "class",
+      members = TRUE
+    )
+  )
+  print(width = Inf)
+
+```
+
+```{r}
+
+icu_pred_accuracy <- 
+  map(
+    colnames(icu_pred)[-1],
+    ~mean(icu_pred$los_long == pull(icu_pred, .x))
+  ) |>
+  set_names(colnames(icu_pred)[-1]) |>
+  as_tibble() |>
+  pivot_longer(cols = everything(), names_to = "model", values_to = "accuracy")
+
+icu_pred_accuracy
+
+```
