@@ -86,16 +86,24 @@ icu_split <- initial_split(
 
 icu_train <- training(icu_split)
 icu_test <- testing(icu_split)
+```
 
+```{r}
 head(icu_train)
-head(icu_test)
+dim(icu_train)
 
+head(icu_test)
+dim(icu_test)
+```
+
+```{r}
 ##Now, let us make the logit_recipe for the logistic regression model
 
 logit_recipe <- recipe(
   los_long ~ first_careunit + gender + age_intime + marital_status + race +
     Heart_Rate + DiaBP + SysBP + Respiratory_Rate + Temp +
-    Creatinine + Potassium + Chloride + Bicarbonate + Hematocrit + WBC + Sodium,
+    Creatinine + Potassium + Chloride + Bicarbonate + Hematocrit + 
+    WBC + Sodium,
   data = icu_train
 ) %>%
   step_impute_median(all_numeric_predictors()) %>%
@@ -104,6 +112,8 @@ logit_recipe <- recipe(
   step_dummy(all_nominal_predictors()) %>%
   step_zv(all_predictors()) %>%
   step_normalize(all_numeric_predictors())
+
+logit_recipe
 
 ```
 
@@ -118,10 +128,18 @@ logit_mod <- logistic_reg(
   set_mode("classification") %>%
   print()
 
+logit_mod
+
+```
+
+```{r}
+
 logit_wf <- workflow() %>%
   add_recipe(logit_recipe) %>%
   add_model(logit_mod) %>%
   print()
+
+logit_wf
 ```
 
 ```{r}
@@ -141,8 +159,6 @@ param_grid <- grid_regular(
 
 set.seed(203)
 cv_folds <- vfold_cv(icu_train, v = 3)
-
-cv_folds
 
 ```
 
@@ -169,6 +185,10 @@ logit_tune_roc <- logit_tune |>
   filter(.metric == "roc_auc")
 
 logit_tune_roc
+
+```
+
+```{r}
 
 logit_tune_roc |>
   ggplot(aes(x = penalty, y = mean, color = factor(mixture))) +
@@ -216,11 +236,11 @@ tidy(final_model) %>%
   print(n = Inf)
 ```
 
-**The Accuracy is 0.579; the ROC AUC is 0.609; and the Brier score is 0.241. Regrading accuracy, this means that 57.9% of the time, the model correctly predicts whether or not a patient has a long or short ICU stay based on the features examined. This means that this is better than just randomly guessing, which would give more of a 50-50 split.**
+**The Accuracy is 0.579; the ROC AUC is 0.607; and the Brier score is 0.241. Regrading accuracy, this means that 57.9% of the time, the model correctly predicts whether or not a patient has a long or short ICU stay based on the features examined. This means that this is better than just randomly guessing, which would give more of a 50-50 split.**
 
 **The ROC AUC indicates that the model is able to distinguish ICU stays between long and short in a modest way.**
 
-**The Top Five Most Important Features Are: Heart Rate (+0.174), Respiratory Rate (+0.128), Age (+0.124), Neuro Intermediate Care Service (+0.164). In other words, those with a higher heart_rate, respiratory rate, age, and also placed into the neuro intermediate care service had a higher chance of having a longer ICU stay. This makes sense considering that higher_heart rate and respiratory rates are a sign of distress, while older age is linked to frailty and needs more attention than individuals that are younger**
+**The Top Five Most Important Features Are: Heart Rate (+0.174), Respiratory Rate (+0.128), Age (+0.124), Neuro Intermediate Care Service (+0.164). In other words, those with a higher heart_rate, respiratory rate, age, and also placed into the neuro intermediate care service had a higher chance of having a longer ICU stay. This makes sense considering that higher_heart rate and respiratory rates are a sign of distress, while older age is linked to frailty and needs more attention than individuals that are younger. It should also be noted that the SysBP is -2.413, which means higher SysBP is indicated with lower length of stays. This is quiet odd and is not something I would have expected as high blood pressure (although that does involve looking at the DiaBP as well). Looking into it some more, a higher SysBP could indicate more stability cardiovascularly, so theyw ould not need as much attention**
 
 
 ## Random Forest
@@ -279,7 +299,8 @@ head(icu_test)
 rf_recipe <- recipe(
   los_long ~ first_careunit + gender + age_intime + marital_status + race +
     Heart_Rate + DiaBP + SysBP + Respiratory_Rate + Temp +
-    Creatinine + Potassium + Chloride + Bicarbonate + Hematocrit + WBC + Sodium,
+    Creatinine + Potassium + Chloride + Bicarbonate + Hematocrit + 
+    WBC + Sodium,
   data = icu_train
 ) %>%
   step_impute_median(all_numeric_predictors()) %>%
@@ -297,12 +318,16 @@ rf_mod <- rand_forest(
   set_engine("ranger", importance = "impurity") %>%
   set_mode("classification") %>%
   print()
+
+rf_mod
 ```
 
 ```{r}
 rf_wf <- workflow() %>%
   add_recipe(rf_recipe) %>% 
   add_model(rf_mod)
+
+rf_wf
 ```
 
 ```{r}
@@ -312,8 +337,8 @@ rf_params <- hardhat::extract_parameter_set_dials(rf_mod)
 # Define a smaller tuning grid for faster search
 
 rf_grid <- grid_regular(
-  trees(range = c(100L, 300L)),
-  mtry(range = c(3, 10)),
+  trees(range = c(100L, 500L)),
+  mtry(range = c(1, 5)),
   levels = c(5, 5)
 )
 
@@ -333,6 +358,8 @@ rf_tune <- tune_grid(
   metrics = metric_set(roc_auc, accuracy),
   control = control_stack_grid()
 )
+
+rf_tune
 ```
 
 ```{r}
@@ -353,7 +380,7 @@ rf_tune %>%
   ) + 
   theme_minimal()
 ```
-**This indicates that when the mtry is around 250 to 300, we received the highest ROC AUC of about 0.6425.**
+**This indicates that when the mtry is around 400 to 500, we received the highest ROC AUC of about 0.6425.**
 
 ```{r}
 
@@ -364,6 +391,7 @@ rf_tune |>
   show_best(metric = "roc_auc")
 
 ```
+**The best metric seems to be when the mtry is five and the trees are 400. The Roc_AUC mean is 0.642.**
 
 ```{r}
 
@@ -382,7 +410,9 @@ collect_metrics(final_rf_fit)
 # Generate predictions on the test set
 predictions_rf <- collect_predictions(final_rf_fit)
 conf_mat(predictions_rf, truth = los_long, estimate = .pred_class)
+
 ```
+
 **Now, let us extract the importance of each of the variables**
 ```{r}
 final_modelrf <- extract_fit_parsnip(final_rf_fit$.workflow[[1]])
@@ -394,7 +424,7 @@ importance_df <- final_modelrf$fit$variable.importance %>%
 print(importance_df, n = Inf)
 
 ```
-**Let us graph it for better visualiztion using GGPlot**
+**Let us graph it for better visualization using GGPlot**
 
 ```{r}
 importance_df %>%
@@ -412,9 +442,9 @@ importance_df %>%
 
 **Based on all the results, the accuracy of the RF model is 0.60, while the ROC AUC is 0.643. This means that the model correctly predicted whether or not a patient was going to stay at longer than or equal to two days about 60% of the time. The ROC AUC illustrates that the model is somewhat effective at distinguishing between long and short stays, but is not the most effective at doing so. Considering that the Logit Regression's ROC AUC and Accuracy was 0.61 and 0.579, respectively, the Random Forest model is slightly better at predicting long ICU stays.**
 
-**Looking at the importance of variables, SysBP, Hematocrit, WBC, Heart_Rate, and Age_intime were the most important features in determining whether or not the los_long was greater than or equal to two days. SysBP makes sense considering that this could indicate cardiovascular problems, while Hematocrit may indicate anemia from lack of red blood cells needed for oxygen transportation and survival. WBC counts could also indicate infection if there is an elevated amount as well, which would make an individual stay longer. Lastly, age_intime makes sense considering older patients are more frail and need to be watched more closely, the same would go hand-in-hand with Heart_rate as well; higher heart_rates indicate some sort of stress occurring in the body, such as an infection or cardiovascular condition.**
+**Looking at the importance of variables, SysBP, Hematocrit, WBC, Heart_Rate, and Age_intime were the most important features in determining whether or not the los_long was greater than or equal to two days. SysBP makes sense considering that this could indicate cardiovascular problems, while Hematocrit may indicate anemia from lack of red blood cells needed for oxygen transportation and survival. However, as we saw with the logistic regression, the SysBP was indicative of a lower LOS, so the importantce makes sense as well as it would influence the model results. WBC counts could also indicate infection if there is an elevated amount as well, which would make an individual stay longer. Lastly, age_intime makes sense considering older patients are more frail and need to be watched more closely, the same would go hand-in-hand with Heart_rate as well; higher heart_rates indicate some sort of stress occurring in the body, such as an infection or cardiovascular condition.**
 
-**Comparing this to the Logistic Regression as well, the only similarities are: Heart_Rate, age_intime, and WBC, with varying degrees of importance to each respective model.**
+**Comparing this to the Logistic Regression as well, the only similarities are: Heart_Rate, age_intime, WBC, and SysBP with varying degrees of importance to each respective model.**
 
 ## XGBoost
 
@@ -471,7 +501,8 @@ head(icu_test)
 XGBoostRecipe <- recipe(
   los_long ~ first_careunit + gender + age_intime + marital_status + race +
     Heart_Rate + DiaBP + SysBP + Respiratory_Rate + Temp +
-    Creatinine + Potassium + Chloride + Bicarbonate + Hematocrit + WBC + Sodium,
+    Creatinine + Potassium + Chloride + Bicarbonate + Hematocrit + 
+    WBC + Sodium,
   data = icu_train
 ) %>%
   step_impute_mean(all_numeric_predictors()) %>%
@@ -491,6 +522,8 @@ xgb_mod <- boost_tree(
   learn_rate = tune()) %>%
   set_engine("xgboost") %>%
   set_mode("classification")
+
+xgb_mod
 ```
 
 **Now let us bundle the recipe we did wih our model into a workflow**
@@ -499,6 +532,8 @@ xgb_mod <- boost_tree(
 xgb_wf <- workflow() |>
   add_recipe(XGBoostRecipe) |>
   add_model(xgb_mod)
+
+xgb_wf
 ```
 
 **Now we will define the grid for tuning**
@@ -507,14 +542,13 @@ xgb_wf <- workflow() |>
 
 xgb_params <- hardhat::extract_parameter_set_dials(xgb_mod)
 
-#These values were approved by Dr. Zhou in office hours to speed up the loading process on my computer. 
-
 xgb_grid <- grid_regular(
-  trees(range = c(100L, 300L)),
-  tree_depth(range = c(3L, 10L)),
-  learn_rate(range = c(-3,-1)),
-  levels = c(5, 5, 3)
-)
+  trees(range = c(100L, 500L)),
+  tree_depth(range = c(1L, 3L)),
+  learn_rate(range = c(-5, 2), trans = log10_trans()),
+  levels = c(3, 3, 5)
+  )
+
 ```
 
 **Now we will perform the tuning**
@@ -566,6 +600,7 @@ importance_df_xgb <- xgb.importance(model = final_modelxgb$fit) %>%
 print(importance_df_xgb, n = Inf)
 
 ```
+
 **Let us plot it in GGPlot for better visualization**
 
 ```{r}
@@ -588,9 +623,9 @@ importance_df_xgb %>%
 
 **Looking into the gain, cover, and frequency meanings. it looks like SysBP had the highest importance to the model, followed by age_intime and then respiratory rate. However, Hematocrit showed up the most (frequency) with 9.18%, indicating it was used in about 9.18% of all splits there were done. Hematocrit also had the highest cover, which indicates that it impacted the observations the most.**
 
-**Interestingly, SysBP, age_intime, Respiratory_Rate, first_careunit being the intermediate Neuro one, and Hematocrit, were the most important features in determining whether or not the los_long was greater than or equal to two days. This is interesting as the XGBoost model was able to pick up on some of same features as the random forest model (SysBP, Hematocrit, and Age_intime), but in a different order. This could be due to the fact that the XGBoost model is more sensitive to the features and is able to pick up on the nuances of the data better than the random forest model. However as I stated before, this could also be because of the smaller learn_rate, so there is error as well.**
+**Interestingly, SysBP, age_intime, Respiratory_Rate, first_careunit being the intermediate Neuro one, and Hematocrit, were the most important features in determining whether or not the los_long was greater than or equal to two days. This is interesting as the XGBoost model was able to pick up on some of same features as the random forest model (SysBP, Hematocrit, and Age_intime), but in a different order. This could be due to the fact that the XGBoost model is more sensitive to the features and is able to pick up on the nuances of the data better than the random forest model. However as I stated before, this could also be because of the varying learn_rate, so there is error as well.**
 
-**Comparing XGBoost with Random Forest, both had the SysBP as the highest feature for prediction. Otherwise, they also both had age_intime and Hematocrit in their top five for feature importance. Comparing XGBoost to the Logistic Regression Model, however, the similarities included: neuro.intermediate as the first careunit, age_intime, and respiratory_rate. In essence, the one common feature out of all three of the features was age_intime**
+**Comparing XGBoost with Random Forest, both had the SysBP as the highest feature for prediction. Otherwise, they also both had age_intime and Hematocrit in their top five for feature importance. Comparing XGBoost to the Logistic Regression Model, however, the similarities included: neuro.intermediate as the first careunit, age_intime, and respiratory_rate, and technically SysBP as well. In essence, the common features out of all three of the features was age_intime and SysBP.**
 
 ## Model Stacking Log. Regression, Random Forest, and XGBoost
 
@@ -617,7 +652,8 @@ head(icu_test)
 modelstacking <- recipe(
   los_long ~ first_careunit + gender + age_intime + marital_status + race +
     Heart_Rate + DiaBP + SysBP + Respiratory_Rate + Temp +
-    Creatinine + Potassium + Chloride + Bicarbonate + Hematocrit + WBC + Sodium,
+    Creatinine + Potassium + Chloride + Bicarbonate + Hematocrit + 
+    WBC + Sodium,
   data = icu_train
 ) %>%
   step_impute_median(all_numeric_predictors()) %>%
@@ -645,7 +681,7 @@ icu_stack <-
   add_candidates(rf_tune) %>%
   add_candidates(xgb_tune) %>%
   blend_predictions(
-    penalty = 10^(-2:0),
+    penalty = 10^(-6:2),
     metrics = c("roc_auc", "accuracy")
   ) |>
   fit_members()
@@ -660,7 +696,7 @@ autoplot(icu_stack)
 
 ```
 
-**Looking at this picture, the accuracy of 0.6 occurred at the lowest penalty of 0.01; as the penalty increased, the accuracy decreased as well. The brier_class increased while the penalty increased as well, which is not what we want since a lower brier_class is better. The ROC_AUC was the highest at the lowest penalty of 0.01, and then was moderately the same at 0.10, but then decreased to 0.50 at the highest penalty of 1. With all of this in mind, it is suggested that in the future that a penalty of 0.01 was used for better performance**
+**Looking at this picture, the accuracy of 0.6 occurred at the lowest penalty of where the dotted line is at; as the penalty increased, the accuracy decreased as well. The brier_class increased while the penalty increased as well, which is not what we want since a lower brier_class is better. The ROC_AUC was the highest at the location of the dotted line (1e-03 probably) and then was moderately the same until about 1e-01, but then decreased to 0.50 as the penalties increased. With all of this in mind, it is suggested that in the future that a penalty of 1e-03 is used for better results and performance**
 
 ```{r}
 
@@ -673,7 +709,7 @@ autoplot(icu_stack, type = "members")
 autoplot(icu_stack, type = "weights")
 
 ```
-**This graph illustrates that random forest had the highest weight in the model and that the stacked model had a better time utilizing random forest compared to XGBoost or Log. Reg.. Surprinsgly, Log. Reg is not on there at all, which makes sense, however, considering that XGBoost and RF had better accuracy and ROC_AUC compared to Log. Reg..**
+**This graph illustrates that random forest had the highest weight in the model and that the stacked model had a better time utilizing random forest compared to XGBoost or Log. Reg.. Surprisingly, Log. Reg is rarely on there at all. However, considering that XGBoost and RF had better accuracy and ROC_AUC compared to Log. Reg., this is believable.**
 ```{r}
 
 collect_parameters(icu_stack, "rf_tune") |>
@@ -688,7 +724,7 @@ collect_parameters(icu_stack, "logit_tune") |>
   print(n = Inf)
 ```
 
-**This shows that the logit_tune contributed nothing to the stacked model.**
+**This shows that the logit_tune contributed once to the model, with a coef of 0.045. 
 
 ```{r}
 collect_parameters(icu_stack, "xgb_tune") |>
@@ -734,12 +770,6 @@ icu_pred <-
 
 ```{r}
 
-levels(icu_stack_pred$los_long)
-
-```
-
-```{r}
-
 icu_pred_accuracy <- 
   map(
     colnames(icu_pred)[-1],
@@ -753,8 +783,8 @@ icu_pred_accuracy
 
 ```
 
-**Looking at the .pred_class, the accuracy of the model is 0.6039. This is better than the accuracy of the RF model and the XGBoost model. However, this model is better than the RF model accuracy wise by 0.0008. This would also make it better than the logistic regression model as well.**
+**Looking at the .pred_class, the accuracy of the model is 0.6038. This is better than the accuracy of the RF model and the XGBoost model. However, this model is better than the RF model accuracy wise by 0.0007. This would also make it better than the logistic regression model as well.**
 
-**Specifically focusing on performance, I would say that the RF model had the best performance out of the three. This is because it gave back both the highest ROC AUC and accuracy, while also taking a reasonable amount of time to load. Although the logistic regression was fast, it was not that accurate. The XGBoost was significantly slower and yieled worse results than the RF Model, while the stacked model had good accuracy, but poor ROC AUC. My recommendation would be to use the random_forest if time permits, especially considering that the accuracy was only worse than the stacked model by 0.0008.**
+**Specifically focusing on performance, I would say that the RF model had the best performance out of the three. This is because it gave back both the highest ROC AUC and accuracy, while also taking a reasonable amount of time to load. Although the logistic regression was fast, it was not that accurate. The XGBoost was significantly slower and yield worse results than the RF Model, while the stacked model had good accuracy, but poor ROC AUC. My recommendation would be to use the random_forest if time permits, especially considering that the accuracy was only worse than the stacked model by 0.0007.**
 
 **I think out of the four models, the logistic regression was the easiest one to interpret as you could just look at the estimates and see which one had the highest one and impacted the model the most. The random forest and XGBoost models were harder to interpret as they had features that impacted the model in different ways. The stacked model was also hard to interpret as it was a combination of the three models, so it was hard to see which model had the most impact on the final prediction, and it was very time consuming as well. I stick by my suggestion for random forest as it seems to have the best balance of performance and interpretability**
