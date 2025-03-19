@@ -240,7 +240,7 @@ tidy(final_model) %>%
 
 **The ROC AUC indicates that the model is able to distinguish ICU stays between long and short in a modest way.**
 
-**The Top Five Most Important Features Are: Heart Rate (+0.174), Respiratory Rate (+0.128), Age (+0.124), Neuro Intermediate Care Service (+0.164). In other words, those with a higher heart_rate, respiratory rate, age, and also placed into the neuro intermediate care service had a higher chance of having a longer ICU stay. This makes sense considering that higher_heart rate and respiratory rates are a sign of distress, while older age is linked to frailty and needs more attention than individuals that are younger. It should also be noted that the SysBP is -2.413, which means higher SysBP is indicated with lower length of stays. This is quiet odd and is not something I would have expected as high blood pressure (although that does involve looking at the DiaBP as well). Looking into it some more, a higher SysBP could indicate more stability cardiovascularly, so theyw ould not need as much attention**
+**The Top Five Most Important Features Are: Heart Rate (+0.174), Respiratory Rate (+0.128), Age (+0.124), Neuro Intermediate Care Service (+0.164). In other words, those with a higher heart_rate, respiratory rate, age, and also placed into the neuro intermediate care service had a higher chance of having a longer ICU stay. This makes sense considering that higher_heart rate and respiratory rates are a sign of distress, while older age is linked to frailty and needs more attention than individuals that are younger. It should also be noted that the SysBP is -2.413, which means higher SysBP is indicated with lower length of stays. This is quiet odd and is not something I would have expected as high blood pressure (although that does involve looking at the DiaBP as well). Looking into it some more, a higher SysBP could indicate more stability cardiovascularly, so they would not need as much attention**
 
 
 ## Random Forest
@@ -332,9 +332,11 @@ rf_wf
 
 ```{r}
 
+#We Received an error regarding the following command, so let us do it to satsify it
+
 rf_params <- hardhat::extract_parameter_set_dials(rf_mod)
 
-# Define a smaller tuning grid for faster search
+#Define a smaller tuning grid for faster search.
 
 rf_grid <- grid_regular(
   trees(range = c(100L, 500L)),
@@ -442,7 +444,7 @@ importance_df %>%
 
 **Based on all the results, the accuracy of the RF model is 0.60, while the ROC AUC is 0.643. This means that the model correctly predicted whether or not a patient was going to stay at longer than or equal to two days about 60% of the time. The ROC AUC illustrates that the model is somewhat effective at distinguishing between long and short stays, but is not the most effective at doing so. Considering that the Logit Regression's ROC AUC and Accuracy was 0.61 and 0.579, respectively, the Random Forest model is slightly better at predicting long ICU stays.**
 
-**Looking at the importance of variables, SysBP, Hematocrit, WBC, Heart_Rate, and Age_intime were the most important features in determining whether or not the los_long was greater than or equal to two days. SysBP makes sense considering that this could indicate cardiovascular problems, while Hematocrit may indicate anemia from lack of red blood cells needed for oxygen transportation and survival. However, as we saw with the logistic regression, the SysBP was indicative of a lower LOS, so the importantce makes sense as well as it would influence the model results. WBC counts could also indicate infection if there is an elevated amount as well, which would make an individual stay longer. Lastly, age_intime makes sense considering older patients are more frail and need to be watched more closely, the same would go hand-in-hand with Heart_rate as well; higher heart_rates indicate some sort of stress occurring in the body, such as an infection or cardiovascular condition.**
+**Looking at the importance of variables, SysBP, Hematocrit, WBC, Heart_Rate, and Age_intime were the most important features in determining whether or not the los_long was greater than or equal to two days. SysBP makes sense considering that this could indicate cardiovascular problems, while Hematocrit may indicate anemia from lack of red blood cells needed for oxygen transportation and survival. However, as we saw with the logistic regression, the SysBP was indicative of a lower LOS, so the importance makes sense as well as it would influence the model results. WBC counts could also indicate infection if there is an elevated amount as well, which would make an individual stay longer. Lastly, age_intime makes sense considering older patients are more frail and need to be watched more closely, the same would go hand-in-hand with Heart_rate as well; higher heart_rates indicate some sort of stress occurring in the body, such as an infection or cardiovascular condition.**
 
 **Comparing this to the Logistic Regression as well, the only similarities are: Heart_Rate, age_intime, WBC, and SysBP with varying degrees of importance to each respective model.**
 
@@ -540,6 +542,8 @@ xgb_wf
 
 ```{r}
 
+#We received a similar error as before, so use hardhat to remove it
+
 xgb_params <- hardhat::extract_parameter_set_dials(xgb_mod)
 
 xgb_grid <- grid_regular(
@@ -621,7 +625,7 @@ importance_df_xgb %>%
 
 **This outcome is quiet interesting, as I expected the XGBoost model to perform better than the random forest model. However, considering that learn_rate is on the lower end, it is not surprising; this means that the XGBoost needed more values to be able to learn the model correctly. The low value that I gave it was not enough, but necessary (and allowed by Dr. Zhou) due to the slow nature of the processing (>= 2ish hours). Given a stronger computer, I would have made this value higher to see if this was the same or better than the random forest model**
 
-**Looking into the gain, cover, and frequency meanings. it looks like SysBP had the highest importance to the model, followed by age_intime and then respiratory rate. However, Hematocrit showed up the most (frequency) with 9.18%, indicating it was used in about 9.18% of all splits there were done. Hematocrit also had the highest cover, which indicates that it impacted the observations the most.**
+**Looking into the gain, cover, and frequency meanings, it looks like SysBP had the highest importance to the model, followed by age_intime and then respiratory rate. However, Hematocrit showed up the most (frequency) with 9.18%, indicating it was used in about 9.18% of all splits there were done. Hematocrit also had the highest cover, which indicates that it impacted the observations the most.**
 
 **Interestingly, SysBP, age_intime, Respiratory_Rate, first_careunit being the intermediate Neuro one, and Hematocrit, were the most important features in determining whether or not the los_long was greater than or equal to two days. This is interesting as the XGBoost model was able to pick up on some of same features as the random forest model (SysBP, Hematocrit, and Age_intime), but in a different order. This could be due to the fact that the XGBoost model is more sensitive to the features and is able to pick up on the nuances of the data better than the random forest model. However as I stated before, this could also be because of the varying learn_rate, so there is error as well.**
 
@@ -716,7 +720,7 @@ collect_parameters(icu_stack, "rf_tune") |>
   arrange(desc(coef)) |>
   print(n = Inf)
 ```
-**The most important memebrs seemed to have come from the random_forest model. Specifically, the first three had the highest coef. indicating a higher weight/influence on the final stacked model prdiction**
+**The most important memebrs seemed to have come from the random_forest model. Specifically, the first three had the highest coef. indicating a higher weight/influence on the final stacked model prediction**
 
 ```{r}
 collect_parameters(icu_stack, "logit_tune") |>
@@ -724,7 +728,7 @@ collect_parameters(icu_stack, "logit_tune") |>
   print(n = Inf)
 ```
 
-**This shows that the logit_tune contributed once to the model, with a coef of 0.045. 
+**This shows that the logit_tune contributed once to the model, with a coef of 0.045.**
 
 ```{r}
 collect_parameters(icu_stack, "xgb_tune") |>
